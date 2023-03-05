@@ -51,7 +51,7 @@ const VotingCard = React.memo(({
             )}
             onClick={onClick}
             type="button"
-            aria-label="Point Voting Card"
+            aria-label={option}
             disabled={disabled}
         >
             <VoteValue value={option}/>
