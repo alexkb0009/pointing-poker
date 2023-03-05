@@ -12,10 +12,11 @@ module.exports = [
     {
         mode,
         entry: {
-            bundle: path.join(__dirname, "src/index")
+            bundle: path.join(__dirname, "client/src/index")
         },
         target: "web",
         output: {
+            path: path.resolve(__dirname, 'client/dist'),
             filename: '[name].js',
             libraryTarget: "umd",
             library: "App",
@@ -27,7 +28,7 @@ module.exports = [
                 {
                     test: /\.(js|jsx)$/,
                     include: [
-                        path.resolve(__dirname, 'src')
+                        path.resolve(__dirname, 'client/src')
                     ],
                     use: [{ loader: 'babel-loader' }]
                 },
