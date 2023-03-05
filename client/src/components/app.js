@@ -1,6 +1,7 @@
 import React from 'react';
 import { io } from 'socket.io-client';
 import { IntroductionForm } from './IntroductionForm';
+import { HostControls } from './HostControls';
 import { PeerVotes } from './PeerVotes';
 import { VotingCards } from './VotingCards';
 
@@ -11,6 +12,8 @@ export class App extends React.Component {
         super(props);
         this.onJoin = this.onJoin.bind(this);
         this.onVotingCardSelect = this.onVotingCardSelect.bind(this);
+        this.onToggleShowingVotes = this.onToggleShowingVotes.bind(this);
+        this.onResetVotes = this.onResetVotes.bind(this);
 
         this.state = {
             isConnected: false,
@@ -47,12 +50,29 @@ export class App extends React.Component {
     }
 
     onVotingCardSelect(vote){
-        this.socket.emit("clientVote", { vote });
+        this.socket.emit("vote", { vote });
+        this.setState({ myVote: vote });
+    }
+
+    onToggleShowingVotes(){
+        this.socket.emit("toggleShowingVotes");
+    }
+
+    onResetVotes(){
+        this.socket.emit("resetVotes");
     }
 
     render(){
-        const { isShowingVotes, isJoined, currentHost } = this.state;
+        const {
+            isShowingVotes,
+            isJoined,
+            clientsState,
+            currentHost,
+            myVote,
+            myName,
+        } = this.state;
         const votingDisabled = !this.socket || isShowingVotes;
+        const isCurrentHostMe = currentHost === myName;
         return (
             <>
                 {!isJoined ? (
@@ -60,6 +80,13 @@ export class App extends React.Component {
                 ) : (
                     <>
                         <h4>Current host: { currentHost }</h4>
+                        { isCurrentHostMe && (
+                            <HostControls
+                                isShowingVotes={isShowingVotes}
+                                onToggleShowingVotes={this.onToggleShowingVotes}
+                                onResetVotes={this.onResetVotes}
+                            />
+                        )}
                         <PeerVotes
                             clientsState={clientsState}
                             isShowingVotes={isShowingVotes}
@@ -69,6 +96,7 @@ export class App extends React.Component {
                 <VotingCards
                     onVotingCardSelect={this.onVotingCardSelect}
                     disabled={votingDisabled}
+                    myVote={myVote}
                 />
             </>
         );

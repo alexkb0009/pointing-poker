@@ -3,6 +3,8 @@ const http = require("http");
 const Express = require("express");
 const SocketIO = require("socket.io");
 
+// TODO Clean up everything, make common stuff DRY, split into dif files.
+
 /**
  * @module
  * Never used Express b4 but ui-tk uses it so figure will try it out.
@@ -24,17 +26,17 @@ app.get('/', (req, res)=>{
 
 
 function getVisibleClientsState(origClientsState, votesVisible){
-    let broadcastedClientsState = origClientsState;
+    let visibleClientsState = origClientsState;
     if (!votesVisible) {
-        broadcastedClientsState = { ...origClientsState };
-        Object.keys(broadcastedClientsState).forEach((name) => {
-            broadcastedClientsState[name] = {
-                ...broadcastedClientsState[name],
-                vote: null
+        visibleClientsState = { ...origClientsState };
+        Object.entries(visibleClientsState).forEach(([name, csObj]) => {
+            visibleClientsState[name] = {
+                ...csObj,
+                vote: csObj.vote === null ? null : "?"
             };
         });
     }
-    return broadcastedClientsState;
+    return visibleClientsState;
 }
 
 
@@ -51,6 +53,7 @@ io.on('connection', (socket) => {
 
 
     console.log("New Connection", socket.id);
+
     socket.join("MAIN_ROOM");
 
     // TODO: Split out handlers to own files/modules as they grow.
@@ -66,14 +69,15 @@ io.on('connection', (socket) => {
         }
         socket.data.name = name;
         clientsState[name] = {
-            pointsVote: null,
+            vote: null,
             timeJoined: socket.handshake.issued
         };
-        if (Object.keys(clientsState).length === 0) {
+
+        if (Object.keys(clientsState).length === 1) {
             currentHost = name;
         }
 
-        socket.broadcast.emit("stateUpdate", {
+        io.to("MAIN_ROOM").emit("stateUpdate", {
             clientsState: getVisibleClientsState(clientsState, isShowingVotes),
             currentHost,
             isShowingVotes
@@ -82,8 +86,40 @@ io.on('connection', (socket) => {
         socket.emit("stateUpdate", { isJoined: true });
     });
 
-    socket.on("vote", ({ vote })=>{
+    socket.on("vote", ({ vote }) => {
+        if (isShowingVotes) {
+            return; // TODO: throw error or smth
+        }
         clientsState[socket.data.name].vote = vote;
+        io.to("MAIN_ROOM").emit("stateUpdate", {
+            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
+        });
+    });
+
+    socket.on("toggleShowingVotes", () => {
+        if (socket.data.name !== currentHost) {
+            return; // TODO: throw error or smth
+        }
+        isShowingVotes = !isShowingVotes;
+        io.to("MAIN_ROOM").emit("stateUpdate", {
+            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
+            isShowingVotes
+        });
+    });
+
+    socket.on("resetVotes", () => {
+        if (socket.data.name !== currentHost) {
+            return; // TODO: throw error or smth
+        }
+        isShowingVotes = false;
+        Object.values(clientsState).forEach((clientStateObj) => {
+            clientStateObj.vote = null;
+        });
+        io.to("MAIN_ROOM").emit("stateUpdate", {
+            clientsState,
+            isShowingVotes,
+            myVote: null
+        });
     });
 
     socket.conn.on("close", (reason) => {
@@ -97,7 +133,7 @@ io.on('connection', (socket) => {
             return;
         }
         currentHost = currentClientNames[0];
-        socket.broadcast.emit("stateUpdate", {
+        io.to("MAIN_ROOM").emit("stateUpdate", {
             clientsState: getVisibleClientsState(clientsState, isShowingVotes),
             currentHost
         });
