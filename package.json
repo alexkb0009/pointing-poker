@@ -4,6 +4,7 @@
     "scripts": {
         "build": "npx webpack build",
         "build-dev": "NODE_ENV=development npx webpack build",
+        "watch-dev": "NODE_ENV=development npx webpack watch",
         "serve": "node server/src/index.js"
     },
     "author": "Alex Balashov",

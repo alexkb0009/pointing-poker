@@ -79,17 +79,13 @@ io.on('connection', (socket) => {
         console.error("Connection Error", err);
     });
 
-    socket.on("join", ({ name, room: roomParam = "MAIN_ROOM" }) => {
+    socket.on("join", ({ name, room: roomParam = null }) => {
+        const roomName = roomParam || "default-room";
+        socket.join(roomName);
+        socket.data.room = roomName;
 
-        socket.join(roomParam);
-
-        console.log("Joining room", roomParam, socket.rooms);
-
-        socket.data.room = roomParam;
-
-        roomStates[roomParam] = roomStates[roomParam] || getNewRoomState();
-
-        const room = roomStates[roomParam];
+        roomStates[socket.data.room] = roomStates[socket.data.room] || getNewRoomState();
+        const room = roomStates[socket.data.room];
 
         if (room.clientsState.has(name)) {
             // TODO return error msg, allow dif name.
@@ -101,9 +97,7 @@ io.on('connection', (socket) => {
             timeJoined: socket.handshake.issued
         });
 
-        console.log(roomParam, socket.data.room, room);
-
-        io.to(roomParam).emit("stateUpdate", {
+        io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(
                 room.clientsState,
                 room.isShowingVotes
@@ -112,7 +106,11 @@ io.on('connection', (socket) => {
             currentHost: getCurrentHost(room.clientsState)
         });
 
-        socket.emit("stateUpdate", { isJoined: true });
+        socket.emit("stateUpdate", {
+            isJoined: true,
+            room: socket.data.room,
+            myName: socket.data.name
+        });
     });
 
     socket.on("vote", ({ vote }) => {
@@ -127,6 +125,7 @@ io.on('connection', (socket) => {
                 room.isShowingVotes
             ),
         });
+        socket.emit("stateUpdate", { myVote: vote });
     });
 
     socket.on("toggleShowingVotes", () => {

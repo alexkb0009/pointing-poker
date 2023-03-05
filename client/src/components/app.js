@@ -32,6 +32,9 @@ export class App extends React.Component {
             this.setState({ isConnected: true });
         });
         this.socket.on("stateUpdate", (stateUpdate) => {
+            if (stateUpdate.room) {
+                window.history.replaceState(null, document.title, `/room/${stateUpdate.room}/`);
+            }
             this.setState((existingState) => ({
                 ...existingState,
                 ...stateUpdate
@@ -44,19 +47,16 @@ export class App extends React.Component {
         });
     }
 
-    onJoin(name){
+    onJoin(name, room = null){
         const payload = { name };
-        const roomMatch = window.location.pathname.match(/\/room\/(\S+)[\/?]/);
-        if (roomMatch && roomMatch.length > 1) {
-            payload.room = roomMatch[1];
+        if (room) {
+            payload.room = room;
         }
         this.socket.emit("join", payload);
-        this.setState({ myName: name });
     }
 
     onVotingCardSelect(vote){
         this.socket.emit("vote", { vote });
-        this.setState({ myVote: vote });
     }
 
     onToggleShowingVotes(){
