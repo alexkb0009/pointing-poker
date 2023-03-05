@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { POKER_CARD_OPTIONS } from '../constants';
+import { VoteValue } from './VoteValue';
 
 export const VotingCards = ({
     disabled = false,
@@ -35,8 +36,6 @@ const VotingCard = React.memo(({
     disabled = false,
     isSelected
 }) => {
-    const isNumber = typeof option === "number";
-
     const onClick = (e) => {
         e.stopPropagation();
         onVotingCardSelect(option);
@@ -55,9 +54,7 @@ const VotingCard = React.memo(({
             aria-label="Point Voting Card"
             disabled={disabled}
         >
-            <span className={clsx(isNumber && "number-vote")}>
-                { option }
-            </span>
+            <VoteValue value={option}/>
         </button>
     );
 });

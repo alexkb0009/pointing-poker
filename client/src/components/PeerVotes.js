@@ -1,5 +1,6 @@
-import clsx from 'clsx';
 import React from 'react';
+import clsx from 'clsx';
+import { VoteValue } from './VoteValue';
 
 export const PeerVotes = React.memo(({
     isShowingVotes = false,
@@ -24,18 +25,12 @@ export const PeerVotes = React.memo(({
 });
 
 const PeerVoteCard = ({ name, vote }) => {
-    const isNumberOrUnknown = vote === "?" || typeof vote === "number";
     return (
         <div className={clsx(
             "poker-card",
             "peer-vote-card"
         )}>
-            <span className={clsx(
-                "vote",
-                isNumberOrUnknown && "number-vote",
-            )}>
-                { vote || ' ' }
-            </span>
+            <VoteValue value={vote} className="vote"/>
             <span className="name">{ name }</span>
         </div>
     );
