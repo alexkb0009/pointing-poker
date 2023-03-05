@@ -40,7 +40,7 @@ export class App extends React.Component {
             })
         });
         this.socket.on("disconnect", () => {
-            this.setState({ isConnected: false });
+            this.setState({ isConnected: false, isJoined: false });
         });
     }
 
@@ -64,10 +64,11 @@ export class App extends React.Component {
 
     render(){
         const {
-            isShowingVotes,
+            isConnected,
             isJoined,
             clientsState,
             currentHost,
+            isShowingVotes,
             myVote,
             myName,
         } = this.state;
@@ -76,7 +77,11 @@ export class App extends React.Component {
         return (
             <>
                 {!isJoined ? (
-                    <IntroductionForm onJoin={this.onJoin} />
+                    isConnected ? (
+                        <IntroductionForm onJoin={this.onJoin} />
+                    ) : (
+                        <h4>No Connection Present</h4>
+                    )
                 ) : (
                     <>
                         <h4>Current host: { currentHost }</h4>

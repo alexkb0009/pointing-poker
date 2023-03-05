@@ -74,7 +74,10 @@ io.on('connection', (socket) => {
         };
 
         if (Object.keys(clientsState).length === 1) {
+            // First user joined, make them host and ensure state is reset.
+            // TODO: clean/DRY/etc
             currentHost = name;
+            isShowingVotes = false;
         }
 
         io.to("MAIN_ROOM").emit("stateUpdate", {
