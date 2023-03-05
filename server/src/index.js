@@ -4,6 +4,7 @@ const Express = require("express");
 const SocketIO = require("socket.io");
 
 // TODO Clean up everything, make common stuff DRY, split into dif files.
+// TODO Organize everything
 
 /**
  * @module
