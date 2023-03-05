@@ -1,9 +1,8 @@
 
 const path = require('path');
 const webpack = require('webpack');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const env = process.env.NODE_ENV;
-// const TerserPlugin = require('terser-webpack-plugin');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 // const chunkFilename = '[name].js'; // TODO: Support '[name].[chunkhash].js';
 
@@ -22,6 +21,7 @@ module.exports = [
             library: "App",
             umdNamedDefine: true
         },
+        plugins: [new MiniCssExtractPlugin({ filename: "styles.css" })],
         module: {
             rules: [
                 {
@@ -31,7 +31,14 @@ module.exports = [
                     ],
                     use: [{ loader: 'babel-loader' }]
                 },
-                // TODO: Configure LESS or CSS-in-JS stuff
+                {
+                    test: /\.less$/i,
+                    use: [
+                        MiniCssExtractPlugin.loader,
+                        "css-loader",
+                        "less-loader",
+                    ],
+                }
             ]
         },
         devtool: 'source-map',

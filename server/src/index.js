@@ -4,6 +4,7 @@ const Express = require("express");
 const SocketIO = require("socket.io");
 
 // TODO Clean up everything, make common stuff DRY, split into dif files.
+// TODO Scale up to multiple rooms (& multiple servers?)
 // TODO Organize everything
 
 /**
@@ -33,6 +34,7 @@ function getVisibleClientsState(origClientsState, votesVisible){
         Object.entries(visibleClientsState).forEach(([name, csObj]) => {
             visibleClientsState[name] = {
                 ...csObj,
+                // '?' to indicate they've chosen something vs awaiting them
                 vote: csObj.vote === null ? null : "?"
             };
         });

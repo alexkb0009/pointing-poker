@@ -9,7 +9,10 @@ export const VotingCards = ({
 }) => {
     return (
         <div
-            className="voting-cards-container"
+            className={clsx(
+                "voting-cards-container",
+                "poker-cards-container"
+            )}
         >
             { POKER_CARD_OPTIONS.map((option) => {
                 const isSelected = myVote === option;
@@ -43,16 +46,18 @@ const VotingCard = React.memo(({
     return (
         <button
             className={clsx(
+                "poker-card",
                 "voting-card",
                 isSelected && "selected",
-                isNumber && "number-card"
             )}
             onClick={onClick}
             type="button"
             aria-label="Point Voting Card"
             disabled={disabled}
         >
-            { option }
+            <span className={clsx(isNumber && "number-vote")}>
+                { option }
+            </span>
         </button>
     );
 });

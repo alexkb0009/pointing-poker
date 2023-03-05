@@ -76,15 +76,15 @@ export class App extends React.Component {
         const isCurrentHostMe = currentHost === myName;
         return (
             <>
+                <h1 id="page-title">Planning Poker</h1>
                 {!isJoined ? (
-                    isConnected ? (
-                        <IntroductionForm onJoin={this.onJoin} />
-                    ) : (
+                    !isConnected ? (
                         <h4>No Connection Present</h4>
+                    ) : (
+                        <IntroductionForm onJoin={this.onJoin} />
                     )
                 ) : (
                     <>
-                        <h4>Current host: { currentHost }</h4>
                         { isCurrentHostMe && (
                             <HostControls
                                 isShowingVotes={isShowingVotes}
@@ -96,13 +96,13 @@ export class App extends React.Component {
                             clientsState={clientsState}
                             isShowingVotes={isShowingVotes}
                         />
+                        <VotingCards
+                            onVotingCardSelect={this.onVotingCardSelect}
+                            disabled={votingDisabled}
+                            myVote={myVote}
+                        />
                     </>
                 )}
-                <VotingCards
-                    onVotingCardSelect={this.onVotingCardSelect}
-                    disabled={votingDisabled}
-                    myVote={myVote}
-                />
             </>
         );
     }

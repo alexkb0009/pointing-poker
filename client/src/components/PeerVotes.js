@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 
 export const PeerVotes = React.memo(({
@@ -5,7 +6,13 @@ export const PeerVotes = React.memo(({
     clientsState
 }) => {
     return (
-        <div className="peer-votes-section">
+        <div
+            className={clsx(
+                "poker-cards-container",
+                "peer-votes-section",
+                isShowingVotes && "votes-shown"
+            )}
+        >
             {
                 Object.entries(clientsState)
                     .map(([name, clientObject]) =>
@@ -17,9 +24,18 @@ export const PeerVotes = React.memo(({
 });
 
 const PeerVoteCard = ({ name, vote }) => {
+    const isNumberOrUnknown = vote === "?" || typeof vote === "number";
     return (
-        <div className="peer-vote-card">
-            <span className="vote">{ vote }</span>
+        <div className={clsx(
+            "poker-card",
+            "peer-vote-card"
+        )}>
+            <span className={clsx(
+                "vote",
+                isNumberOrUnknown && "number-vote",
+            )}>
+                { vote || ' ' }
+            </span>
             <span className="name">{ name }</span>
         </div>
     );
