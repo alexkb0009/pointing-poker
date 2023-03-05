@@ -1,0 +1,17 @@
+{
+    "name": "@alexkb0009/planning-poker",
+    "version": "0.0.1",
+    "main": "src/index.js",
+    "module": "./es",
+    "scripts": {
+        "run": "node src/index.js"
+    },
+    "author": "Alex Balashov",
+    "dependencies": {
+        "express": "^4.18.2",
+        "socket.io": "^4.6.1"
+    },
+    "devDependencies": {
+        "prettier": "^2.8.4"
+    }
+}
