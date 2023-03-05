@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "build-esm": "npx babel src --out-dir esm"
+        "build": "npx webpack build"
     },
     "dependencies": {
         "clsx": "^1.2.1",

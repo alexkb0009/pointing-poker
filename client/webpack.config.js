@@ -2,13 +2,10 @@
 const path = require('path');
 const webpack = require('webpack');
 const env = process.env.NODE_ENV;
-const debug = process.env.NODE_DEBUG;
-const version = process.versions.node;
 // const TerserPlugin = require('terser-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 // const chunkFilename = '[name].js'; // TODO: Support '[name].[chunkhash].js';
-// const devTool = 'source-map';
 
 const mode = env === "development" ? "development" : "production";
 
