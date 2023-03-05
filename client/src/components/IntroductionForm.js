@@ -11,7 +11,7 @@ export const IntroductionForm = ({ onJoin }) => {
     return (
         <div className="introduction-form">
             <form onSubmit={onSubmit}>
-                <label for="name-input">
+                <label htmlFor="name-input">
                     Please enter your name to join
                 </label>
                 <input id="name-input" type="text" name="name" />

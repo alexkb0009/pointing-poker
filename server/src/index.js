@@ -21,43 +21,57 @@ const clientRootDir = path.join(__dirname, "../../client");
 
 app.use('/static', Express.static(path.join(clientRootDir, "dist"), { index: false }));
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
+    res.sendFile(path.join(clientRootDir, "index.html"));
+});
+
+app.get('/room/:roomId/', (req, res) => {
     res.sendFile(path.join(clientRootDir, "index.html"));
 });
 
 
-
+/** Transform Map to object, hide votes if needed */
 function getVisibleClientsState(origClientsState, votesVisible){
-    let visibleClientsState = origClientsState;
-    if (!votesVisible) {
-        visibleClientsState = { ...origClientsState };
-        Object.entries(visibleClientsState).forEach(([name, csObj]) => {
-            visibleClientsState[name] = {
+    const visibleClientsState = {};
+    origClientsState.forEach((csObj, key) => {
+        if (votesVisible) {
+            visibleClientsState[key] = csObj;
+        } else {
+            visibleClientsState[key] = {
                 ...csObj,
                 // '?' to indicate they've chosen something vs awaiting them
                 vote: csObj.vote === null ? null : "?"
             };
-        });
-    }
+        }
+    });
     return visibleClientsState;
+}
+
+/** Returns first entry of clientsState */
+function getCurrentHost(clientsState){
+    return clientsState.entries().next().value[0];
 }
 
 
 /**
- * Current state of the 'poker game'
+ * Current state of the 'poker game'.
  *
- * @type {Object<string,{vote: number|string|null, timeJoined: number}>}
+ * 'clientsState' is a Map so that key ordering by insertion is guaranteed
+ * for determining currentHost.
+ *
+ * @type {Object<string,{ isShowingVotes: boolean, clientsState: Map<string,{vote: number|string|null}> }>}
  */
-const clientsState = {};
-let currentHost = null;
-let isShowingVotes = false;
+const roomStates = {};
+
+const getNewRoomState = () => ({
+    clientsState: new Map(),
+    isShowingVotes: false
+});
 
 io.on('connection', (socket) => {
 
 
     console.log("New Connection", socket.id);
-
-    socket.join("MAIN_ROOM");
 
     // TODO: Split out handlers to own files/modules as they grow.
 
@@ -65,84 +79,107 @@ io.on('connection', (socket) => {
         console.error("Connection Error", err);
     });
 
-    socket.on("join", ({ name })=>{
-        if (clientsState.hasOwnProperty(name)) {
+    socket.on("join", ({ name, room: roomParam = "MAIN_ROOM" }) => {
+
+        socket.join(roomParam);
+
+        console.log("Joining room", roomParam, socket.rooms);
+
+        socket.data.room = roomParam;
+
+        roomStates[roomParam] = roomStates[roomParam] || getNewRoomState();
+
+        const room = roomStates[roomParam];
+
+        if (room.clientsState.has(name)) {
             // TODO return error msg, allow dif name.
             return false;
         }
         socket.data.name = name;
-        clientsState[name] = {
+        room.clientsState.set(name, {
             vote: null,
             timeJoined: socket.handshake.issued
-        };
+        });
 
-        if (Object.keys(clientsState).length === 1) {
-            // First user joined, make them host and ensure state is reset.
-            // TODO: clean/DRY/etc
-            currentHost = name;
-        }
+        console.log(roomParam, socket.data.room, room);
 
-        io.to("MAIN_ROOM").emit("stateUpdate", {
-            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
-            currentHost,
-            isShowingVotes
+        io.to(roomParam).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(
+                room.clientsState,
+                room.isShowingVotes
+            ),
+            isShowingVotes: room.isShowingVotes,
+            currentHost: getCurrentHost(room.clientsState)
         });
 
         socket.emit("stateUpdate", { isJoined: true });
     });
 
     socket.on("vote", ({ vote }) => {
-        if (isShowingVotes) {
+        const room = roomStates[socket.data.room];
+        if (room.isShowingVotes) {
             return; // TODO: throw error or smth
         }
-        clientsState[socket.data.name].vote = vote;
-        io.to("MAIN_ROOM").emit("stateUpdate", {
-            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
+        room.clientsState.get(socket.data.name).vote = vote;
+        io.to(socket.data.room).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(
+                room.clientsState,
+                room.isShowingVotes
+            ),
         });
     });
 
     socket.on("toggleShowingVotes", () => {
-        if (socket.data.name !== currentHost) {
+        const room = roomStates[socket.data.room];
+        if (socket.data.name !== getCurrentHost(room.clientsState)) {
             return; // TODO: throw error or smth
         }
-        isShowingVotes = !isShowingVotes;
-        io.to("MAIN_ROOM").emit("stateUpdate", {
-            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
-            isShowingVotes
+        room.isShowingVotes = !room.isShowingVotes;
+        io.to(socket.data.room).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(
+                room.clientsState,
+                room.isShowingVotes
+            ),
+            isShowingVotes: room.isShowingVotes
         });
     });
 
     socket.on("resetVotes", () => {
-        if (socket.data.name !== currentHost) {
+        const room = roomStates[socket.data.room];
+        if (socket.data.name !== room.currentHost) {
             return; // TODO: throw error or smth
         }
-        isShowingVotes = false;
-        Object.values(clientsState).forEach((clientStateObj) => {
+        room.isShowingVotes = false;
+        room.clientsState.forEach((clientStateObj) => {
             clientStateObj.vote = null;
         });
-        io.to("MAIN_ROOM").emit("stateUpdate", {
-            clientsState,
-            isShowingVotes,
+        io.to(socket.data.room).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(
+                room.clientsState,
+                room.isShowingVotes
+            ),
+            isShowingVotes: room.isShowingVotes,
             myVote: null
         });
     });
 
     socket.conn.on("close", (reason) => {
+        const room = roomStates[socket.data.room];
         console.log("Client Disconnected", reason);
         if (!socket.data.name) {
             return;
         }
-        delete clientsState[socket.data.name];
-        const currentClientNames = Object.keys(clientsState);
-        if (currentClientNames.length === 0) {
+        room.clientsState.delete(socket.data.name);
+        if (room.clientsState.size === 0) {
             // Last client left, cleanup
-            isShowingVotes = false;
-            currentHost = null;
+            delete roomStates[socket.data.room];
         } else {
-            currentHost = currentClientNames[0];
-            io.to("MAIN_ROOM").emit("stateUpdate", {
-                clientsState: getVisibleClientsState(clientsState, isShowingVotes),
-                currentHost
+            io.to(socket.data.room).emit("stateUpdate", {
+                clientsState: getVisibleClientsState(
+                    room.clientsState,
+                    room.isShowingVotes
+                ),
+                currentHost: getCurrentHost(room.clientsState)
             });
         }
     });

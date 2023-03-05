@@ -36,7 +36,7 @@ export class App extends React.Component {
                 ...existingState,
                 ...stateUpdate
             }), () => {
-                console.log("Updated State", this.state);
+                console.log("Updated State", stateUpdate, '\n', this.state);
             })
         });
         this.socket.on("disconnect", () => {
@@ -45,7 +45,12 @@ export class App extends React.Component {
     }
 
     onJoin(name){
-        this.socket.emit("join", { name });
+        const payload = { name };
+        const roomMatch = window.location.pathname.match(/\/room\/(\S+)[\/?]/);
+        if (roomMatch && roomMatch.length > 1) {
+            payload.room = roomMatch[1];
+        }
+        this.socket.emit("join", payload);
         this.setState({ myName: name });
     }
 

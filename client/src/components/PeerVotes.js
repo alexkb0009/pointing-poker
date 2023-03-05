@@ -17,7 +17,7 @@ export const PeerVotes = React.memo(({
             {
                 Object.entries(clientsState)
                     .map(([name, clientObject]) =>
-                        <PeerVoteCard name={name} vote={clientObject.vote} />
+                        <PeerVoteCard key={name} name={name} vote={clientObject.vote} />
                     )
             }
         </div>

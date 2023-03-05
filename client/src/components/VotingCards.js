@@ -19,6 +19,7 @@ export const VotingCards = ({
                 const isSelected = myVote === option;
                 return (
                     <VotingCard
+                        key={option}
                         option={option}
                         onVotingCardSelect={onVotingCardSelect}
                         disabled={disabled}
