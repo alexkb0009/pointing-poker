@@ -23,13 +23,29 @@ app.get('/', (req, res)=>{
 
 
 
+function getVisibleClientsState(origClientsState, votesVisible){
+    let broadcastedClientsState = origClientsState;
+    if (!votesVisible) {
+        broadcastedClientsState = { ...origClientsState };
+        Object.keys(broadcastedClientsState).forEach((name) => {
+            broadcastedClientsState[name] = {
+                ...broadcastedClientsState[name],
+                vote: null
+            };
+        });
+    }
+    return broadcastedClientsState;
+}
+
+
 /**
  * Current state of the 'poker game'
  *
- * @type {Object<string,{pointsVote: number|string|null, timeJoined: number}>}
+ * @type {Object<string,{vote: number|string|null, timeJoined: number}>}
  */
 const clientsState = {};
 let currentHost = null;
+let isShowingVotes = false;
 
 io.on('connection', (socket) => {
 
@@ -43,23 +59,31 @@ io.on('connection', (socket) => {
         console.error("Connection Error", err);
     });
 
-    socket.emit("initialization", {
-        clientCount: io.engine.clientCount
-    });
-
     socket.on("join", ({ name })=>{
-        if (clientPool.hasOwnProperty(name)) {
+        if (clientsState.hasOwnProperty(name)) {
             // TODO return error msg, allow dif name.
             return false;
         }
         socket.data.name = name;
-        clientPool[name] = {
+        clientsState[name] = {
             pointsVote: null,
             timeJoined: socket.handshake.issued
         };
         if (Object.keys(clientsState).length === 0) {
             currentHost = name;
         }
+
+        socket.broadcast.emit("stateUpdate", {
+            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
+            currentHost,
+            isShowingVotes
+        });
+
+        socket.emit("stateUpdate", { isJoined: true });
+    });
+
+    socket.on("vote", ({ vote })=>{
+        clientsState[socket.data.name].vote = vote;
     });
 
     socket.conn.on("close", (reason) => {
@@ -73,6 +97,10 @@ io.on('connection', (socket) => {
             return;
         }
         currentHost = currentClientNames[0];
+        socket.broadcast.emit("stateUpdate", {
+            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
+            currentHost
+        });
     });
 
 });
