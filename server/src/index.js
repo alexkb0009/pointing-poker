@@ -80,7 +80,6 @@ io.on('connection', (socket) => {
             // First user joined, make them host and ensure state is reset.
             // TODO: clean/DRY/etc
             currentHost = name;
-            isShowingVotes = false;
         }
 
         io.to("MAIN_ROOM").emit("stateUpdate", {
@@ -136,13 +135,16 @@ io.on('connection', (socket) => {
         delete clientsState[socket.data.name];
         const currentClientNames = Object.keys(clientsState);
         if (currentClientNames.length === 0) {
-            return;
+            // Last client left, cleanup
+            isShowingVotes = false;
+            currentHost = null;
+        } else {
+            currentHost = currentClientNames[0];
+            io.to("MAIN_ROOM").emit("stateUpdate", {
+                clientsState: getVisibleClientsState(clientsState, isShowingVotes),
+                currentHost
+            });
         }
-        currentHost = currentClientNames[0];
-        io.to("MAIN_ROOM").emit("stateUpdate", {
-            clientsState: getVisibleClientsState(clientsState, isShowingVotes),
-            currentHost
-        });
     });
 
 });
