@@ -70,8 +70,6 @@ const getNewRoomState = () => ({
 
 io.on('connection', (socket) => {
 
-    console.log("New Connection", socket.id);
-
     // TODO: Split out handlers to own files/modules as they grow.
 
     socket.on("join", ({ name, room: roomParam = null }) => {
@@ -159,7 +157,6 @@ io.on('connection', (socket) => {
 
     socket.conn.on("close", (reason) => {
         const room = roomStates[socket.data.room];
-        console.log("Client Disconnected", reason);
         if (!socket.data.name) {
             return;
         }

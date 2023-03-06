@@ -6,6 +6,16 @@ import { PeerVotes } from './PeerVotes';
 import { VotingCards } from './VotingCards';
 
 
+const createInitialState = () => ({
+    isConnected: false,
+    isJoined: false,
+    clientsState: {},
+    currentHost: null,
+    isShowingVotes: false,
+    myName: null,
+    myVote: null
+});
+
 export class App extends React.Component {
 
     constructor(props){
@@ -15,15 +25,7 @@ export class App extends React.Component {
         this.onToggleShowingVotes = this.onToggleShowingVotes.bind(this);
         this.onResetVotes = this.onResetVotes.bind(this);
 
-        this.state = {
-            isConnected: false,
-            isJoined: false,
-            clientsState: {},
-            currentHost: null,
-            isShowingVotes: false,
-            myName: null,
-            myVote: null
-        };
+        this.state = createInitialState();
     }
 
     componentDidMount(){
