@@ -70,14 +70,9 @@ const getNewRoomState = () => ({
 
 io.on('connection', (socket) => {
 
-
     console.log("New Connection", socket.id);
 
     // TODO: Split out handlers to own files/modules as they grow.
-
-    io.engine.on("connection_error", (err) => {
-        console.error("Connection Error", err);
-    });
 
     socket.on("join", ({ name, room: roomParam = null }) => {
         const roomName = roomParam || "default-room";
@@ -185,4 +180,8 @@ io.on('connection', (socket) => {
 
 });
 
-httpServer.listen(80);
+io.engine.on("connection_error", (err) => {
+    console.error("Connection Error", err);
+});
+
+httpServer.listen(process.env.PORT || 80);
