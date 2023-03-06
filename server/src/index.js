@@ -140,7 +140,7 @@ io.on('connection', (socket) => {
 
     socket.on("resetVotes", () => {
         const room = roomStates[socket.data.room];
-        if (socket.data.name !== room.currentHost) {
+        if (socket.data.name !== getCurrentHost(room.clientsState)) {
             return; // TODO: throw error or smth
         }
         room.isShowingVotes = false;
