@@ -30,6 +30,8 @@ export class App extends React.Component {
     }
 
     componentDidMount(){
+        const { appVersion, commitHash } = this.props;
+        console.info("Version Info", appVersion, commitHash);
         this.manager = new Manager(window.location.host, {
             transports: ["websocket", "polling"],
             closeOnBeforeunload: false

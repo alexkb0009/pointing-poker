@@ -7,5 +7,5 @@ import './styles.scss';
 window.addEventListener('load', () => {
     const rootDomNode = document.getElementById("root");
     const reactRoot = createRoot(rootDomNode);
-    reactRoot.render(<App/>);
+    reactRoot.render(<App appVersion={APP_VERSION} commitHash={COMMIT_HASH} />);
 });
