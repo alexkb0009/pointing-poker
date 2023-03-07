@@ -1,5 +1,5 @@
 import React from 'react';
-import { Manager } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { IntroductionForm } from './IntroductionForm';
 import { HostControls } from './HostControls';
 import { PeerVotes } from './PeerVotes';
@@ -32,11 +32,11 @@ export class App extends React.Component {
     componentDidMount(){
         const { appVersion, commitHash } = this.props;
         console.info("Version Info", appVersion, commitHash);
-        this.manager = new Manager(window.location.host, {
+        this.socket = io({
             transports: ["websocket", "polling"],
-            closeOnBeforeunload: false
+            closeOnBeforeunload: false,
+            // autoConnect: false
         });
-        this.socket = this.manager.socket("/", {});
         this.socket.on("connect_error", () => {
             this.socket.io.opts.transports = ["polling", "websocket"];
         });
@@ -111,7 +111,9 @@ export class App extends React.Component {
                 {!isJoined ? (
                     <div className="container-fluid py-2">
                         {!isConnected ? (
-                            <h4>No Connection Present</h4>
+                            <div className="connecting-container">
+                                Loading...
+                            </div>
                         ) : (
                             <IntroductionForm onJoin={this.onJoin} />
                         )}
