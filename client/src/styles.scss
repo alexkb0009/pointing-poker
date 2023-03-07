@@ -110,10 +110,18 @@
     flex-grow: 1.618;
 }
 
+@keyframes fadeOutPart {
+    0% { opacity: 0.5; }
+    100% { opacity: 0.1; }
+}
+
 .peer-vote-card {
     &.has-pending-vote {
         background-color: #3a788e;
         color: #fff;
+    }
+    &.is-exiting {
+        animation: fadeOutPart 1s ease-out alternate infinite;
     }
     .vote {
         flex-grow: 1;

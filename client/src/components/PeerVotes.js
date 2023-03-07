@@ -22,13 +22,14 @@ export const PeerVotes = ({
     );
 };
 
-const PeerVoteCard = React.memo(({ clientState: { name, vote } }) => {
+const PeerVoteCard = React.memo(({ clientState: { name, vote, isExiting } }) => {
     const hasPendingVote = vote === "HAS_VOTE";
     return (
         <div className={clsx(
             "poker-card",
             "peer-vote-card",
-            hasPendingVote && "has-pending-vote"
+            hasPendingVote && "has-pending-vote",
+            isExiting && "is-exiting"
         )}>
             <VoteValue value={vote} className="vote"/>
             <span className={clsx("name", "text-truncate")}>{ name }</span>

@@ -36,11 +36,12 @@ app.get('/health', (req, res) => {
 
 /** Hide votes if needed */
 function getVisibleClientsState(origClientsState, votesVisible){
-    return origClientsState.map(({ name, vote }) => ({
+    return origClientsState.map(({ name, vote, exitTimeout }) => ({
         name,
         vote: votesVisible ? vote
             : vote === null ? "?"
-                : "HAS_VOTE"
+                : "HAS_VOTE",
+        isExiting: exitTimeout !== null
     }));
 }
 
@@ -58,14 +59,13 @@ function getCurrentHost(clientsState){
  * 'clientsState' is a Map so that key ordering by insertion is guaranteed
  * for determining currentHost.
  *
- * @type {Object<string,{ isShowingVotes: boolean, clientsState: Map<string,{vote: number|string|null}> }>}
+ * @type {Object<string,{ clientsState: { name: string, vote: number|string|null }[], isShowingVotes: boolean }>}
  */
 const roomStates = {};
 
 const getNewRoomState = () => ({
     clientsState: [],
-    isShowingVotes: false,
-    hostHistory: new Set()
+    isShowingVotes: false
 });
 
 io.on('connection', (socket) => {
@@ -82,28 +82,27 @@ io.on('connection', (socket) => {
         roomStates[socket.data.room] = roomStates[socket.data.room] || getNewRoomState();
         const room = roomStates[socket.data.room];
 
-        if (!name || room.clientsState.find(({ name: csName }) => name === csName)) {
-            // TODO return error msg, allow dif name.
-            return false;
-        }
+        if (!name) return false; // TODO return error msg, allow dif name.
         socket.data.name = name;
-        const clientStateObj = {
-            name,
-            vote: null,
-            timeJoined: socket.handshake.issued,
-            socket
-        };
 
-        const hostPriorToJoin = getCurrentHost(room.clientsState);
-        const hostHistoryArr = [ ...room.hostHistory ];
-        const userHostHistoryIndex = hostHistoryArr.indexOf(name);
-        const currentHostHistoryIndex = hostHistoryArr.indexOf(hostPriorToJoin);
-        if (
-            userHostHistoryIndex > -1 &&
-            (currentHostHistoryIndex === -1 || userHostHistoryIndex < currentHostHistoryIndex)
-        ) {
-            room.clientsState.unshift(clientStateObj);
+        const existingClient = room.clientsState.find(({ name: csName }) => name === csName);
+        if (existingClient) {
+            if (existingClient.exitTimeout) {
+                // Resume session as this name/client
+                clearTimeout(existingClient.exitTimeout);
+                existingClient.exitTimeout = null;
+            } else {
+                // TODO return error msg, allow dif name.
+                return false;
+            }
         } else {
+            const clientStateObj = {
+                name,
+                vote: null,
+                timeJoined: socket.handshake.issued,
+                socket,
+                exitTimeout: null
+            };
             room.clientsState.push(clientStateObj);
         }
 
@@ -120,7 +119,7 @@ io.on('connection', (socket) => {
             isJoined: true,
             room: socket.data.room,
             myName: socket.data.name,
-            myVote: null
+            myVote: existingClient?.vote || null
         });
     });
 
@@ -198,29 +197,41 @@ io.on('connection', (socket) => {
         }
 
         const room = roomStates[socket.data.room];
-        const hostPriorToExit = getCurrentHost(room.clientsState);
+        const clientStateObj = socket.data.name && room.clientsState.find(({ name }) => name === socket.data.name);
 
-        if (socket.data.name) {
-            const indexToDelete = room.clientsState
-                .findIndex(({ name }) => name === socket.data.name);
-            room.clientsState.splice(indexToDelete, 1);
+        if (!clientStateObj) {
+            return;
         }
+        
+        clientStateObj.exitTimeout = setTimeout(() => {
 
-        if (room.clientsState.length === 0) {
-            // No more clients in room, clean it up
-            delete roomStates[socket.data.room];
-        } else {
-            if (hostPriorToExit === socket.data.name) {
-                room.hostHistory.add(socket.data.name);
+            // Delete client data from room
+            const delIndex = room.clientsState.findIndex(({ name }) => name === socket.data.name);
+            room.clientsState.splice(delIndex, 1);
+
+            if (room.clientsState.length === 0) {
+                // No clients left in room, clean it up
+                delete roomStates[socket.data.room];
+            } else {
+                io.to(socket.data.room).emit("stateUpdate", {
+                    clientsState: getVisibleClientsState(
+                        room.clientsState,
+                        room.isShowingVotes
+                    ),
+                    currentHost: getCurrentHost(room.clientsState)
+                });
             }
-            io.to(socket.data.room).emit("stateUpdate", {
-                clientsState: getVisibleClientsState(
-                    room.clientsState,
-                    room.isShowingVotes
-                ),
-                currentHost: getCurrentHost(room.clientsState)
-            });
-        }
+
+        }, 15000);
+
+        io.to(socket.data.room).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(
+                room.clientsState,
+                room.isShowingVotes
+            )
+        });
+
+        
     });
 
 });
