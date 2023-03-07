@@ -34,20 +34,21 @@ app.get('/health', (req, res) => {
 });
 
 
-/** Transform Map to array, hide votes if needed */
+/** Hide votes if needed */
 function getVisibleClientsState(origClientsState, votesVisible){
-    return Array.from(origClientsState)
-        .map(([name, { vote }]) => ({
-            name,
-            vote: votesVisible ? vote
-                : vote === null ? "?"
-                    : "HAS_VOTE"
-        }));
+    return origClientsState.map(({ name, vote }) => ({
+        name,
+        vote: votesVisible ? vote
+            : vote === null ? "?"
+                : "HAS_VOTE"
+    }));
 }
 
-/** Returns first entry of clientsState */
+/** Returns first entry of clientsState. */
 function getCurrentHost(clientsState){
-    return clientsState.entries().next().value[0];
+    if (clientsState.length === 0) return null;
+    const currentHostName = clientsState[0].name;
+    return currentHostName;
 }
 
 
@@ -62,8 +63,9 @@ function getCurrentHost(clientsState){
 const roomStates = {};
 
 const getNewRoomState = () => ({
-    clientsState: new Map(),
-    isShowingVotes: false
+    clientsState: [],
+    isShowingVotes: false,
+    hostHistory: new Set()
 });
 
 io.on('connection', (socket) => {
@@ -80,16 +82,30 @@ io.on('connection', (socket) => {
         roomStates[socket.data.room] = roomStates[socket.data.room] || getNewRoomState();
         const room = roomStates[socket.data.room];
 
-        if (!name || room.clientsState.has(name)) {
+        if (!name || room.clientsState.find(({ name: csName }) => name === csName)) {
             // TODO return error msg, allow dif name.
             return false;
         }
         socket.data.name = name;
-        room.clientsState.set(name, {
+        const clientStateObj = {
+            name,
             vote: null,
             timeJoined: socket.handshake.issued,
             socket
-        });
+        };
+
+        const hostPriorToJoin = getCurrentHost(room.clientsState);
+        const hostHistoryArr = [ ...room.hostHistory ];
+        const userHostHistoryIndex = hostHistoryArr.indexOf(name);
+        const currentHostHistoryIndex = hostHistoryArr.indexOf(hostPriorToJoin);
+        if (
+            userHostHistoryIndex > -1 &&
+            (currentHostHistoryIndex === -1 || userHostHistoryIndex < currentHostHistoryIndex)
+        ) {
+            room.clientsState.unshift(clientStateObj);
+        } else {
+            room.clientsState.push(clientStateObj);
+        }
 
         io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(
@@ -111,10 +127,12 @@ io.on('connection', (socket) => {
     socket.on("vote", ({ vote }) => {
         const room = roomStates[socket.data.room];
 
-        room.clientsState.get(socket.data.name).vote = vote;
+        room.clientsState
+            .find(({ name }) => name === socket.data.name)
+            .vote = vote;
 
-        const areAllVotesIn = Array.from(room.clientsState)
-            .every(([name, { vote: csVote }]) => csVote !== null);
+        const areAllVotesIn = room.clientsState
+            .every(({ vote: csVote }) => csVote !== null);
 
         if (areAllVotesIn) {
             room.isShowingVotes = true;
@@ -180,15 +198,21 @@ io.on('connection', (socket) => {
         }
 
         const room = roomStates[socket.data.room];
+        const hostPriorToExit = getCurrentHost(room.clientsState);
 
         if (socket.data.name) {
-            room.clientsState.delete(socket.data.name);
+            const indexToDelete = room.clientsState
+                .findIndex(({ name }) => name === socket.data.name);
+            room.clientsState.splice(indexToDelete, 1);
         }
 
-        if (room.clientsState.size === 0) {
+        if (room.clientsState.length === 0) {
             // No more clients in room, clean it up
             delete roomStates[socket.data.room];
         } else {
+            if (hostPriorToExit === socket.data.name) {
+                room.hostHistory.add(socket.data.name);
+            }
             io.to(socket.data.room).emit("stateUpdate", {
                 clientsState: getVisibleClientsState(
                     room.clientsState,

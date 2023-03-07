@@ -1,5 +1,5 @@
 import React from 'react';
-import { io } from 'socket.io-client';
+import { Manager } from 'socket.io-client';
 import { IntroductionForm } from './IntroductionForm';
 import { HostControls } from './HostControls';
 import { PeerVotes } from './PeerVotes';
@@ -30,14 +30,20 @@ export class App extends React.Component {
     }
 
     componentDidMount(){
-        this.socket = io({
-            closeOnBeforeunload: false,
-            transports: ["websocket", "polling"]
+        this.manager = new Manager(window.location.host, {
+            transports: ["websocket", "polling"],
+            closeOnBeforeunload: false
         });
+        this.socket = this.manager.socket("/", {});
         this.socket.on("connect_error", () => {
-            socket.io.opts.transports = ["polling", "websocket"];
+            this.socket.io.opts.transports = ["polling", "websocket"];
         });
         this.socket.on("connect", () => {
+            const { myName, room } = this.state;
+            // If reconnection attempt, try re-join previous room
+            if (myName && room) {
+                this.onJoin(myName, room);
+            }
             this.setState({ isConnected: true });
         });
         this.socket.on("stateUpdate", (stateUpdate) => {
@@ -53,6 +59,7 @@ export class App extends React.Component {
         });
         this.socket.on("disconnect", () => {
             this.setState({ isConnected: false, isJoined: false });
+
         });
         window.addEventListener('beforeunload', () => {
             this.setState(createInitialState());
