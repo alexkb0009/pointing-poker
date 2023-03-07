@@ -8,8 +8,9 @@ import { VotingCards } from './VotingCards';
 
 const createInitialState = () => ({
     isConnected: false,
+    // The following are sent down by socket stateUpdate events
     isJoined: false,
-    clientsState: {},
+    clientsState: [],
     currentHost: null,
     isShowingVotes: false,
     myName: null,
@@ -29,7 +30,13 @@ export class App extends React.Component {
     }
 
     componentDidMount(){
-        this.socket = io();
+        this.socket = io({
+            closeOnBeforeunload: false,
+            transports: ["websocket", "polling"]
+        });
+        this.socket.on("connect_error", () => {
+            socket.io.opts.transports = ["polling", "websocket"];
+        });
         this.socket.on("connect", () => {
             this.setState({ isConnected: true });
         });
@@ -41,11 +48,14 @@ export class App extends React.Component {
                 ...existingState,
                 ...stateUpdate
             }), () => {
-                console.log("Updated State", stateUpdate, '\n', this.state);
+                // console.log("Updated State", stateUpdate, '\n', this.state);
             })
         });
         this.socket.on("disconnect", () => {
             this.setState({ isConnected: false, isJoined: false });
+        });
+        window.addEventListener('beforeunload', () => {
+            this.setState(createInitialState());
         });
     }
 
@@ -58,7 +68,8 @@ export class App extends React.Component {
     }
 
     onVotingCardSelect(vote){
-        this.socket.emit("vote", { vote });
+        const newVote = vote === this.state.myVote ? null : vote;
+        this.socket.emit("vote", { vote: newVote });
     }
 
     onToggleShowingVotes(){
@@ -72,6 +83,7 @@ export class App extends React.Component {
     render(){
         const {
             isConnected,
+            mounted,
             isJoined,
             clientsState,
             currentHost,
@@ -79,19 +91,33 @@ export class App extends React.Component {
             myVote,
             myName,
         } = this.state;
-        const votingDisabled = !this.socket || isShowingVotes;
         const isCurrentHostMe = currentHost === myName;
         return (
             <>
-                <h1 id="page-title">Planning Poker</h1>
+                <div className="container-fluid top-nav">
+                    <h3 id="page-title" className="m-0 py-2">
+                        Planning Poker
+                    </h3>
+                </div>
                 {!isJoined ? (
-                    !isConnected ? (
-                        <h4>No Connection Present</h4>
-                    ) : (
-                        <IntroductionForm onJoin={this.onJoin} />
-                    )
+                    <div className="container-fluid py-2">
+                        {!isConnected ? (
+                            <h4>No Connection Present</h4>
+                        ) : (
+                            <IntroductionForm onJoin={this.onJoin} />
+                        )}
+                    </div>
                 ) : (
                     <>
+                        <PeerVotes
+                            clientsState={clientsState}
+                            isShowingVotes={isShowingVotes}
+                        />
+                        <VotingCards
+                            onVotingCardSelect={this.onVotingCardSelect}
+                            isShowingVotes={isShowingVotes}
+                            myVote={myVote}
+                        />
                         { isCurrentHostMe && (
                             <HostControls
                                 isShowingVotes={isShowingVotes}
@@ -99,15 +125,6 @@ export class App extends React.Component {
                                 onResetVotes={this.onResetVotes}
                             />
                         )}
-                        <PeerVotes
-                            clientsState={clientsState}
-                            isShowingVotes={isShowingVotes}
-                        />
-                        <VotingCards
-                            onVotingCardSelect={this.onVotingCardSelect}
-                            disabled={votingDisabled}
-                            myVote={myVote}
-                        />
                     </>
                 )}
             </>

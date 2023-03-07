@@ -29,22 +29,20 @@ app.get('/room/:roomId/', (req, res) => {
     res.sendFile(path.join(clientRootDir, "index.html"));
 });
 
+app.get('/health', (req, res) => {
+    res.send("200 OK");
+});
 
-/** Transform Map to object, hide votes if needed */
+
+/** Transform Map to array, hide votes if needed */
 function getVisibleClientsState(origClientsState, votesVisible){
-    const visibleClientsState = {};
-    origClientsState.forEach((csObj, key) => {
-        if (votesVisible) {
-            visibleClientsState[key] = csObj;
-        } else {
-            visibleClientsState[key] = {
-                ...csObj,
-                // '?' to indicate they've chosen something vs awaiting them
-                vote: csObj.vote === null ? null : "?"
-            };
-        }
-    });
-    return visibleClientsState;
+    return Array.from(origClientsState)
+        .map(([name, { vote }]) => ({
+            name,
+            vote: votesVisible ? vote
+                : vote === null ? "?"
+                    : "HAS_VOTE"
+        }));
 }
 
 /** Returns first entry of clientsState */
@@ -70,6 +68,8 @@ const getNewRoomState = () => ({
 
 io.on('connection', (socket) => {
 
+    console.log("NEW CONNECTION, CURRENT STATE", roomStates);
+
     // TODO: Split out handlers to own files/modules as they grow.
 
     socket.on("join", ({ name, room: roomParam = null }) => {
@@ -80,14 +80,15 @@ io.on('connection', (socket) => {
         roomStates[socket.data.room] = roomStates[socket.data.room] || getNewRoomState();
         const room = roomStates[socket.data.room];
 
-        if (room.clientsState.has(name)) {
+        if (!name || room.clientsState.has(name)) {
             // TODO return error msg, allow dif name.
             return false;
         }
         socket.data.name = name;
         room.clientsState.set(name, {
             vote: null,
-            timeJoined: socket.handshake.issued
+            timeJoined: socket.handshake.issued,
+            socket
         });
 
         io.to(socket.data.room).emit("stateUpdate", {
@@ -102,21 +103,29 @@ io.on('connection', (socket) => {
         socket.emit("stateUpdate", {
             isJoined: true,
             room: socket.data.room,
-            myName: socket.data.name
+            myName: socket.data.name,
+            myVote: null
         });
     });
 
     socket.on("vote", ({ vote }) => {
         const room = roomStates[socket.data.room];
-        if (room.isShowingVotes) {
-            return; // TODO: throw error or smth
-        }
+
         room.clientsState.get(socket.data.name).vote = vote;
+
+        const areAllVotesIn = Array.from(room.clientsState)
+            .every(([name, { vote: csVote }]) => csVote !== null);
+
+        if (areAllVotesIn) {
+            room.isShowingVotes = true;
+        }
+
         io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(
                 room.clientsState,
                 room.isShowingVotes
             ),
+            isShowingVotes: room.isShowingVotes
         });
         socket.emit("stateUpdate", { myVote: vote });
     });
@@ -127,6 +136,15 @@ io.on('connection', (socket) => {
             return; // TODO: throw error or smth
         }
         room.isShowingVotes = !room.isShowingVotes;
+        if (room.isShowingVotes) {
+            room.clientsState.forEach((clientStateObj) => {
+                // Default non-votes to "PASS"
+                if (!clientStateObj.vote) {
+                    clientStateObj.vote = "PASS";
+                    clientStateObj.socket.emit("stateUpdate", { myVote: "PASS" });
+                }
+            });
+        }
         io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(
                 room.clientsState,
@@ -155,14 +173,20 @@ io.on('connection', (socket) => {
         });
     });
 
-    socket.conn.on("close", (reason) => {
-        const room = roomStates[socket.data.room];
-        if (!socket.data.name) {
+    socket.on("disconnect", (reason) => {
+        console.log("Disconnected", socket.data.name, reason);
+        if (!socket.data.room) {
             return;
         }
-        room.clientsState.delete(socket.data.name);
+
+        const room = roomStates[socket.data.room];
+
+        if (socket.data.name) {
+            room.clientsState.delete(socket.data.name);
+        }
+
         if (room.clientsState.size === 0) {
-            // Last client left, cleanup
+            // No more clients in room, clean it up
             delete roomStates[socket.data.room];
         } else {
             io.to(socket.data.room).emit("stateUpdate", {

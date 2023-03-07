@@ -1,0 +1,180 @@
+/* Configure Bootstrap Variables Here (if any) */
+
+/* Import the parts we need only */
+
+// Configuration
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/maps";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/utilities";
+
+// Layout & components
+@import "~bootstrap/scss/root";
+@import "~bootstrap/scss/reboot";
+@import "~bootstrap/scss/type";
+@import "~bootstrap/scss/containers";
+@import "~bootstrap/scss/grid";
+@import "~bootstrap/scss/forms";
+@import "~bootstrap/scss/buttons";
+@import "~bootstrap/scss/button-group";
+
+// Helpers
+@import "~bootstrap/scss/helpers";
+
+// Utilities
+@import "~bootstrap/scss/utilities/api";
+
+/* Layout */
+
+.top-nav {
+    border-bottom: 1px solid #444;
+}
+
+#root {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Mixins/Reusables */
+
+.poker-cards-container {
+    display: flex;
+    align-items: center;
+    grid-gap: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    overflow-x: auto;
+    // background-color: #b3d1b3;
+    background-color: #cbe3cb;
+}
+
+.poker-card {
+    flex: 0 0 80px;
+    width: 80px;
+    height: 120px;
+    border: 1px solid #000;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    font-size: 1rem;
+    border-radius: 3px;
+    box-shadow: #161f27 0px 5px 10px -10px;
+    overflow: hidden;
+
+    .large-value {
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+}
+
+@mixin poker-card-hover {
+    transform:
+        perspective(18em)
+        rotate3d(1, 0, 0, 16deg)
+        rotate3d(0, 1, 0, 10deg)
+        rotate3d(0, 0, 1, -3deg)
+        translate3d(0, -12px, 0)
+        scale3d(1.075, 1.075, 1);
+    box-shadow:
+        #161f27 2px 10px 33px -20px;
+}
+
+/* Content */
+
+.initialization-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.introduction-form {
+    input[type="text"] {
+        display: block;
+        margin-top: 0.25rem;
+        margin-bottom: 0.75rem;
+    }
+    button[type="submit"] {
+        display: block;
+    }
+}
+
+.peer-votes-section {
+    border-bottom: 1px dotted rgba(0,0,0,0.2);
+    flex-grow: 1.618;
+}
+
+.peer-vote-card {
+    &.has-pending-vote {
+        background-color: #3a788e;
+        color: #fff;
+    }
+    .vote {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+    .name {
+        padding: 1rem 0.5rem;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.voting-cards-container {
+    border-bottom: 1px solid #444;
+    flex-grow: 1;
+}
+
+.voting-card-container {
+
+    .voting-card {
+        transition: transform .2s, box-shadow .2s;
+
+        &:not([disabled]) {
+            cursor: pointer;
+        }
+    
+        &.selected {
+            border-width: 2px;
+            background-color: #f8f8f8;
+            transition: transform .3s, box-shadow .3s;
+            transform:
+                perspective(18em)
+                rotate3d(1, 0, 0, 36deg)
+                translate3d(0, -30px, 0px)
+                scale3d(1.05, 1.05, 1) !important;
+            box-shadow:
+                rgb(22,31,39) 0px 5px 33px -20px !important;
+        }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        &:hover .voting-card:not([disabled]) {
+            @include poker-card-hover;
+        }
+    }
+
+    .voting-card:not(.selected):focus {
+        transform:
+            perspective(18em)
+            rotate3d(1, 0, 0, 16deg)
+            rotate3d(0, 1, 0, 10deg)
+            rotate3d(0, 0, 1, -3deg)
+            translate3d(0, -12px, 0)
+            scale3d(1.075, 1.075, 1);
+        box-shadow:
+            #161f27 2px 10px 33px -20px;
+    }
+
+}
+
+.host-controls {
+    border-bottom: 1px solid #444;
+}
