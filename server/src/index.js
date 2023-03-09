@@ -19,39 +19,36 @@ const io = new SocketIO.Server(httpServer);
 
 const clientRootDir = path.join(__dirname, "../../client");
 
-app.use('/static', Express.static(path.join(clientRootDir, "dist"), { index: false }));
+app.use("/static", Express.static(path.join(clientRootDir, "dist"), { index: false }));
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
     res.sendFile(path.join(clientRootDir, "index.html"));
 });
 
-app.get('/room/:roomId/', (req, res) => {
+app.get("/room/:roomId/", (req, res) => {
     res.sendFile(path.join(clientRootDir, "index.html"));
 });
 
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
     res.send("200 OK");
 });
 
-
 /** Hide votes if needed */
-function getVisibleClientsState(origClientsState, votesVisible){
-    return origClientsState.map(({ name, vote, exitTimeout }) => ({
+function getVisibleClientsState({ clientsState, isShowingVotes }) {
+    return clientsState.map(({ name, vote, exitTimeout, isSpectating }) => ({
         name,
-        vote: votesVisible ? vote
-            : vote === null ? "?"
-                : "HAS_VOTE",
-        isExiting: exitTimeout !== null
+        vote: isShowingVotes ? vote : vote === null ? "?" : "HAS_VOTE",
+        isExiting: exitTimeout !== null,
+        isSpectating,
     }));
 }
 
 /** Returns first entry of clientsState. */
-function getCurrentHost(clientsState){
+function getCurrentHost(clientsState) {
     if (clientsState.length === 0) return null;
     const currentHostName = clientsState[0].name;
     return currentHostName;
 }
-
 
 /**
  * Current state of the 'poker game'.
@@ -59,17 +56,17 @@ function getCurrentHost(clientsState){
  * 'clientsState' is a Map so that key ordering by insertion is guaranteed
  * for determining currentHost.
  *
- * @type {Object<string,{ clientsState: { name: string, vote: number|string|null }[], isShowingVotes: boolean }>}
+ * @type {Map<string,{ clientsState: { name: string, vote: number|string|null, isSpectating: boolean }[], isShowingVotes: boolean }>}
  */
-const roomStates = {};
+const roomStates = new Map();
 
 const getNewRoomState = () => ({
     clientsState: [],
-    isShowingVotes: false
+    isShowingVotes: false,
+    agendaQueue: [],
 });
 
-io.on('connection', (socket) => {
-
+io.on("connection", (socket) => {
     // console.log("NEW CONNECTION, CURRENT STATE", roomStates);
 
     // TODO: Split out handlers to own files/modules as they grow.
@@ -79,8 +76,11 @@ io.on('connection', (socket) => {
         socket.join(roomName);
         socket.data.room = roomName;
 
-        roomStates[socket.data.room] = roomStates[socket.data.room] || getNewRoomState();
-        const room = roomStates[socket.data.room];
+        if (!roomStates.has(socket.data.room)) {
+            roomStates.set(socket.data.room, getNewRoomState());
+        }
+
+        const room = roomStates.get(socket.data.room);
 
         if (!name) return false; // TODO return error msg, allow dif name.
         socket.data.name = name;
@@ -101,36 +101,37 @@ io.on('connection', (socket) => {
                 vote: null,
                 timeJoined: socket.handshake.issued,
                 socket,
-                exitTimeout: null
+                exitTimeout: null,
             };
             room.clientsState.push(clientStateObj);
         }
 
+        const currentHost = getCurrentHost(room.clientsState);
+
         io.to(socket.data.room).emit("stateUpdate", {
-            clientsState: getVisibleClientsState(
-                room.clientsState,
-                room.isShowingVotes
-            ),
+            clientsState: getVisibleClientsState(room),
             isShowingVotes: room.isShowingVotes,
-            currentHost: getCurrentHost(room.clientsState)
+            currentHost,
         });
 
-        socket.emit("stateUpdate", {
+        const userState = {
             isJoined: true,
             room: socket.data.room,
             myName: socket.data.name,
-            myVote: existingClient?.vote || null
-        });
+            myVote: existingClient?.vote || null,
+            agendaQueue: room.agendaQueue,
+        };
+
+        socket.emit("stateUpdate", userState);
     });
 
     socket.on("vote", ({ vote }) => {
-        const room = roomStates[socket.data.room];
+        const room = roomStates.get(socket.data.room);
 
-        room.clientsState
-            .find(({ name }) => name === socket.data.name)
-            .vote = vote;
+        room.clientsState.find(({ name }) => name === socket.data.name).vote = vote;
 
         const areAllVotesIn = room.clientsState
+            .filter(({ isSpectating }) => !isSpectating)
             .every(({ vote: csVote }) => csVote !== null);
 
         if (areAllVotesIn) {
@@ -138,41 +139,48 @@ io.on('connection', (socket) => {
         }
 
         io.to(socket.data.room).emit("stateUpdate", {
-            clientsState: getVisibleClientsState(
-                room.clientsState,
-                room.isShowingVotes
-            ),
-            isShowingVotes: room.isShowingVotes
+            clientsState: getVisibleClientsState(room),
+            isShowingVotes: room.isShowingVotes,
         });
         socket.emit("stateUpdate", { myVote: vote });
     });
 
     socket.on("toggleShowingVotes", () => {
-        const room = roomStates[socket.data.room];
+        const room = roomStates.get(socket.data.room);
         if (socket.data.name !== getCurrentHost(room.clientsState)) {
             return; // TODO: throw error or smth
         }
         room.isShowingVotes = !room.isShowingVotes;
         if (room.isShowingVotes) {
-            room.clientsState.forEach((clientStateObj) => {
-                // Default non-votes to "PASS"
-                if (!clientStateObj.vote) {
-                    clientStateObj.vote = "PASS";
-                    clientStateObj.socket.emit("stateUpdate", { myVote: "PASS" });
-                }
-            });
+            room.clientsState
+                .filter(({ isSpectating }) => !isSpectating)
+                .forEach((clientStateObj) => {
+                    // Default non-votes to "PASS"
+                    if (!clientStateObj.vote) {
+                        clientStateObj.vote = "PASS";
+                        clientStateObj.socket.emit("stateUpdate", {
+                            myVote: "PASS",
+                        });
+                    }
+                });
         }
         io.to(socket.data.room).emit("stateUpdate", {
-            clientsState: getVisibleClientsState(
-                room.clientsState,
-                room.isShowingVotes
-            ),
-            isShowingVotes: room.isShowingVotes
+            clientsState: getVisibleClientsState(room),
+            isShowingVotes: room.isShowingVotes,
+        });
+    });
+
+    socket.on("toggleSpectating", () => {
+        const room = roomStates.get(socket.data.room);
+        const clientStateObj = room.clientsState.find(({ name }) => name === socket.data.name);
+        clientStateObj.isSpectating = !clientStateObj.isSpectating;
+        io.to(socket.data.room).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(room),
         });
     });
 
     socket.on("resetVotes", () => {
-        const room = roomStates[socket.data.room];
+        const room = roomStates.get(socket.data.room);
         if (socket.data.name !== getCurrentHost(room.clientsState)) {
             return; // TODO: throw error or smth
         }
@@ -180,13 +188,24 @@ io.on('connection', (socket) => {
         room.clientsState.forEach((clientStateObj) => {
             clientStateObj.vote = null;
         });
+        room.agendaQueue.shift();
         io.to(socket.data.room).emit("stateUpdate", {
-            clientsState: getVisibleClientsState(
-                room.clientsState,
-                room.isShowingVotes
-            ),
+            clientsState: getVisibleClientsState(room),
             isShowingVotes: room.isShowingVotes,
-            myVote: null
+            myVote: null,
+            agendaQueue: room.agendaQueue,
+        });
+    });
+
+    socket.on("setAgendaQueue", ({ agendaQueue }) => {
+        const room = roomStates.get(socket.data.room);
+        if (socket.data.name !== getCurrentHost(room.clientsState)) {
+            return; // TODO: throw error or smth
+        }
+        room.agendaQueue = agendaQueue;
+
+        io.to(socket.data.room).emit("stateUpdate", {
+            agendaQueue: room.agendaQueue,
         });
     });
 
@@ -196,44 +215,34 @@ io.on('connection', (socket) => {
             return;
         }
 
-        const room = roomStates[socket.data.room];
-        const clientStateObj = socket.data.name && room.clientsState.find(({ name }) => name === socket.data.name);
+        const room = roomStates.get(socket.data.room);
+        const clientStateObj =
+            socket.data.name && room.clientsState.find(({ name }) => name === socket.data.name);
 
         if (!clientStateObj) {
             return;
         }
-        
-        clientStateObj.exitTimeout = setTimeout(() => {
 
+        clientStateObj.exitTimeout = setTimeout(() => {
             // Delete client data from room
             const delIndex = room.clientsState.findIndex(({ name }) => name === socket.data.name);
             room.clientsState.splice(delIndex, 1);
 
             if (room.clientsState.length === 0) {
                 // No clients left in room, clean it up
-                delete roomStates[socket.data.room];
+                roomStates.delete(socket.data.room);
             } else {
                 io.to(socket.data.room).emit("stateUpdate", {
-                    clientsState: getVisibleClientsState(
-                        room.clientsState,
-                        room.isShowingVotes
-                    ),
-                    currentHost: getCurrentHost(room.clientsState)
+                    clientsState: getVisibleClientsState(room),
+                    currentHost: getCurrentHost(room.clientsState),
                 });
             }
-
         }, 15000);
 
         io.to(socket.data.room).emit("stateUpdate", {
-            clientsState: getVisibleClientsState(
-                room.clientsState,
-                room.isShowingVotes
-            )
+            clientsState: getVisibleClientsState(room),
         });
-
-        
     });
-
 });
 
 io.engine.on("connection_error", (err) => {

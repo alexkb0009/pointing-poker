@@ -1,22 +1,12 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import clsx from 'clsx';
-import { POKER_CARD_OPTIONS } from '../constants';
-import { VoteValue } from './VoteValue';
+import React, { useEffect, useLayoutEffect, useRef } from "react";
+import clsx from "clsx";
+import { POKER_CARD_OPTIONS } from "../constants";
+import { VoteValue } from "./VoteValue";
 
-export const VotingCards = ({
-    isShowingVotes,
-    onVotingCardSelect,
-    myVote
-}) => {
+export const VotingCards = ({ isShowingVotes, onVotingCardSelect, myVote }) => {
     return (
-        <div
-            className={clsx(
-                "voting-cards-container",
-                "poker-cards-container",
-                "py-3"
-            )}
-        >
-            { POKER_CARD_OPTIONS.map((option) => {
+        <div className={clsx("voting-cards-container", "poker-cards-container")}>
+            {POKER_CARD_OPTIONS.map((option) => {
                 const isSelected = myVote === option;
                 return (
                     <VotingCard
@@ -27,23 +17,18 @@ export const VotingCards = ({
                         isSelected={isSelected}
                     />
                 );
-            }) }
+            })}
         </div>
     );
 };
 
-const VotingCard = React.memo(({
-    option,
-    onVotingCardSelect,
-    isShowingVotes,
-    isSelected
-}) => {
+const VotingCard = React.memo(({ option, onVotingCardSelect, isShowingVotes, isSelected }) => {
     const ref = useRef();
-    useLayoutEffect(()=>{
+    useLayoutEffect(() => {
         if (isShowingVotes && isSelected) {
             ref.current.blur();
         }
-    }, [ isShowingVotes, isSelected ]);
+    }, [isShowingVotes, isSelected]);
 
     const onClick = (e) => {
         e.stopPropagation();
@@ -51,22 +36,16 @@ const VotingCard = React.memo(({
     };
 
     return (
-        <div className={clsx(
-            "voting-card-container"
-        )}>
+        <div className={clsx("voting-card-container")}>
             <button
-                className={clsx(
-                    "poker-card",
-                    "voting-card",
-                    isSelected && "selected",
-                )}
+                className={clsx("poker-card", "voting-card", isSelected && "selected")}
                 onClick={onClick}
                 type="button"
                 aria-label={option}
                 ref={ref}
                 // disabled={isShowingVotes}
             >
-                <VoteValue value={option}/>
+                <VoteValue value={option} />
             </button>
         </div>
     );

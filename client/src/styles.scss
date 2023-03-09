@@ -39,21 +39,25 @@
 
 /* Mixins/Reusables */
 
+$poker-card-height: 7.5rem;
+$poker-card-width: 5rem;
+$poker-container-padding-x: 0.75rem;
+$poker-container-padding-y: 1rem;
+
 .poker-cards-container {
     display: flex;
     align-items: center;
     grid-gap: 1rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding: $poker-container-padding-y $poker-container-padding-x;
     overflow-x: auto;
-    // background-color: #b3d1b3;
     background-color: #cbe3cb;
+    flex-basis: $poker-card-height + (2 * $poker-container-padding-y);
 }
 
 .poker-card {
-    flex: 0 0 80px;
-    width: 80px;
-    height: 120px;
+    flex: 0 0 $poker-card-width;
+    width: $poker-card-width;
+    height: $poker-card-height;
     border: 1px solid #000;
     background-color: #fff;
     display: flex;
@@ -92,6 +96,45 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
+}
+
+#content-area {
+    flex-grow: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes topLoader {
+    0% { left: -1%; right: 101%; }
+    30% { left: 0%; right: 40%; }
+    60% { left: 45%; right: 0%; }
+    90% { left: 100%; right: -0%; }
+    100% { left: 101%; right: -1%; }
+}
+
+.connecting-container {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    place-items: center;
+    background-color: rgba(0,0,0,0.1);
+    pointer-events: none;
+    font-size: 2em;
+    font-weight: bold;
+    &:before {
+        content: " ";
+        background-color: #03f6b6;
+        height: 6px;
+        position: absolute;
+        top: 0;
+        transform: translate3d(0,0,0);
+        animation: topLoader 1.2s ease-in-out 0s infinite normal;
+    }
 }
 
 .introduction-form {

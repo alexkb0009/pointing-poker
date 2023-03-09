@@ -2,7 +2,7 @@ import React from "react";
 import Particles from "react-particles";
 import { loadConfettiPreset } from "tsparticles-preset-confetti";
 
-export const Confetti = ({ enabled }) => {
+export const Confetti = React.memo(({ enabled }) => {
     const particlesInit = (engine) => {
         return loadConfettiPreset(engine);
     };
@@ -20,4 +20,4 @@ export const Confetti = ({ enabled }) => {
             }}
         />
     );
-};
+});
