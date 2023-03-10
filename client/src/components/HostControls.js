@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
-import isEqual from "lodash.isequal";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 
 export const HostControls = ({
@@ -10,7 +9,14 @@ export const HostControls = ({
     onSetAgendaQueue,
 }) => {
     const [isShowingAgendaQueue, setIsShowingAgendaQueue] = useState(false);
+    const textareaRef = useRef();
     const agendaQueueLen = agendaQueue.length;
+
+    useEffect(() => {
+        if (isShowingAgendaQueue) {
+            textareaRef.current.value = agendaQueue.join("\n");
+        }
+    }, [agendaQueueLen]);
 
     const toggleIsShowingAgendaQueue = () => {
         setIsShowingAgendaQueue((prev) => !prev);
@@ -35,7 +41,7 @@ export const HostControls = ({
                                 isShowingVotes ? "btn-outline-primary" : "btn-primary"
                             )}
                         >
-                            {isShowingVotes ? "Hide" : "Show"} Votes
+                            &#128065;
                         </button>
                     </div>
 
@@ -43,6 +49,7 @@ export const HostControls = ({
                         <button
                             type="button"
                             onClick={onResetVotes}
+                            disabled={!isShowingVotes}
                             className={clsx(
                                 "btn",
                                 isShowingVotes ? "btn-primary" : "btn-outline-primary"
@@ -52,13 +59,18 @@ export const HostControls = ({
                         </button>
                     </div>
 
+                    <div className="flex-grow-1">&nbsp;</div>
+
                     <div className="btn-group me-2 my-1" role="group">
                         <button
                             type="button"
                             onClick={toggleIsShowingAgendaQueue}
-                            className={clsx("btn", "btn-outline-primary")}
+                            className={clsx(
+                                "btn",
+                                isShowingAgendaQueue ? "btn-primary" : "btn-outline-primary"
+                            )}
                         >
-                            {isShowingAgendaQueue ? "Hide" : "Show"} Agenda Queue
+                            &#128220;
                         </button>
                     </div>
                 </div>
@@ -66,11 +78,13 @@ export const HostControls = ({
                 {isShowingAgendaQueue && (
                     <div className="pb-3">
                         <textarea
-                            className={clsx("form-control")}
-                            rows={7}
+                            className={clsx("form-control", "agenda-textarea")}
+                            rows={8}
                             placeholder="Copy and paste (or type) agenda here. Each line is a separate item."
                             defaultValue={agendaQueue.join("\n")}
                             onChange={onTextareaChange}
+                            spellCheck={false}
+                            ref={textareaRef}
                         />
                     </div>
                 )}

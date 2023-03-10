@@ -238,3 +238,16 @@ $poker-container-padding-y: 1rem;
 .host-controls {
     border-bottom: 1px solid #444;
 }
+
+.agenda-textarea {
+    white-space: nowrap;
+    background-attachment: local;
+    line-height: 26px;
+    font-size: 1rem;
+    background-attachment: local;
+    background-image:
+        linear-gradient(to right, #FFF, #FFF .75rem, transparent .75rem),
+        linear-gradient(to left, #FFF, #FFF .75rem, transparent .75rem),
+        repeating-linear-gradient(#FFF, #FFF 25px, #eee 25px, #eee 26px);
+    background-position-y: 6px;
+}
