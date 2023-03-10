@@ -10,37 +10,17 @@ export const HostControls = ({
     onSetAgendaQueue,
 }) => {
     const [isShowingAgendaQueue, setIsShowingAgendaQueue] = useState(false);
-    const [editableAgendaQueue, setEditableAgendaQueue] = useState([]);
-
     const agendaQueueLen = agendaQueue.length;
-    const isAgendaQueueChanged = !isEqual(agendaQueue, editableAgendaQueue);
-
-    useMemo(() => {
-        if (isAgendaQueueChanged) {
-            setEditableAgendaQueue(agendaQueue);
-            if (agendaQueueLen === 0) {
-                setIsShowingAgendaQueue(false);
-            }
-        }
-    }, [agendaQueue]);
 
     const toggleIsShowingAgendaQueue = () => {
         setIsShowingAgendaQueue((prev) => !prev);
     };
 
-    const handleAgendaTextareaSave = () => {
-        onSetAgendaQueue(editableAgendaQueue);
-    };
-
-    const onTextareaChange = useCallback((e) => {
+    const onTextareaChange = (e) => {
         const nextText = e.target.value;
-        if (!nextText) {
-            setEditableAgendaQueue([]);
-        } else {
-            const items = nextText.split("\n");
-            setEditableAgendaQueue(items);
-        }
-    }, []);
+        const nextQueue = nextText ? nextText.split("\n") : [];
+        onSetAgendaQueue(nextQueue);
+    };
 
     return (
         <div className="host-controls-wrapper">
@@ -80,19 +60,6 @@ export const HostControls = ({
                         >
                             {isShowingAgendaQueue ? "Hide" : "Show"} Agenda Queue
                         </button>
-                        {isShowingAgendaQueue && (
-                            <button
-                                type="button"
-                                onClick={handleAgendaTextareaSave}
-                                disabled={!isAgendaQueueChanged}
-                                className={clsx(
-                                    "btn",
-                                    isAgendaQueueChanged ? "btn-primary" : "btn-outline-success"
-                                )}
-                            >
-                                Save Agenda Queue
-                            </button>
-                        )}
                     </div>
                 </div>
 
@@ -102,7 +69,7 @@ export const HostControls = ({
                             className={clsx("form-control")}
                             rows={7}
                             placeholder="Copy and paste (or type) agenda here. Each line is a separate item."
-                            value={editableAgendaQueue.join("\n")}
+                            defaultValue={agendaQueue.join("\n")}
                             onChange={onTextareaChange}
                         />
                     </div>

@@ -22,13 +22,13 @@ const createInitialState = () => ({
 export class App extends React.Component {
     constructor(props) {
         super(props);
-        const debounceOpts = { leading: true, trailing: false };
-        this.onJoin = debounce(this.onJoin.bind(this), 1000, debounceOpts);
+        const noDblClicks = { leading: true, trailing: false };
+        this.onJoin = debounce(this.onJoin.bind(this), 1000, noDblClicks);
         this.onVotingCardSelect = this.onVotingCardSelect.bind(this);
-        this.onToggleSpectating = debounce(this.onToggleSpectating.bind(this), 500, debounceOpts);
+        this.onToggleSpectating = debounce(this.onToggleSpectating.bind(this), 500, noDblClicks);
         this.onToggleShowingVotes = this.onToggleShowingVotes.bind(this);
-        this.onResetVotes = debounce(this.onResetVotes.bind(this), 1000, debounceOpts);
-        this.onSetAgendaQueue = debounce(this.onSetAgendaQueue.bind(this), 1000, debounceOpts);
+        this.onResetVotes = debounce(this.onResetVotes.bind(this), 1000, noDblClicks);
+        this.onSetAgendaQueue = debounce(this.onSetAgendaQueue.bind(this), 1000);
 
         this.state = createInitialState();
     }
