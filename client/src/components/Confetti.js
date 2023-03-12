@@ -1,15 +1,34 @@
-import React from "react";
-import Particles from "react-particles";
-import { loadConfettiPreset } from "tsparticles-preset-confetti";
+import React, { useEffect, useState } from "react";
 
-export const Confetti = React.memo(({ enabled }) => {
+let Particles = null;
+let loadConfettiPreset = null;
+
+export const Confetti = React.memo(() => {
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        (async () => {
+            if (Particles && loadConfettiPreset) {
+                setMounted(true);
+                return;
+            }
+            [{ default: Particles }, { loadConfettiPreset }] = await Promise.all([
+                import("react-particles/cjs/Particles"),
+                import("tsparticles-preset-confetti/cjs/index"),
+            ]);
+            setMounted(true);
+        })();
+    }, []);
+
+    if (!mounted) {
+        return null;
+    }
+
     const particlesInit = (engine) => {
         return loadConfettiPreset(engine);
     };
+
     const particlesLoaded = () => {};
-    if (!enabled) {
-        return null;
-    }
+
     return (
         <Particles
             id="fireworks-container"

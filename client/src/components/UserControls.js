@@ -10,7 +10,7 @@ export const UserControls = ({ onChange, clientsState, myName }) => {
     return (
         <div className="nav-controls d-flex">
             <div className="px-2 d-flex align-items-center" title="Number of spectators in room">
-                &#9731;&nbsp;
+                <i className="fa-solid fa-user-secret me-2" />
                 {countSpectators}
             </div>
             <label className="form-check-label px-2 d-flex align-items-center h-100">

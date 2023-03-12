@@ -1,59 +1,84 @@
-import React from 'react';
-import clsx from 'clsx';
+import React, { useEffect, useState } from "react";
+import clsx from "clsx";
 
-export const IntroductionForm = ({ onJoin }) => {
-
-    let roomFromURL = '';
-    const roomMatch = window.location.pathname.match(/\/room\/(\S+)[\/?]/);
+export const getRoomFromURLObject = (urlObject) => {
+    const roomMatch = urlObject.pathname?.match(/\/room\/(\S+)[\/?]/);
     if (roomMatch && roomMatch.length > 1) {
-        roomFromURL = roomMatch[1];
+        return roomMatch[1];
     }
+    return null;
+};
 
-    const savedName = window.localStorage.getItem("myName");
+export const IntroductionForm = ({ onJoin, roomFromURL }) => {
+    const [myName, setMyName] = useState("");
+    const [isSpectating, setIsSpectating] = useState("");
+
+    useEffect(() => {
+        setMyName(window.localStorage.getItem("myName") || "");
+        setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
+    }, []);
 
     const onSubmit = (e) => {
         e.preventDefault();
-        const { name, room } = Object.fromEntries(new FormData(e.target));
-        onJoin(name, room || roomFromURL);
-        window.localStorage.setItem("myName", name);
+        const { room: roomFromForm } = Object.fromEntries(new FormData(e.target));
+        onJoin(myName, roomFromURL || roomFromForm);
+        window.localStorage.setItem("myName", myName);
+        window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
     };
 
     return (
-        <div className={clsx("introduction-form", "row")}>
-            <div className={clsx("col", "col-sm-6", "col-lg-4")}>
-                <form onSubmit={onSubmit}>
-                    { !roomFromURL && (
-                        <>
-                            <label htmlFor="room-input" className="form-label">
-                                Room
-                            </label>
+        <div className={clsx("container", "py-3")}>
+            <div className={clsx("introduction-form", "row", "justify-content-center")}>
+                <div className={clsx("col", "col-sm-6", "col-lg-4")}>
+                    <form onSubmit={onSubmit}>
+                        <label htmlFor="room-input" className="form-label">
+                            Room
+                        </label>
+                        <input
+                            id="room-input"
+                            type="text"
+                            name="room"
+                            defaultValue={roomFromURL || ""}
+                            className="form-control"
+                            maxLength={12}
+                            disabled={!!roomFromURL}
+                        />
+
+                        <label htmlFor="name-input" className="form-label">
+                            Your Name
+                        </label>
+                        <input
+                            id="name-input"
+                            type="text"
+                            name="name"
+                            value={myName}
+                            onChange={(e) => setMyName(e.target.value)}
+                            className="form-control"
+                            maxLength={8}
+                        />
+
+                        <label className="form-check-label px-2 d-flex align-items-center h-100">
                             <input
-                                id="room-input"
-                                type="text"
-                                name="room"
-                                defaultValue={roomFromURL}
-                                className="form-control"
-                                maxLength={12}
+                                type="checkbox"
+                                name="isSpectating"
+                                className="form-check-input me-2 my-0"
+                                checked={isSpectating}
+                                onChange={(e) => setIsSpectating(e.target.checked)}
                             />
-                        </>
-                    )}
+                            Spectate
+                        </label>
 
-                    <label htmlFor="name-input" className="form-label">
-                        Your Name
-                    </label>
-                    <input
-                        id="name-input"
-                        type="text"
-                        name="name"
-                        defaultValue={savedName}
-                        className="form-control"
-                        maxLength={8}
-                    />
+                        <button type="submit" className="mt-3 w-100 btn btn-primary">
+                            Join
+                        </button>
 
-                    <button type="submit" className="btn btn-primary">
-                        Join
-                    </button>
-                </form>
+                        <p className="mt-2 small">
+                            By clicking Join, you agree to our{" "}
+                            <a href="/cookie-policy">Cookie Policy</a> and{" "}
+                            <a href="/terms-of-service">Terms of Service</a>.
+                        </p>
+                    </form>
+                </div>
             </div>
         </div>
     );

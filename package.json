@@ -5,7 +5,8 @@
         "build": "npx webpack build",
         "build-dev": "NODE_ENV=development npx webpack build",
         "watch-dev": "NODE_ENV=development npx webpack watch",
-        "serve": "node server/src/index.js"
+        "serve": "node server/server.js",
+        "serve-dev": "nodemon server/server.js --watch ./client/dist/server-bundle.js"
     },
     "author": "Alex Balashov",
     "dependencies": {
@@ -30,6 +31,7 @@
         "less": "^4.1.3",
         "less-loader": "^11.1.0",
         "mini-css-extract-plugin": "^2.7.2",
+        "nodemon": "^2.0.21",
         "postcss-loader": "^7.0.2",
         "prettier": "^2.8.4",
         "sass": "^1.58.3",

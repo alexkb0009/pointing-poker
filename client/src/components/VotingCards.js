@@ -43,7 +43,7 @@ const VotingCard = React.memo(({ option, onVotingCardSelect, isShowingVotes, isS
                 type="button"
                 aria-label={option}
                 ref={ref}
-                // disabled={isShowingVotes}
+                disabled={isShowingVotes}
             >
                 <VoteValue value={option} />
             </button>

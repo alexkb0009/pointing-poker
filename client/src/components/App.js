@@ -1,7 +1,7 @@
 import React from "react";
-import { io } from "socket.io-client";
 import debounce from "lodash.debounce";
-import { IntroductionForm } from "./IntroductionForm";
+import { TopNav } from "./TopNav";
+import { IntroductionForm, getRoomFromURLObject } from "./IntroductionForm";
 import { HostControls } from "./HostControls";
 import { UserControls } from "./UserControls";
 import { PeerVotes } from "./PeerVotes";
@@ -19,11 +19,14 @@ const createInitialState = () => ({
     agendaQueue: [],
 });
 
+let io = null;
+
 export class App extends React.Component {
     constructor(props) {
         super(props);
         const noDblClicks = { leading: true, trailing: false };
         this.onJoin = debounce(this.onJoin.bind(this), 1000, noDblClicks);
+        this.onExit = debounce(this.onExit.bind(this), 1000, noDblClicks);
         this.onVotingCardSelect = this.onVotingCardSelect.bind(this);
         this.onToggleSpectating = debounce(this.onToggleSpectating.bind(this), 500, noDblClicks);
         this.onToggleShowingVotes = this.onToggleShowingVotes.bind(this);
@@ -34,44 +37,57 @@ export class App extends React.Component {
     }
 
     componentDidMount() {
-        const { appVersion, commitHash } = this.props;
+        const { appVersion, commitHash, url } = this.props;
         console.info("Version Info", appVersion, commitHash);
-        this.socket = io({
-            transports: ["websocket", "polling"],
-            closeOnBeforeunload: false,
-            // autoConnect: false
-        });
-        this.socket.on("connect_error", () => {
-            this.socket.io.opts.transports = ["polling", "websocket"];
-        });
-        this.socket.on("connect", () => {
-            const { myName, room } = this.state;
-            // If reconnection attempt, try re-join previous room
-            if (myName && room) {
-                this.onJoin(myName, room);
-            }
-            this.setState({ isConnected: true });
-        });
-        this.socket.on("stateUpdate", (stateUpdate) => {
-            if (stateUpdate.room) {
-                window.history.replaceState(null, document.title, `/room/${stateUpdate.room}/`);
-            }
-            this.setState(
-                (existingState) => ({
-                    ...existingState,
-                    ...stateUpdate,
-                }),
-                () => {
-                    // console.log("Updated State", stateUpdate, '\n', this.state);
-                }
+
+        const initialize = async () => {
+            const { io: loadedIO } = await import(
+                /* webpackPrefetch: true */
+                "socket.io-client"
             );
-        });
-        this.socket.on("disconnect", () => {
-            this.setState({ isConnected: false });
-        });
-        window.addEventListener("beforeunload", () => {
-            this.setState(createInitialState());
-        });
+            io = loadedIO;
+            this.socket = io({
+                transports: ["websocket", "polling"],
+                closeOnBeforeunload: false,
+            });
+            this.socket.on("connect_error", (err) => {
+                // this.socket.io.opts.transports = ["polling", "websocket"];
+                console.error("Connection Error", err);
+            });
+            this.socket.on("connect", () => {
+                const { myName, room } = this.state;
+                // If reconnection attempt, try re-join previous room
+                if (myName && room) {
+                    this.onJoin(myName, room);
+                }
+                this.setState({ isConnected: true });
+            });
+            this.socket.on("stateUpdate", (stateUpdate) => {
+                if (stateUpdate.room) {
+                    if (getRoomFromURLObject(url) !== stateUpdate.room) {
+                        window.history.pushState(
+                            null,
+                            document.title,
+                            `/room/${stateUpdate.room}/`
+                        );
+                    }
+                }
+                this.setState(
+                    (existingState) => ({
+                        ...existingState,
+                        ...stateUpdate,
+                    })
+                    // () => console.log("Updated State", stateUpdate, "\n", this.state)
+                );
+            });
+            this.socket.on("disconnect", () => {
+                this.setState({ isConnected: false });
+            });
+            window.addEventListener("beforeunload", () => {
+                this.setState(createInitialState());
+            });
+        };
+        initialize();
     }
 
     onJoin(name, room = null) {
@@ -80,6 +96,10 @@ export class App extends React.Component {
             payload.room = room;
         }
         this.socket.emit("join", payload);
+    }
+
+    onExit() {
+        this.socket.emit("exit");
     }
 
     onVotingCardSelect(vote) {
@@ -104,6 +124,7 @@ export class App extends React.Component {
     }
 
     render() {
+        const { url } = this.props;
         const {
             isConnected,
             isJoined,
@@ -114,14 +135,28 @@ export class App extends React.Component {
             myName,
             agendaQueue,
         } = this.state;
+        const roomFromURL = getRoomFromURLObject(url);
         const isCurrentHostMe = currentHost === myName;
         const agendaQueueLen = agendaQueue.length;
         return (
             <>
-                <div className="top-nav d-flex">
-                    <h3 id="page-title" className="container-fluid m-0 py-2">
-                        Planning Poker
-                    </h3>
+                <TopNav
+                    brandContent={
+                        isJoined && (
+                            <a
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    this.onExit();
+                                }}
+                            >
+                                <i className="fa-solid fa-angles-left me-2" />
+                                Exit
+                            </a>
+                        )
+                    }
+                    href={!isJoined && roomFromURL ? "/" : null}
+                >
                     {isJoined && (
                         <UserControls
                             clientsState={clientsState}
@@ -129,15 +164,13 @@ export class App extends React.Component {
                             myName={myName}
                         />
                     )}
-                </div>
+                </TopNav>
 
                 <div id="content-area">
                     {!isConnected && <div className="connecting-container">Connecting</div>}
 
                     {!isJoined ? (
-                        <div className="container-fluid py-2">
-                            <IntroductionForm onJoin={this.onJoin} />
-                        </div>
+                        <IntroductionForm onJoin={this.onJoin} roomFromURL={roomFromURL} />
                     ) : (
                         <>
                             {agendaQueueLen > 0 && (

@@ -41,7 +41,11 @@ export const HostControls = ({
                                 isShowingVotes ? "btn-outline-primary" : "btn-primary"
                             )}
                         >
-                            &#128065;
+                            {isShowingVotes ? (
+                                <i className="fa-solid fa-eye fa-fw" />
+                            ) : (
+                                <i className="fa-solid fa-eye-slash fa-fw" />
+                            )}
                         </button>
                     </div>
 
@@ -61,7 +65,7 @@ export const HostControls = ({
 
                     <div className="flex-grow-1">&nbsp;</div>
 
-                    <div className="btn-group me-2 my-1" role="group">
+                    <div className="btn-group my-1" role="group">
                         <button
                             type="button"
                             onClick={toggleIsShowingAgendaQueue}
@@ -70,7 +74,7 @@ export const HostControls = ({
                                 isShowingAgendaQueue ? "btn-primary" : "btn-outline-primary"
                             )}
                         >
-                            &#128220;
+                            <i className="fa-solid fa-list-check fa-fw" />
                         </button>
                     </div>
                 </div>

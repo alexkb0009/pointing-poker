@@ -1,11 +1,13 @@
-const path = require("path");
 const http = require("http");
 const Express = require("express");
 const SocketIO = require("socket.io");
+const { setupRoutes } = require("../client/dist/server-bundle");
 
 // TODO Clean up everything, make common stuff DRY, split into dif files.
 // TODO Scale up to multiple rooms (& multiple servers?)
 // TODO Organize everything
+// TODO: Make each room a class instance?
+// How would roomStates scale with # of servers? Sticky sessions? Store roomStates into Redis or Mongo?
 
 /**
  * @module
@@ -17,21 +19,7 @@ const app = Express();
 const httpServer = http.createServer(app);
 const io = new SocketIO.Server(httpServer);
 
-const clientRootDir = path.join(__dirname, "../../client");
-
-app.use("/static", Express.static(path.join(clientRootDir, "dist"), { index: false }));
-
-app.get("/", (req, res) => {
-    res.sendFile(path.join(clientRootDir, "index.html"));
-});
-
-app.get("/room/:roomId/", (req, res) => {
-    res.sendFile(path.join(clientRootDir, "index.html"));
-});
-
-app.get("/health", (req, res) => {
-    res.send("200 OK");
-});
+setupRoutes(app);
 
 /** Hide votes if needed */
 function getVisibleClientsState({ clientsState, isShowingVotes }) {
@@ -50,6 +38,34 @@ function getCurrentHost(clientsState) {
     return currentHostName;
 }
 
+const roomExitCleanup = (socket) => {
+    const { room: roomName, name: clientName } = socket.data;
+    const room = roomStates.get(roomName);
+    if (!room) {
+        return;
+    }
+
+    const clientStateIndex =
+        clientName && room.clientsState.findIndex(({ name }) => name === clientName);
+
+    if (clientStateIndex !== -1) {
+        // Delete client data from room
+        room.clientsState.splice(clientStateIndex, 1);
+    }
+
+    delete socket.data.room;
+
+    if (room.clientsState.length === 0) {
+        // No clients left in room, clean it up
+        roomStates.delete(roomName);
+    } else {
+        io.to(roomName).emit("stateUpdate", {
+            clientsState: getVisibleClientsState(room),
+            currentHost: getCurrentHost(room.clientsState),
+        });
+    }
+};
+
 /**
  * Current state of the 'poker game'.
  *
@@ -64,6 +80,7 @@ const getNewRoomState = () => ({
     clientsState: [],
     isShowingVotes: false,
     agendaQueue: [],
+    originalHost: null,
 });
 
 io.on("connection", (socket) => {
@@ -72,18 +89,26 @@ io.on("connection", (socket) => {
     // TODO: Split out handlers to own files/modules as they grow.
 
     socket.on("join", ({ name, room: roomParam = null }) => {
+        if (!name) {
+            return false; // TODO return error msg, allow dif name.
+        }
+        socket.data.name = name;
         const roomName = roomParam || "default-room";
+
+        // Ensure socket is in 1 room only
+        [...socket.rooms].slice(1).forEach((rn) => {
+            socket.leave(rn);
+        });
         socket.join(roomName);
         socket.data.room = roomName;
 
-        if (!roomStates.has(socket.data.room)) {
-            roomStates.set(socket.data.room, getNewRoomState());
+        const isNewRoom = !roomStates.has(socket.data.room);
+        const room = !isNewRoom ? roomStates.get(socket.data.room) : getNewRoomState();
+
+        if (isNewRoom) {
+            roomStates.set(socket.data.room, room);
+            room.originalHost = name;
         }
-
-        const room = roomStates.get(socket.data.room);
-
-        if (!name) return false; // TODO return error msg, allow dif name.
-        socket.data.name = name;
 
         const existingClient = room.clientsState.find(({ name: csName }) => name === csName);
         if (existingClient) {
@@ -103,7 +128,11 @@ io.on("connection", (socket) => {
                 socket,
                 exitTimeout: null,
             };
-            room.clientsState.push(clientStateObj);
+            if (room.originalHost === name) {
+                room.clientsState.unshift(clientStateObj);
+            } else {
+                room.clientsState.push(clientStateObj);
+            }
         }
 
         const currentHost = getCurrentHost(room.clientsState);
@@ -125,8 +154,26 @@ io.on("connection", (socket) => {
         socket.emit("stateUpdate", userState);
     });
 
+    socket.on("exit", () => {
+        if (!socket.data.name || !socket.data.room) {
+            return false; // TODO: Error throw stuff
+        }
+        socket.leave(socket.data.room);
+        roomExitCleanup(socket);
+        socket.emit("stateUpdate", {
+            isJoined: false,
+            room: null,
+            myName: null,
+            myVote: null,
+        });
+    });
+
     socket.on("vote", ({ vote }) => {
         const room = roomStates.get(socket.data.room);
+
+        if (room.isShowingVotes) {
+            return false; // Don't allow changing vote for now.
+        }
 
         room.clientsState.find(({ name }) => name === socket.data.name).vote = vote;
 
@@ -174,8 +221,18 @@ io.on("connection", (socket) => {
         const room = roomStates.get(socket.data.room);
         const clientStateObj = room.clientsState.find(({ name }) => name === socket.data.name);
         clientStateObj.isSpectating = !clientStateObj.isSpectating;
+
+        const areAllVotesIn = room.clientsState
+            .filter(({ isSpectating }) => !isSpectating)
+            .every(({ vote: csVote }) => csVote !== null);
+
+        if (areAllVotesIn) {
+            room.isShowingVotes = true;
+        }
+
         io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(room),
+            isShowingVotes: room.isShowingVotes,
         });
     });
 
@@ -210,36 +267,25 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", (reason) => {
-        // console.log("Disconnected", socket.data.name, reason);
-        if (!socket.data.room) {
+        const { room: roomName, name: clientName } = socket.data;
+        // console.log("Disconnected", socket.data.name, socket.data.room, socket.rooms, reason);
+        if (!roomName) {
             return;
         }
 
-        const room = roomStates.get(socket.data.room);
+        const room = roomStates.get(roomName);
         const clientStateObj =
-            socket.data.name && room.clientsState.find(({ name }) => name === socket.data.name);
+            clientName && room.clientsState.find(({ name }) => name === clientName);
 
         if (!clientStateObj) {
-            return;
+            roomExitCleanup(socket);
+        } else {
+            clientStateObj.exitTimeout = setTimeout(() => {
+                roomExitCleanup(socket);
+            }, 15000);
         }
 
-        clientStateObj.exitTimeout = setTimeout(() => {
-            // Delete client data from room
-            const delIndex = room.clientsState.findIndex(({ name }) => name === socket.data.name);
-            room.clientsState.splice(delIndex, 1);
-
-            if (room.clientsState.length === 0) {
-                // No clients left in room, clean it up
-                roomStates.delete(socket.data.room);
-            } else {
-                io.to(socket.data.room).emit("stateUpdate", {
-                    clientsState: getVisibleClientsState(room),
-                    currentHost: getCurrentHost(room.clientsState),
-                });
-            }
-        }, 15000);
-
-        io.to(socket.data.room).emit("stateUpdate", {
+        io.to(roomName).emit("stateUpdate", {
             clientsState: getVisibleClientsState(room),
         });
     });

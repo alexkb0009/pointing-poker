@@ -29,7 +29,7 @@ export const PeerVotes = ({ isShowingVotes = false, clientsState }) => {
                 isShowingVotes && "votes-shown"
             )}
         >
-            <Confetti enabled={allClientsShowingSameVote} />
+            {allClientsShowingSameVote && <Confetti />}
             {presentClients.map((clientState) => (
                 <PeerVoteCard key={clientState.name} clientState={clientState} />
             ))}
