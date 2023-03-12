@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 
 export const getRoomFromURLObject = (urlObject) => {
-    const roomMatch = urlObject.pathname?.match(/\/room\/(\S+)[\/?]/);
+    const roomMatch = urlObject.pathname?.match(/\/room\/(\w+)\/?/);
     if (roomMatch && roomMatch.length > 1) {
         return roomMatch[1];
     }
