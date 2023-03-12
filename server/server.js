@@ -66,6 +66,10 @@ const roomExitCleanup = (socket) => {
     }
 };
 
+// setInterval(() => {
+//     console.log("ROOMS", roomStates.keys());
+// }, 5000);
+
 /**
  * Current state of the 'poker game'.
  *
@@ -271,7 +275,8 @@ io.on("connection", (socket) => {
     socket.on("disconnect", (reason) => {
         const { room: roomName, name: clientName } = socket.data;
         // console.log("Disconnected", socket.data.name, socket.data.room, socket.rooms, reason);
-        if (!roomName) {
+        if (!roomName || !roomStates.has(roomName)) {
+            // Done
             return;
         }
 
