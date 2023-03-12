@@ -9,6 +9,7 @@ const packageJson = require("./package.json");
 // const chunkFilename = '[name].js'; // TODO: Support '[name].[chunkhash].js';
 
 const mode = env === "development" ? "development" : "production";
+const isProduction = mode === "production";
 
 const commonConfig = {
     mode,
@@ -53,11 +54,13 @@ module.exports = [
         },
         output: {
             ...commonConfig.output,
-            filename: "[name].[chunkhash].js",
+            filename: isProduction ? "[name].[chunkhash].js" : commonConfig.output.filename,
         },
         target: "web",
         plugins: [
-            new MiniCssExtractPlugin({ filename: "styles.[chunkhash].css" }),
+            new MiniCssExtractPlugin({
+                filename: isProduction ? "styles.[chunkhash].css" : "styles.css",
+            }),
             new webpack.DefinePlugin({
                 APP_VERSION: JSON.stringify(packageJson.version),
                 COMMIT_HASH: JSON.stringify(

@@ -2,11 +2,12 @@
     "name": "@alexkb0009/planning-poker-server",
     "version": "0.0.1",
     "scripts": {
-        "build": "npx webpack build",
-        "build-dev": "rm -r client/dist && NODE_ENV=development npx webpack build",
-        "watch-dev": "rm -r client/dist && NODE_ENV=development npx webpack watch",
+        "build": "npm run clean && npx webpack build",
+        "build-dev": "npm run clean && NODE_ENV=development npx webpack build",
+        "watch-dev": "npm run clean && NODE_ENV=development npx webpack watch",
         "serve": "node server/server.js",
-        "serve-dev": "nodemon server/server.js --watch ./client/dist/server-bundle.js"
+        "serve-dev": "nodemon server/server.js --watch ./client/dist/server-bundle.js",
+        "clean": "rm -rf client/dist/*"
     },
     "author": "Alex Balashov",
     "dependencies": {

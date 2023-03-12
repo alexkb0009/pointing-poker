@@ -39,17 +39,39 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
             {/*isOpen && <em className="mt-2 small text-muted">{remainingLen - 1} more items</em>*/}
             {isOpen && (
                 <>
-                    <label className="fw-bold small mt-2">History</label>
-                    {historyLen === 0 ? (
-                        <em className="d-block">None</em>
-                    ) : (
-                        agendaHistory
-                            .map((item, index) => (
-                                <AgendaItem key={index} index={index} item={item} />
+                    <div>
+                        <h6 className="mt-2">History</h6>
+                        {historyLen === 0 ? (
+                            <em className="d-block">None</em>
+                        ) : (
+                            agendaHistory
+                                .map(({ text, votes }, index) => (
+                                    <AgendaItem
+                                        key={index}
+                                        index={index}
+                                        text={text}
+                                        votes={votes}
+                                    />
+                                ))
+                                // Most recent at top
+                                .reverse()
+                        )}
+                    </div>
+
+                    <div>
+                        <h6 className="mt-2">Queue</h6>
+                        {remainingLen === 1 ? (
+                            <em className="d-block">None</em>
+                        ) : (
+                            nextItems.map((text, index) => (
+                                <AgendaItem
+                                    key={index}
+                                    index={historyLen + 1 + index}
+                                    text={text}
+                                />
                             ))
-                            // Most recent at top
-                            .reverse()
-                    )}
+                        )}
+                    </div>
                 </>
             )}
         </div>
@@ -99,14 +121,22 @@ function votesStats(votes) {
     };
 }
 
-const AgendaItem = ({ index, item: { text, votes } }) => {
+const AgendaItem = ({ index, text, votes = null }) => {
+    return (
+        <div className="d-flex align-items-center small">
+            <span className="fw-bold">{index + 1}.&nbsp;</span>
+            <span className="text-truncate">{text || noTextFallback}</span>
+            {votes && <AgendaItemVotes votes={votes} />}
+        </div>
+    );
+};
+
+const AgendaItemVotes = ({ votes }) => {
     const stats = votesStats(votes);
     const scoreType = !stats ? null : stats.mode ? "mode" : "average";
     const score = (scoreType && stats[scoreType]) || null;
     return (
-        <div className="d-flex align-items-center">
-            <span className="fw-bold small">{index + 1}.&ensp;</span>
-            <span className="text-truncate">{text || noTextFallback}</span>
+        <>
             <div className="flex-grow-1">&emsp;</div>
 
             <div className="votes-list">
@@ -126,7 +156,7 @@ const AgendaItem = ({ index, item: { text, votes } }) => {
                     <span className="value">{VALUE_DISPLAY[score] || score}</span>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 

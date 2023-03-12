@@ -179,6 +179,8 @@ $poker-container-padding-y: 1rem;
 
 .current-agenda {
     cursor: pointer;
+    // max-height: 70px;
+    // transition: max-height .25s ease-out;
     label {
         cursor: inherit;
         > i.fa-angle-right {
@@ -187,6 +189,8 @@ $poker-container-padding-y: 1rem;
     }
     
     &.is-open {
+        // overflow-y: auto;
+        // max-height: 270px;
         label > i.fa-angle-right {
             transform: rotate3d(0, 0, 1, 90deg);
         }
