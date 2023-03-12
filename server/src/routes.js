@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import Express from "express";
@@ -8,10 +9,25 @@ import { TopNav } from "../../client/src/components/TopNav";
 import { TOS } from "../../client/src/components/static-views/terms-of-service";
 import { PrivacyPolicy } from "../../client/src/components/static-views/privacy-policy";
 
-const pipeSSR = (request, response, children, bootstrapScripts = ["/static/bundle.js"]) => {
+const clientRootDir = path.join(__dirname, "../../client");
+
+// Not sure is best approach but works for now...
+const cssBundles = [];
+const jsBundles = [];
+
+JSON.parse(fs.readFileSync(path.join(clientRootDir, "dist/client-bundles.json")))
+    .assetsByChunkName.bundle.map((fn) => `/static/${fn}`)
+    .forEach((fn) => {
+        if (fn.endsWith(".css")) cssBundles.push(fn);
+        if (fn.endsWith(".js")) jsBundles.push(fn);
+    });
+
+const pipeSSR = (request, response, children, bootstrapScripts = jsBundles) => {
     return new Promise((resolve, reject) => {
         const { pipe } = ReactDOMServer.renderToPipeableStream(
-            <Page url={makeUrlObject(request)}>{children}</Page>,
+            <Page url={makeUrlObject(request)} cssBundles={cssBundles}>
+                {children}
+            </Page>,
             {
                 bootstrapScripts,
                 onShellReady: () => {

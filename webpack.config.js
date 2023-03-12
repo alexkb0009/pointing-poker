@@ -2,6 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 const child_process = require("child_process");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const StatsPlugin = require("stats-webpack-plugin");
 const env = process.env.NODE_ENV;
 const packageJson = require("./package.json");
 
@@ -48,6 +49,44 @@ module.exports = [
     {
         ...commonConfig,
         entry: {
+            bundle: path.join(__dirname, "client/src/browser"),
+        },
+        output: {
+            ...commonConfig.output,
+            filename: "[name].[chunkhash].js",
+        },
+        target: "web",
+        plugins: [
+            new MiniCssExtractPlugin({ filename: "styles.[chunkhash].css" }),
+            new webpack.DefinePlugin({
+                APP_VERSION: JSON.stringify(packageJson.version),
+                COMMIT_HASH: JSON.stringify(
+                    child_process.execSync("git rev-parse HEAD").toString().trim().slice(0, 7)
+                ),
+                // GA_ID: JSON.stringify(process.env.GA_ID),
+            }),
+            new StatsPlugin("client-bundles.json", {
+                // assets: false,
+                chunkModules: false,
+                chunkGroups: false,
+                chunkOrigins: false,
+                chunks: false,
+                entrypoints: false,
+                modules: false,
+
+                exclude: ["node_modules/"],
+            }),
+        ],
+        devtool: "source-map",
+        optimization: {
+            usedExports: true,
+            minimize: mode === "production",
+            sideEffects: false,
+        },
+    },
+    {
+        ...commonConfig,
+        entry: {
             "server-bundle": path.join(__dirname, "server/src/routes"),
         },
         target: "node",
@@ -59,32 +98,13 @@ module.exports = [
                 ),
                 // GA_ID: JSON.stringify(process.env.GA_ID),
             }),
+            // new StatsPlugin("server-stats.json", {
+            //     chunkModules: false,
+            //     // exclude: [/node_modules[\\\/]react/],
+            // }),
         ],
         externals: {
             "socket.io-client": "socket.io-client",
-        },
-    },
-    {
-        ...commonConfig,
-        entry: {
-            bundle: path.join(__dirname, "client/src/browser"),
-        },
-        target: "web",
-        plugins: [
-            new MiniCssExtractPlugin({ filename: "styles.css" }),
-            new webpack.DefinePlugin({
-                APP_VERSION: JSON.stringify(packageJson.version),
-                COMMIT_HASH: JSON.stringify(
-                    child_process.execSync("git rev-parse HEAD").toString().trim().slice(0, 7)
-                ),
-                // GA_ID: JSON.stringify(process.env.GA_ID),
-            }),
-        ],
-        devtool: "source-map",
-        optimization: {
-            usedExports: true,
-            minimize: mode === "production",
-            sideEffects: false,
         },
     },
 ];

@@ -10,7 +10,7 @@ window.gtag("js", new Date());
 window.gtag("config", "G-YJVYC858NK");
 `;
 
-export function Page({ children, url: propUrl }) {
+export function Page({ children, url: propUrl, cssBundles = [] }) {
     const [url, setUrl] = useState(propUrl || new URL(window.location.href));
     const alteredChildren = React.Children.map(children, (child) => {
         if (React.isValidElement(child) && typeof child.type !== "string") {
@@ -29,14 +29,17 @@ export function Page({ children, url: propUrl }) {
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-
                 <title>Planning Poker Page</title>
-                <link rel="prefetch" href="/static/styles.css"></link>
-                <link href="/static/styles.css" rel="stylesheet" />
                 <link
                     rel="stylesheet"
                     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
                 />
+                {cssBundles.map((fn, i) => (
+                    <React.Fragment key={i}>
+                        <link rel="prefetch" href={fn} />
+                        <link rel="stylesheet" href={fn} />
+                    </React.Fragment>
+                ))}
             </head>
             <body style={{ visibility: "hidden" }}>
                 <div id="root">{alteredChildren}</div>

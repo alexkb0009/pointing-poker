@@ -6,8 +6,9 @@ const { setupRoutes } = require("../client/dist/server-bundle");
 // TODO Clean up everything, make common stuff DRY, split into dif files.
 // TODO Scale up to multiple rooms (& multiple servers?)
 // TODO Organize everything
-// TODO: Make each room a class instance?
+// TODO: Make each room a class instance? - Probably, but after hooking up to DBs & scaling as that'll inform setup
 // How would roomStates scale with # of servers? Sticky sessions? Store roomStates into Redis or Mongo?
+// Making it DB-less with sticky sessions might be a nice cost proposition...
 
 /**
  * @module
@@ -84,13 +85,14 @@ const getNewRoomState = () => ({
     clientsState: [],
     isShowingVotes: false,
     agendaQueue: [],
+    agendaHistory: [],
     originalHost: null,
 });
 
 io.on("connection", (socket) => {
     // console.log("NEW CONNECTION, CURRENT STATE", roomStates);
 
-    // TODO: Split out handlers to own files/modules as they grow.
+    // TODO: Split out into '/src/sockets' file or folder?
 
     socket.on("join", ({ name, room: roomParam = null, isSpectating = false }) => {
         if (!name) {
@@ -155,6 +157,7 @@ io.on("connection", (socket) => {
             myName: socket.data.name,
             myVote: existingClient?.vote || null,
             agendaQueue: room.agendaQueue,
+            agendaHistory: room.agendaHistory,
         };
 
         socket.emit("stateUpdate", userState);
@@ -247,16 +250,28 @@ io.on("connection", (socket) => {
         if (socket.data.name !== getCurrentHost(room.clientsState)) {
             return; // TODO: throw error or smth
         }
+
+        const lastAgendaItem = room.agendaQueue.shift();
+        const historyItem = {
+            text: !lastAgendaItem
+                ? null
+                : lastAgendaItem.length < 120
+                ? lastAgendaItem
+                : lastAgendaItem.slice(0, 120).trim() + "...",
+            votes: room.clientsState.map(({ vote }) => vote),
+        };
+        room.agendaHistory.push(historyItem);
         room.isShowingVotes = false;
         room.clientsState.forEach((clientStateObj) => {
             clientStateObj.vote = null;
         });
-        room.agendaQueue.shift();
+
         io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(room),
             isShowingVotes: room.isShowingVotes,
             myVote: null,
             agendaQueue: room.agendaQueue,
+            agendaHistory: room.agendaHistory,
         });
     });
 
@@ -287,9 +302,7 @@ io.on("connection", (socket) => {
         if (!clientStateObj) {
             roomExitCleanup(socket);
         } else {
-            clientStateObj.exitTimeout = setTimeout(() => {
-                roomExitCleanup(socket);
-            }, 15000);
+            clientStateObj.exitTimeout = setTimeout(roomExitCleanup, 15000, socket);
         }
 
         io.to(roomName).emit("stateUpdate", {

@@ -6,6 +6,7 @@ import { HostControls } from "./HostControls";
 import { UserControls } from "./UserControls";
 import { PeerVotes } from "./PeerVotes";
 import { VotingCards } from "./VotingCards";
+import { CurrentAgenda } from "./CurrentAgenda";
 
 const createInitialState = () => ({
     isConnected: false,
@@ -17,6 +18,7 @@ const createInitialState = () => ({
     myName: null,
     myVote: null,
     agendaQueue: [],
+    agendaHistory: [],
 });
 
 let io = null;
@@ -66,12 +68,21 @@ export class App extends React.Component {
             });
             this.socket.on("stateUpdate", (stateUpdate) => {
                 if (stateUpdate.room) {
+                    // Keep URL in sync with roof
                     if (getRoomFromURLObject(url) !== stateUpdate.room) {
                         window.history.pushState(
                             null,
                             document.title,
                             `/room/${stateUpdate.room}/`
                         );
+                        /**
+                         * Gets caught by Page component's listener and updates `url` prop.
+                         *
+                         * @see https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes#answer-33668370
+                         * Approach fits because we're in control of the pushStates/navigation; could be encapsulated/reusable
+                         * by wrapping in a 'navigate' function. Might change this approach later in favor of MutationObserver
+                         * (other answer) or maybe a custom 'pushstate' event (lol) after more research.
+                         */
                         window.dispatchEvent(new Event("popstate"));
                     }
                 }
@@ -137,10 +148,11 @@ export class App extends React.Component {
             myVote,
             myName,
             agendaQueue,
+            agendaHistory,
         } = this.state;
         const roomFromURL = getRoomFromURLObject(url);
         const isCurrentHostMe = currentHost === myName;
-        const agendaQueueLen = agendaQueue.length;
+
         return (
             <>
                 <TopNav
@@ -176,12 +188,10 @@ export class App extends React.Component {
                         <IntroductionForm onJoin={this.onJoin} roomFromURL={roomFromURL} />
                     ) : (
                         <>
-                            {agendaQueueLen > 0 && (
-                                <div className="container-fluid bg-white py-2">
-                                    <label className="fw-bold">Current Item</label>
-                                    <p className="my-0 text-truncate">{agendaQueue[0]}</p>
-                                </div>
-                            )}
+                            <CurrentAgenda
+                                agendaQueue={agendaQueue}
+                                agendaHistory={agendaHistory}
+                            />
 
                             <PeerVotes
                                 clientsState={clientsState}
