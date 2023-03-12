@@ -10,18 +10,21 @@ import { PrivacyPolicy } from "../../client/src/components/static-views/privacy-
 
 const pipeSSR = (request, response, children, bootstrapScripts = ["/static/bundle.js"]) => {
     return new Promise((resolve, reject) => {
-        const { pipe } = ReactDOMServer.renderToPipeableStream(<Page>{children}</Page>, {
-            bootstrapScripts,
-            onShellReady: () => {
-                response.statusCode = 200;
-                response.setHeader("Content-type", "text/html");
-                pipe(response);
-                resolve(response);
-            },
-            onError: (err) => {
-                reject(err);
-            },
-        });
+        const { pipe } = ReactDOMServer.renderToPipeableStream(
+            <Page url={makeUrlObject(request)}>{children}</Page>,
+            {
+                bootstrapScripts,
+                onShellReady: () => {
+                    response.statusCode = 200;
+                    response.setHeader("Content-type", "text/html");
+                    pipe(response);
+                    resolve(response);
+                },
+                onError: (err) => {
+                    reject(err);
+                },
+            }
+        );
     });
 };
 
@@ -34,11 +37,11 @@ export const setupRoutes = (app) => {
     app.use("/static", Express.static(path.join(clientRootDir, "dist"), { index: false }));
 
     app.get("/", (req, res) => {
-        pipeSSR(req, res, <App url={makeUrlObject(req)} />);
+        pipeSSR(req, res, <App />);
     });
 
     app.get("/room/:roomId/", (req, res) => {
-        pipeSSR(req, res, <App url={makeUrlObject(req)} />);
+        pipeSSR(req, res, <App />);
     });
 
     app.get("/health", (req, res) => {

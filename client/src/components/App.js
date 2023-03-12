@@ -55,10 +55,12 @@ export class App extends React.Component {
                 console.error("Connection Error", err);
             });
             this.socket.on("connect", () => {
-                const { myName, room } = this.state;
+                const { myName, room, clientsState } = this.state;
+                const myClientState = clientsState.find(({ name }) => name === myName);
+                const { isSpectating = false } = myClientState || {};
                 // If reconnection attempt, try re-join previous room
                 if (myName && room) {
-                    this.onJoin(myName, room);
+                    this.onJoin(myName, { room, isSpectating });
                 }
                 this.setState({ isConnected: true });
             });
@@ -70,6 +72,7 @@ export class App extends React.Component {
                             document.title,
                             `/room/${stateUpdate.room}/`
                         );
+                        window.dispatchEvent(new Event("popstate"));
                     }
                 }
                 this.setState(
@@ -90,8 +93,8 @@ export class App extends React.Component {
         initialize();
     }
 
-    onJoin(name, room = null) {
-        const payload = { name };
+    onJoin(name, { room = null, isSpectating = false } = {}) {
+        const payload = { name, isSpectating };
         if (room) {
             payload.room = room;
         }

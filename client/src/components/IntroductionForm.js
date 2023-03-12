@@ -11,7 +11,7 @@ export const getRoomFromURLObject = (urlObject) => {
 
 export const IntroductionForm = ({ onJoin, roomFromURL }) => {
     const [myName, setMyName] = useState("");
-    const [isSpectating, setIsSpectating] = useState("");
+    const [isSpectating, setIsSpectating] = useState(false);
 
     useEffect(() => {
         setMyName(window.localStorage.getItem("myName") || "");
@@ -21,9 +21,14 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
     const onSubmit = (e) => {
         e.preventDefault();
         const { room: roomFromForm } = Object.fromEntries(new FormData(e.target));
-        onJoin(myName, roomFromURL || roomFromForm);
+        const roomName = roomFromURL || roomFromForm;
+        onJoin(myName, { room: roomName, isSpectating });
         window.localStorage.setItem("myName", myName);
         window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
+        window.gtag("event", "select_content", {
+            content_type: "room",
+            item_id: roomName,
+        });
     };
 
     return (
@@ -57,11 +62,11 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
                             maxLength={8}
                         />
 
-                        <label className="form-check-label px-2 d-flex align-items-center h-100">
+                        <label className="form-check-label">
                             <input
                                 type="checkbox"
                                 name="isSpectating"
-                                className="form-check-input me-2 my-0"
+                                className="form-check-input me-2"
                                 checked={isSpectating}
                                 onChange={(e) => setIsSpectating(e.target.checked)}
                             />

@@ -10,10 +10,6 @@ import "./styles.scss";
 hydrateRoot(
     document,
     <Page>
-        <App
-            appVersion={APP_VERSION}
-            commitHash={COMMIT_HASH}
-            url={new URL(window.location.href)}
-        />
+        <App appVersion={APP_VERSION} commitHash={COMMIT_HASH} />
     </Page>
 );

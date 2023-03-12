@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
 
     // TODO: Split out handlers to own files/modules as they grow.
 
-    socket.on("join", ({ name, room: roomParam = null }) => {
+    socket.on("join", ({ name, room: roomParam = null, isSpectating = false }) => {
         if (!name) {
             return false; // TODO return error msg, allow dif name.
         }
@@ -116,8 +116,11 @@ io.on("connection", (socket) => {
                 // Resume session as this name/client
                 clearTimeout(existingClient.exitTimeout);
                 existingClient.exitTimeout = null;
+                // Update some fields
+                existingClient.isSpectating = isSpectating;
             } else {
                 // TODO return error msg, allow dif name.
+                delete socket.data.name;
                 return false;
             }
         } else {
@@ -127,6 +130,7 @@ io.on("connection", (socket) => {
                 timeJoined: socket.handshake.issued,
                 socket,
                 exitTimeout: null,
+                isSpectating,
             };
             if (room.originalHost === name) {
                 room.clientsState.unshift(clientStateObj);
@@ -135,12 +139,10 @@ io.on("connection", (socket) => {
             }
         }
 
-        const currentHost = getCurrentHost(room.clientsState);
-
         io.to(socket.data.room).emit("stateUpdate", {
             clientsState: getVisibleClientsState(room),
             isShowingVotes: room.isShowingVotes,
-            currentHost,
+            currentHost: getCurrentHost(room.clientsState),
         });
 
         const userState = {

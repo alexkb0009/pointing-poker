@@ -42,25 +42,23 @@ export const HostControls = ({
                             )}
                         >
                             {isShowingVotes ? (
-                                <i className="fa-solid fa-eye fa-fw" />
-                            ) : (
                                 <i className="fa-solid fa-eye-slash fa-fw" />
+                            ) : (
+                                <i className="fa-solid fa-eye fa-fw" />
                             )}
                         </button>
                     </div>
 
                     <div className="btn-group me-2 my-1" role="group">
-                        <button
-                            type="button"
-                            onClick={onResetVotes}
-                            disabled={!isShowingVotes}
-                            className={clsx(
-                                "btn",
-                                isShowingVotes ? "btn-primary" : "btn-outline-primary"
-                            )}
-                        >
-                            {agendaQueueLen > 1 ? "Next Agenda Item" : "Reset All Votes"}
-                        </button>
+                        {isShowingVotes && (
+                            <button
+                                type="button"
+                                onClick={onResetVotes}
+                                className={clsx("btn", "btn-primary")}
+                            >
+                                {agendaQueueLen > 1 ? "Next Agenda Item" : "Reset All Votes"}
+                            </button>
+                        )}
                     </div>
 
                     <div className="flex-grow-1">&nbsp;</div>
