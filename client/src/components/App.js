@@ -69,7 +69,7 @@ export class App extends React.Component {
             });
             this.socket.on("stateUpdate", (stateUpdate) => {
                 if (stateUpdate.room) {
-                    // Keep URL in sync with roof
+                    // Keep URL in sync with room
                     if (getRoomFromURLObject(url) !== stateUpdate.room) {
                         window.history.pushState(
                             null,
@@ -109,8 +109,13 @@ export class App extends React.Component {
     }
 
     componentDidUpdate(pastProps) {
-        if (pastProps.url !== this.props.url) {
-            this.onExit();
+        const { url } = this.props;
+        const { room } = this.state;
+        if (pastProps.url !== url && room) {
+            const isLeavingRoomURL = getRoomFromURLObject(url) !== room;
+            if (isLeavingRoomURL) {
+                this.onExit();
+            }
         }
     }
 
