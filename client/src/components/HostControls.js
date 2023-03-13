@@ -5,6 +5,7 @@ export const HostControls = ({
     agendaQueue,
     isShowingVotes,
     onResetVotes,
+    onNextAgendaItem,
     onToggleShowingVotes,
     onSetAgendaQueue,
 }) => {
@@ -13,6 +14,7 @@ export const HostControls = ({
     const agendaQueueLen = agendaQueue.length;
 
     useEffect(() => {
+        // Update textarea when 'next agenda item' pressed.
         if (isShowingAgendaQueue) {
             textareaRef.current.value = agendaQueue.join("\n");
         }
@@ -40,6 +42,7 @@ export const HostControls = ({
                                 "btn",
                                 isShowingVotes ? "btn-outline-primary" : "btn-primary"
                             )}
+                            title={`${isShowingVotes ? "Hide" : "Show"} all current votes`}
                         >
                             {isShowingVotes ? (
                                 <i className="fa-solid fa-eye-slash fa-fw" />
@@ -49,17 +52,27 @@ export const HostControls = ({
                         </button>
                     </div>
 
-                    <div className="btn-group me-2 my-1" role="group">
-                        {isShowingVotes && (
+                    {isShowingVotes && (
+                        <div className="btn-group me-2 my-1" role="group">
                             <button
                                 type="button"
                                 onClick={onResetVotes}
-                                className={clsx("btn", "btn-primary")}
+                                className={clsx("btn", "btn-outline-primary")}
+                                title="Reset all votes without advancing to next agenda item"
                             >
-                                {agendaQueueLen > 1 ? "Next Agenda Item" : "Reset All Votes"}
+                                <i className="fa-solid fa-rotate-left" />
                             </button>
-                        )}
-                    </div>
+                            <button
+                                type="button"
+                                onClick={onNextAgendaItem}
+                                className={clsx("btn", "btn-primary")}
+                                title="Reset all votes and advance to next agenda item, storing current votes in vote history"
+                            >
+                                Next Agenda Item
+                                <i className="fa-solid fa-arrow-right ms-2" />
+                            </button>
+                        </div>
+                    )}
 
                     <div className="flex-grow-1">&nbsp;</div>
 

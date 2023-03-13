@@ -63,7 +63,7 @@ $poker-container-padding-y: 1rem;
     padding: $poker-container-padding-y $poker-container-padding-x;
     overflow-x: auto;
     background-color: #cbe3cb;
-    flex-basis: $poker-card-height + (2 * $poker-container-padding-y);
+    flex-basis: $poker-card-height + (2.5 * $poker-container-padding-y);
 }
 
 .poker-card {

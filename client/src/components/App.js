@@ -32,7 +32,8 @@ export class App extends React.Component {
         this.onVotingCardSelect = this.onVotingCardSelect.bind(this);
         this.onToggleSpectating = debounce(this.onToggleSpectating.bind(this), 500, noDblClicks);
         this.onToggleShowingVotes = this.onToggleShowingVotes.bind(this);
-        this.onResetVotes = debounce(this.onResetVotes.bind(this), 1000, noDblClicks);
+        this.onResetVotes = this.onResetVotes.bind(this);
+        this.onNextAgendaItem = debounce(this.onNextAgendaItem.bind(this), 1000, noDblClicks);
         this.onSetAgendaQueue = debounce(this.onSetAgendaQueue.bind(this), 1000);
 
         this.state = createInitialState();
@@ -85,6 +86,9 @@ export class App extends React.Component {
                          */
                         window.dispatchEvent(new Event("popstate"));
                     }
+                    window.gtag("event", "join_group", {
+                        group_id: stateUpdate.room,
+                    });
                 }
                 this.setState(
                     (existingState) => ({
@@ -102,6 +106,12 @@ export class App extends React.Component {
             });
         };
         initialize();
+    }
+
+    componentDidUpdate(pastProps) {
+        if (pastProps.url !== this.props.url) {
+            this.onExit();
+        }
     }
 
     onJoin(name, { room = null, isSpectating = false } = {}) {
@@ -131,6 +141,10 @@ export class App extends React.Component {
 
     onResetVotes() {
         this.socket.emit("resetVotes");
+    }
+
+    onNextAgendaItem() {
+        this.socket.emit("nextAgendaItem");
     }
 
     onSetAgendaQueue(agendaQueue) {
@@ -208,6 +222,7 @@ export class App extends React.Component {
                                     agendaQueue={agendaQueue}
                                     onToggleShowingVotes={this.onToggleShowingVotes}
                                     onResetVotes={this.onResetVotes}
+                                    onNextAgendaItem={this.onNextAgendaItem}
                                     onSetAgendaQueue={this.onSetAgendaQueue}
                                 />
                             )}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 
 export const getRoomFromURLObject = (urlObject) => {
-    const roomMatch = urlObject.pathname?.match(/\/room\/(\w+)\/?/);
+    const roomMatch = urlObject.pathname?.match(/\/room\/([\w\-\.~!$&'\(\)*+,;=:@]+)\/?/); // ^\/room\/([^\/?&#]+)\/?
     if (roomMatch && roomMatch.length > 1) {
         return roomMatch[1];
     }
@@ -60,6 +60,7 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
                             onChange={(e) => setMyName(e.target.value)}
                             className="form-control"
                             maxLength={8}
+                            required
                         />
 
                         <label className="form-check-label">
@@ -81,6 +82,14 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
                             By clicking Join, you agree to our{" "}
                             <a href="/cookie-policy">Cookie Policy</a> and{" "}
                             <a href="/terms-of-service">Terms of Service</a>.
+                        </p>
+
+                        <p className="small">
+                            Feedback or suggestions?
+                            <br />
+                            Email us at feedback&nbsp;
+                            <i className="fa-solid fa-at small" />
+                            &nbsp;planningpoker.page
                         </p>
                     </form>
                 </div>

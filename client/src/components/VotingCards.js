@@ -33,6 +33,15 @@ const VotingCard = React.memo(({ option, onVotingCardSelect, isShowingVotes, isS
     const onClick = (e) => {
         e.stopPropagation();
         onVotingCardSelect(option);
+        window.gtag("event", "select_item", {
+            items: [
+                {
+                    item_id: option.toString(),
+                },
+            ],
+            item_list_id: "voting-cards",
+            item_list_name: "Voting Cards",
+        });
     };
 
     return (

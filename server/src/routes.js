@@ -3,6 +3,7 @@ import fs from "fs";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import Express from "express";
+import { app } from "./httpServer";
 import { Page } from "../../client/src/Page";
 import { App } from "../../client/src/components/App";
 import { TopNav } from "../../client/src/components/TopNav";
@@ -22,7 +23,7 @@ JSON.parse(fs.readFileSync(path.join(clientRootDir, "dist/client-bundles.json"))
         if (fn.endsWith(".js")) jsBundles.push(fn);
     });
 
-const pipeSSR = (request, response, children, bootstrapScripts = jsBundles) => {
+export const pipeSSR = (request, response, children, bootstrapScripts = jsBundles) => {
     return new Promise((resolve, reject) => {
         const { pipe } = ReactDOMServer.renderToPipeableStream(
             <Page url={makeUrlObject(request)} cssBundles={cssBundles}>
@@ -44,47 +45,43 @@ const pipeSSR = (request, response, children, bootstrapScripts = jsBundles) => {
     });
 };
 
-const makeUrlObject = (request) =>
+export const makeUrlObject = (request) =>
     new URL(`${request.protocol}://${request.get("host")}${request.originalUrl}`);
 
-export const setupRoutes = (app) => {
-    const clientRootDir = path.join(__dirname, "../../client");
+app.use("/static", Express.static(path.join(clientRootDir, "dist"), { index: false }));
 
-    app.use("/static", Express.static(path.join(clientRootDir, "dist"), { index: false }));
+app.get("/", (req, res) => {
+    pipeSSR(req, res, <App />);
+});
 
-    app.get("/", (req, res) => {
-        pipeSSR(req, res, <App />);
-    });
+app.get("/room/:roomId/", (req, res) => {
+    pipeSSR(req, res, <App />);
+});
 
-    app.get("/room/:roomId/", (req, res) => {
-        pipeSSR(req, res, <App />);
-    });
+app.get("/health", (req, res) => {
+    res.send("200 OK");
+});
 
-    app.get("/health", (req, res) => {
-        res.send("200 OK");
-    });
+app.get("/terms-of-service", (req, res) => {
+    pipeSSR(
+        req,
+        res,
+        <>
+            <TopNav href="/" />
+            <TOS />
+        </>,
+        []
+    );
+});
 
-    app.get("/terms-of-service", (req, res) => {
-        pipeSSR(
-            req,
-            res,
-            <>
-                <TopNav href="/" />
-                <TOS />
-            </>,
-            []
-        );
-    });
-
-    app.get("/cookie-policy", (req, res) => {
-        pipeSSR(
-            req,
-            res,
-            <>
-                <TopNav href="/" />
-                <PrivacyPolicy />
-            </>,
-            []
-        );
-    });
-};
+app.get("/cookie-policy", (req, res) => {
+    pipeSSR(
+        req,
+        res,
+        <>
+            <TopNav href="/" />
+            <PrivacyPolicy />
+        </>,
+        []
+    );
+});

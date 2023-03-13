@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const nodeExternals = require("webpack-node-externals");
 const child_process = require("child_process");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const StatsPlugin = require("stats-webpack-plugin");
@@ -90,7 +91,7 @@ module.exports = [
     {
         ...commonConfig,
         entry: {
-            "server-bundle": path.join(__dirname, "server/src/routes"),
+            "server-bundle": path.join(__dirname, "server/src/index.js"),
         },
         target: "node",
         plugins: [
@@ -106,8 +107,11 @@ module.exports = [
             //     // exclude: [/node_modules[\\\/]react/],
             // }),
         ],
-        externals: {
-            "socket.io-client": "socket.io-client",
-        },
+        externals: [
+            nodeExternals(),
+            {
+                "socket.io-client": "socket.io-client",
+            },
+        ],
     },
 ];

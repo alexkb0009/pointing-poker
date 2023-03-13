@@ -11,5 +11,7 @@ export const POKER_CARD_OPTIONS = [
     50,
     100,
     "INFINITY",
-    "COFFEE"
+    "COFFEE",
 ];
+
+export const roomNameValidRegex = /^[\w\-\.~!$&'\(\)*+,;=:@]+$/;
