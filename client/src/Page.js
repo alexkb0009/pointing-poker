@@ -12,17 +12,18 @@ window.gtag("config", "G-YJVYC858NK");
 
 export function Page({ children, url: propUrl, cssBundles = [] }) {
     const [url, setUrl] = useState(propUrl || new URL(window.location.href));
-    const alteredChildren = React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && typeof child.type !== "string") {
-            return React.cloneElement(child, { url });
-        }
-    });
 
     useEffect(() => {
         window.addEventListener("popstate", () => {
             setUrl(new URL(window.location.href));
         });
     }, []);
+
+    const alteredChildren = React.Children.map(children, (child) => {
+        if (React.isValidElement(child) && typeof child.type !== "string") {
+            return React.cloneElement(child, { url });
+        }
+    });
 
     return (
         <html>

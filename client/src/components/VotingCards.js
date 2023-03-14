@@ -6,7 +6,7 @@ import { VoteValue } from "./VoteValue";
 export const VotingCards = ({ isShowingVotes, onVotingCardSelect, myVote }) => {
     return (
         <div className={clsx("voting-cards-container", "poker-cards-container")}>
-            {POKER_CARD_OPTIONS.map((option) => {
+            {POKER_CARD_OPTIONS.default.map((option) => {
                 const isSelected = myVote === option;
                 return (
                     <VotingCard

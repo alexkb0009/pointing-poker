@@ -58,7 +58,7 @@ export const HostControls = ({
                                 type="button"
                                 onClick={onResetVotes}
                                 className={clsx("btn", "btn-outline-primary")}
-                                title="Reset all votes without advancing to next agenda item"
+                                title="Reset all votes without storing current vote in history"
                             >
                                 <i className="fa-solid fa-rotate-left" />
                             </button>
@@ -66,9 +66,9 @@ export const HostControls = ({
                                 type="button"
                                 onClick={onNextAgendaItem}
                                 className={clsx("btn", "btn-primary")}
-                                title="Reset all votes and advance to next agenda item, storing current votes in vote history"
+                                title="Storing current votes in history and continue to next one"
                             >
-                                Next Agenda Item
+                                Next {agendaQueueLen > 1 ? "Agenda Item" : "Round"}
                                 <i className="fa-solid fa-arrow-right ms-2" />
                             </button>
                         </div>
@@ -95,7 +95,7 @@ export const HostControls = ({
                         <textarea
                             className={clsx("form-control", "agenda-textarea")}
                             rows={8}
-                            placeholder="Copy and paste (or type) agenda here. Each line is a separate item."
+                            placeholder="Copy and paste (or type) agenda here. Try a spreadsheet. Each line is a separate item."
                             defaultValue={agendaQueue.join("\n")}
                             onChange={onTextareaChange}
                             spellCheck={false}

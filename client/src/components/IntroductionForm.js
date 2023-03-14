@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { roomNameValidRegex } from "./../constants";
 import clsx from "clsx";
 
 export const getRoomFromURLObject = (urlObject) => {
-    const roomMatch = urlObject.pathname?.match(/\/room\/([\w\-\.~!$&'\(\)*+,;=:@]+)\/?/); // ^\/room\/([^\/?&#]+)\/?
+    const regexMatcher = new RegExp(`^\/room\/(${roomNameValidRegex.source.slice(1, -1)})\/?`);
+    const roomMatch = urlObject.pathname?.match(regexMatcher); // ^\/room\/([^\/?&#]+)\/?
     if (roomMatch && roomMatch.length > 1) {
         return roomMatch[1];
     }
@@ -12,6 +14,7 @@ export const getRoomFromURLObject = (urlObject) => {
 export const IntroductionForm = ({ onJoin, roomFromURL }) => {
     const [myName, setMyName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
+    const [wasValidated, setWasValidated] = useState(false);
 
     useEffect(() => {
         setMyName(window.localStorage.getItem("myName") || "");
@@ -20,34 +23,51 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
 
     const onSubmit = (e) => {
         e.preventDefault();
-        const { room: roomFromForm } = Object.fromEntries(new FormData(e.target));
-        const roomName = roomFromURL || roomFromForm;
-        onJoin(myName, { room: roomName, isSpectating });
+        const room = roomFromURL || Object.fromEntries(new FormData(e.target)).room;
+        onJoin(myName, { room, isSpectating });
         window.localStorage.setItem("myName", myName);
         window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
         window.gtag("event", "select_content", {
             content_type: "room",
-            item_id: roomName,
+            item_id: room,
         });
     };
+
+    const onInvalid = () => setWasValidated(true);
 
     return (
         <div className={clsx("container", "py-3")}>
             <div className={clsx("introduction-form", "row", "justify-content-center")}>
-                <div className={clsx("col", "col-sm-6", "col-lg-4")}>
-                    <form onSubmit={onSubmit}>
-                        <label htmlFor="room-input" className="form-label">
+                <div className={clsx("col", "col-sm-6", "col-xl-4")}>
+                    <form
+                        onSubmit={onSubmit}
+                        className={clsx(wasValidated ? "was-validated" : "needs-validation")}
+                        onInvalid={onInvalid}
+                    >
+                        <label
+                            htmlFor="room-input"
+                            className={clsx("form-label", roomFromURL && "mb-0")}
+                        >
                             Room
                         </label>
-                        <input
-                            id="room-input"
-                            type="text"
-                            name="room"
-                            defaultValue={roomFromURL || ""}
-                            className="form-control"
-                            maxLength={12}
-                            disabled={!!roomFromURL}
-                        />
+                        {roomFromURL ? (
+                            <h5 className="display-5">{roomFromURL}</h5>
+                        ) : (
+                            <input
+                                id="room-input"
+                                type="text"
+                                name="room"
+                                defaultValue={roomFromURL || ""}
+                                className="form-control"
+                                maxLength={12}
+                                readOnly={!!roomFromURL}
+                                pattern={roomNameValidRegex.source}
+                                placeholder="New or existing unique code"
+                                required
+                                title="Only valid URL characters are allowed, with a max length of 12 characters."
+                            />
+                        )}
+                        <p>If this is a new room, you can configure options as host.</p>
 
                         <label htmlFor="name-input" className="form-label">
                             Your Name

@@ -4,7 +4,7 @@
     "scripts": {
         "build": "npm run clean && npx webpack build",
         "build-dev": "npm run clean && NODE_ENV=development npx webpack build",
-        "watch-dev": "npm run clean && NODE_ENV=development npx webpack watch",
+        "watch-dev": "NODE_ENV=development npx webpack watch",
         "serve": "node server/server.js",
         "serve-dev": "nodemon server/server.js --watch ./client/dist/server-bundle.js",
         "clean": "rm -rf client/dist/*"
