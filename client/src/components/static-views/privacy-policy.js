@@ -1023,7 +1023,7 @@ export const PrivacyPolicy = () => {
                 */}
             </p>
             <p>
-                <strong>Owner contact email:</strong> alex@planningpoker.page
+                <strong>Owner contact email:</strong> alex@pointingpoker.org
             </p>
 
             <p>

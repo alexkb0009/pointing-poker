@@ -1,5 +1,5 @@
 {
-    "name": "@alexkb0009/planning-poker-server",
+    "name": "@alexkb0009/pointing-poker",
     "version": "0.0.1",
     "scripts": {
         "build": "npm run clean && npx webpack build",

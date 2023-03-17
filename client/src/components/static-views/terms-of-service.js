@@ -74,11 +74,11 @@ export const TOS = () => {
                     <p>
                         <strong>Website</strong> refers to Pointing Poker Page, accessible from{" "}
                         <a
-                            href="https://planningpoker.page"
+                            href="https://pointingpoker.org"
                             rel="external nofollow noopener"
                             target="_blank"
                         >
-                            https://planningpoker.page
+                            https://pointingpoker.org
                         </a>
                     </p>
                 </li>
@@ -260,7 +260,7 @@ export const TOS = () => {
             <h1>Contact Us</h1>
             <p>If you have any questions about these Terms and Conditions, You can contact us:</p>
             <ul>
-                <li>By email: tos@planningpoker.page</li>
+                <li>By email: tos@pointingpoker.org</li>
             </ul>
         </div>
     );

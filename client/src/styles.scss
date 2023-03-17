@@ -68,7 +68,7 @@ $poker-container-padding-y: 1rem;
 .poker-cards-container {
     display: flex;
     align-items: center;
-    grid-gap: 1rem;
+    gap: 0.5rem;
     padding: $poker-container-padding-y $poker-container-padding-x;
     overflow-x: auto;
     background-color: #cbe3cb;
@@ -225,11 +225,7 @@ $poker-container-padding-y: 1rem;
     }
 }
 
-.peer-votes-section {
-    border-bottom: 1px dotted rgba(0,0,0,0.2);
-    flex-grow: 1;
-    position: relative;
-}
+
 
 #fireworks-container {
     position: absolute;
@@ -242,6 +238,13 @@ $poker-container-padding-y: 1rem;
 @keyframes fadeOutPart {
     0% { opacity: 0.5; }
     100% { opacity: 0.1; }
+}
+
+.peer-votes-section {
+    border-bottom: 1px dotted rgba(0,0,0,0.2);
+    flex-grow: 1;
+    position: relative;
+    gap: 1rem;
 }
 
 .peer-vote-card {

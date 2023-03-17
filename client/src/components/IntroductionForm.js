@@ -109,7 +109,7 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
                             <br />
                             Email us at feedback&nbsp;
                             <i className="fa-solid fa-at small" />
-                            &nbsp;planningpoker.page
+                            &nbsp;pointingpoker.org
                         </p>
                     </form>
                 </div>
