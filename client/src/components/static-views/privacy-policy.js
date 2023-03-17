@@ -3,7 +3,7 @@ import React from "react";
 export const PrivacyPolicy = () => {
     return (
         <div className="container py-4">
-            <h2 style={{ paddingTop: 0 }}>Cookie Policy of Planning Poker Page</h2>
+            <h2 style={{ paddingTop: 0 }}>Cookie Policy of Pointing Poker Page</h2>
             <p>
                 This document informs Users about the technologies that help this Application to
                 achieve the purposes described below. Such technologies allow the Owner to access
@@ -1010,7 +1010,7 @@ export const PrivacyPolicy = () => {
 
             <h3 id="owner_of_the_data">Owner and Data Controller</h3>
             <p>
-                Planning Poker Page
+                Pointing Poker Page
                 {/*
                 <br />
                 Via Torino, 2 - 20123 Milan (Italy)

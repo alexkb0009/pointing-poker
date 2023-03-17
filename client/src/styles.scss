@@ -42,6 +42,15 @@ $secondary: #3a788e;
 
 /* Layout */
 
+html {
+    display: flex;
+    min-height: 100%;
+}
+
+body {
+    min-width: 100%;
+}
+
 #root {
     min-height: 100%;
     min-height: 100vh;
@@ -98,6 +107,14 @@ $poker-container-padding-y: 1rem;
         scale3d(1.075, 1.075, 1);
     box-shadow:
         #161f27 2px 10px 33px -20px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.mw-small-vote {
+    min-width: 1.5rem;
 }
 
 /* Content */
@@ -178,11 +195,9 @@ $poker-container-padding-y: 1rem;
 }
 
 .current-agenda {
-    cursor: pointer;
     // max-height: 70px;
     // transition: max-height .25s ease-out;
     label {
-        cursor: inherit;
         > i.fa-angle-right {
             transition: transform .3s;
         }
@@ -204,7 +219,6 @@ $poker-container-padding-y: 1rem;
     .score {
         > .value {
             display: inline-block;
-            min-width: 1rem;
             text-align: right;
             font-weight: 500;
         }
@@ -258,7 +272,7 @@ $poker-container-padding-y: 1rem;
 .voting-card-container {
 
     .voting-card {
-        transition: transform .2s, box-shadow .2s;
+        transition: transform .1s, box-shadow .1s;
 
         &:disabled {
             border-color: #bbb;

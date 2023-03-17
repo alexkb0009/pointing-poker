@@ -12,6 +12,24 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
 
     const onClick = (e) => setIsOpen((v) => !v);
 
+    let sumScore = 0;
+    const agendaHistoryJSX = agendaHistory.map(({ text, votes }, index) => {
+        const stats = votesStats(votes);
+        const scoreType = !stats ? null : stats.mode ? "mode" : "average";
+        const score = (scoreType && stats[scoreType]) || null;
+        sumScore += score || 0;
+        return (
+            <AgendaItem
+                key={index}
+                index={index}
+                text={text}
+                votes={votes}
+                score={score}
+                scoreType={scoreType}
+            />
+        );
+    });
+
     return (
         <div
             className={clsx(
@@ -20,11 +38,13 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
                 "bg-white",
                 "py-2",
                 isOpen && "is-open",
-                !isOpen && "d-flex align-items-center flex-wrap"
+                !isOpen && "d-flex align-items-center flex-wrap",
+                !isOpen && "cursor-pointer"
             )}
-            onClick={onClick}
+            onClick={!isOpen ? onClick : null}
+            tabIndex={!isOpen ? 0 : -1}
         >
-            <label className="flex-shrink-0">
+            <label className="flex-shrink-0 cursor-pointer" onClick={isOpen ? onClick : null}>
                 <span className="fw-bold">Current Item</span>
                 {totalLen > 1 && (
                     <span className="fw-light ms-1">
@@ -40,21 +60,20 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
             {isOpen && (
                 <>
                     <div>
-                        <h6 className="mt-2">History</h6>
+                        <div className="d-flex align-items-center justify-content-between">
+                            <h6 className="mt-2">History</h6>
+                            <div>
+                                <span className="mx-2 align-middle">&sum;</span>
+                                {/* <i className="fa-solid fa-calculator ms-2" /> */}
+                                <span className="mw-small-vote d-inline-block text-end align-text-top">
+                                    {sumScore}
+                                </span>
+                            </div>
+                        </div>
                         {historyLen === 0 ? (
                             <em className="d-block">None</em>
                         ) : (
-                            agendaHistory
-                                .map(({ text, votes }, index) => (
-                                    <AgendaItem
-                                        key={index}
-                                        index={index}
-                                        text={text}
-                                        votes={votes}
-                                    />
-                                ))
-                                // Most recent at top
-                                .reverse()
+                            agendaHistoryJSX.reverse()
                         )}
                     </div>
 
@@ -121,20 +140,17 @@ function votesStats(votes) {
     };
 }
 
-const AgendaItem = ({ index, text, votes = null }) => {
+const AgendaItem = ({ index, text, votes = null, scoreType = null, score = null }) => {
     return (
         <div className="d-flex align-items-center small">
             <span className="fw-bold">{index + 1}.&nbsp;</span>
             <span className="text-truncate">{text || noTextFallback}</span>
-            {votes && <AgendaItemVotes votes={votes} />}
+            {votes && <AgendaItemVotes {...{ votes, scoreType, score }} />}
         </div>
     );
 };
 
-const AgendaItemVotes = ({ votes }) => {
-    const stats = votesStats(votes);
-    const scoreType = !stats ? null : stats.mode ? "mode" : "average";
-    const score = (scoreType && stats[scoreType]) || null;
+const AgendaItemVotes = ({ votes, scoreType, score }) => {
     return (
         <>
             <div className="flex-grow-1">&emsp;</div>
@@ -153,7 +169,7 @@ const AgendaItemVotes = ({ votes }) => {
                     title={scoreType.charAt(0).toUpperCase() + scoreType.slice(1)}
                 >
                     <i className="fa-solid fa-angle-right mx-2 text-muted" />
-                    <span className="value">{VALUE_DISPLAY[score] || score}</span>
+                    <span className="value mw-small-vote">{VALUE_DISPLAY[score] || score}</span>
                 </div>
             )}
         </>

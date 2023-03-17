@@ -26,7 +26,7 @@ const TopNavBranding = ({ href, onBrandClick }) => {
     return (
         <h1 id="page-title" className="container-fluid m-0">
             <a href={href || "#"} onClick={onClick}>
-                Planning Poker Page
+                Pointing Poker Page
             </a>
         </h1>
     );

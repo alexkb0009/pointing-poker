@@ -33,7 +33,7 @@ export const TOS = () => {
                     <p>
                         <strong>Company</strong> (referred to as either &quot;the Company&quot;,
                         &quot;We&quot;, &quot;Us&quot; or &quot;Our&quot; in this Agreement) refers
-                        to Planning Poker Page.
+                        to Pointing Poker Page.
                     </p>
                 </li>
                 <li>
@@ -72,7 +72,7 @@ export const TOS = () => {
                 </li>
                 <li>
                     <p>
-                        <strong>Website</strong> refers to Planning Poker Page, accessible from{" "}
+                        <strong>Website</strong> refers to Pointing Poker Page, accessible from{" "}
                         <a
                             href="https://planningpoker.page"
                             rel="external nofollow noopener"
