@@ -62,7 +62,7 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
                     <div>
                         <div className="d-flex align-items-center justify-content-between">
                             <h6 className="mt-2">History</h6>
-                            <div>
+                            <div title="Sum">
                                 <span className="mx-2 align-middle">&sum;</span>
                                 {/* <i className="fa-solid fa-calculator ms-2" /> */}
                                 <span className="mw-small-vote d-inline-block text-end align-text-top">
@@ -157,11 +157,17 @@ const AgendaItemVotes = ({ votes, scoreType, score }) => {
 
             <div className="votes-list">
                 {/* <i className="fa-solid fa-square-poll-horizontal me-2" /> */}
-                {votes.map((vote, idx) => (
-                    <span className="vote" key={idx}>
-                        {VALUE_DISPLAY[vote] || vote || VALUE_DISPLAY.PASS}
-                    </span>
-                ))}
+                {votes.map((vote, idx) => {
+                    const displayVote =
+                        VALUE_DISPLAY[vote] ||
+                        (typeof vote === "number" ? Math.round(vote / 10) * 10 : vote) ||
+                        VALUE_DISPLAY.PASS;
+                    return (
+                        <span className="vote" key={idx}>
+                            {displayVote}
+                        </span>
+                    );
+                })}
             </div>
             {scoreType && (
                 <div
@@ -169,7 +175,7 @@ const AgendaItemVotes = ({ votes, scoreType, score }) => {
                     title={scoreType.charAt(0).toUpperCase() + scoreType.slice(1)}
                 >
                     <i className="fa-solid fa-angle-right mx-2 text-muted" />
-                    <span className="value mw-small-vote">{VALUE_DISPLAY[score] || score}</span>
+                    <span className="value mw-small-vote">{Math.round(score / 10) * 10}</span>
                 </div>
             )}
         </>
