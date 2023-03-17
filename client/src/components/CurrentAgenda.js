@@ -2,6 +2,13 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import { VALUE_DISPLAY } from "./VoteValue";
 
+function roundScore(score) {
+    if (typeof score !== "number") {
+        return score;
+    }
+    return Math.round(score * 10) / 10;
+}
+
 export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] }) => {
     const [currentItem, ...nextItems] = agendaQueue;
     const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +36,7 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
             />
         );
     });
+    sumScore = roundScore(sumScore);
 
     return (
         <div
@@ -151,6 +159,7 @@ const AgendaItem = ({ index, text, votes = null, scoreType = null, score = null 
 };
 
 const AgendaItemVotes = ({ votes, scoreType, score }) => {
+    const displayScore = scoreType && (VALUE_DISPLAY[score] || roundScore(score));
     return (
         <>
             <div className="flex-grow-1">&emsp;</div>
@@ -158,10 +167,7 @@ const AgendaItemVotes = ({ votes, scoreType, score }) => {
             <div className="votes-list">
                 {/* <i className="fa-solid fa-square-poll-horizontal me-2" /> */}
                 {votes.map((vote, idx) => {
-                    const displayVote =
-                        VALUE_DISPLAY[vote] ||
-                        (typeof vote === "number" ? Math.round(vote / 10) * 10 : vote) ||
-                        VALUE_DISPLAY.PASS;
+                    const displayVote = VALUE_DISPLAY[vote] || vote || VALUE_DISPLAY.PASS;
                     return (
                         <span className="vote" key={idx}>
                             {displayVote}
@@ -175,7 +181,7 @@ const AgendaItemVotes = ({ votes, scoreType, score }) => {
                     title={scoreType.charAt(0).toUpperCase() + scoreType.slice(1)}
                 >
                     <i className="fa-solid fa-angle-right mx-2 text-muted" />
-                    <span className="value mw-small-vote">{Math.round(score / 10) * 10}</span>
+                    <span className="value mw-small-vote">{displayScore}</span>
                 </div>
             )}
         </>
