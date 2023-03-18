@@ -1,5 +1,6 @@
 import { httpServer } from "./httpServer";
 import { Server } from "socket.io";
+import { roomStates } from "./roomStates";
 import { RoomState } from "./RoomState";
 import { roomNameValidRegex } from "../../client/src/constants";
 
@@ -9,13 +10,6 @@ export const io = new Server(httpServer, {
         maxDisconnectionDuration: 10 * 60 * 1000,
     },
 });
-
-/**
- * Current state of the 'poker game'.
- *
- * @type {Map.<string,RoomState>}
- */
-const roomStates = new Map();
 
 function getSocketRoomName(socket) {
     return [...socket.rooms][1];
@@ -150,6 +144,14 @@ io.on("connection", (socket) => {
             console.warn("Room exit attempted without socket data name.", socket.rooms);
             return false;
         }
+        if (!roomName) {
+            console.warn("Room exit attempted without socket room", clientName);
+            return false;
+        }
+        if (!room) {
+            console.warn("Room exit attempted on non-existent room", roomName, clientName);
+            return false;
+        }
         room.removeClient(clientName);
         socket.leave(roomName);
         socket.emit("stateUpdate", {
@@ -219,7 +221,7 @@ io.on("connection", (socket) => {
 io.of("/").adapter.on("leave-room", (roomName, socketId) => {
     const room = roomStates.get(roomName);
     if (!room) {
-        // Done or leaving own room (disconnecting)
+        // Done
         return;
     }
 

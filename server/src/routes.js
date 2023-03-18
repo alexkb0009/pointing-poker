@@ -5,6 +5,7 @@ import React from "react";
 import ReactDOMServer from "react-dom/server";
 import Express from "express";
 import { app } from "./httpServer";
+import { roomStates } from "./roomStates";
 import { Page } from "../../client/src/Page";
 import { App } from "../../client/src/components/App";
 import { TopNav } from "../../client/src/components/TopNav";
@@ -61,6 +62,21 @@ app.get("/room/:roomId/", (req, res) => {
 
 app.get("/health", (req, res) => {
     res.send("200 OK");
+});
+
+app.get("/stats", (req, res) => {
+    let clientsCount = 0;
+    roomStates.forEach((room) => {
+        clientsCount += room.clientsCount;
+    });
+    res.json({
+        roomCount: roomStates.size,
+        clientsCount,
+        // rooms: [...roomStates.entries()].map(([key, room]) => ({
+        //     name: key,
+        //     clientsCount: room.clientsCount,
+        // })),
+    });
 });
 
 app.get("/terms-of-service", (req, res) => {
