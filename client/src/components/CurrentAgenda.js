@@ -23,8 +23,10 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
     const agendaHistoryJSX = agendaHistory.map(({ text, votes }, index) => {
         const stats = votesStats(votes);
         const scoreType = !stats ? null : stats.mode ? "mode" : "average";
-        const score = (scoreType && stats[scoreType]) || null;
-        sumScore += score || 0;
+        const score = (scoreType && stats[scoreType]) || 0;
+        if (typeof score === "number") {
+            sumScore += score;
+        }
         return (
             <AgendaItem
                 key={index}
