@@ -200,7 +200,7 @@ io.on("connection", (socket) => {
     socket.on("setAgendaQueue", ({ agendaQueue = [] }) => {
         const { isValid, roomName, room } = validateSocket(socket);
         if (!isValid) return;
-        room.agendaQueue = agendaQueue;
+        room.setAgendaQueue(agendaQueue);
         io.to(roomName).emit("stateUpdate", { agendaQueue: room.agendaQueue });
     });
 

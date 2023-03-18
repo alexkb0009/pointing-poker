@@ -225,6 +225,10 @@ export class RoomState {
 
     setClientExitTimeout(clientName, callback) {
         const client = this.#getClient(clientName);
+        if (!client) {
+            console.warn(`setClientExitTimeout: Client ${clientName} not in room ${this.roomName}`);
+            return;
+        }
         client.exitTimeout = setTimeout(() => {
             this.removeClient(clientName);
             callback && callback();

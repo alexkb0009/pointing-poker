@@ -67,7 +67,15 @@ export class App extends React.Component {
                 // If reconnection attempt, try re-join previous room
                 if (myName && roomName) {
                     this.onJoin(myName, { room: roomName, isSpectating });
+                } else {
+                    // Maybe try autojoin anyway..
+                    const roomFromURL = getRoomFromURLObject(url);
+                    const nameFromLocalStorage = window.localStorage.getItem("myName");
+                    if (roomFromURL && nameFromLocalStorage) {
+                        this.onJoin(nameFromLocalStorage, { room: roomFromURL, isSpectating });
+                    }
                 }
+
                 this.setState({ isConnected: true });
             });
             this.socket.on("stateUpdate", (stateUpdate) => {
@@ -203,7 +211,14 @@ export class App extends React.Component {
                             </a>
                         )
                     }
-                    href={!isJoined && roomFromURL ? "/" : null}
+                    onBrandClick={
+                        !isJoined && roomFromURL
+                            ? () => {
+                                  window.history.pushState(null, document.title, "/");
+                                  window.dispatchEvent(new Event("popstate"));
+                              }
+                            : null
+                    }
                 >
                     {isJoined && (
                         <UserControls
