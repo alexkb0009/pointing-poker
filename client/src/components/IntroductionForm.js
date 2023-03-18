@@ -3,7 +3,7 @@ import { roomNameValidRegex } from "./../constants";
 import clsx from "clsx";
 
 export const getRoomFromURLObject = (urlObject) => {
-    const regexMatcher = new RegExp(`^\/room\/(${roomNameValidRegex.source.slice(1, -1)})\/?`);
+    const regexMatcher = new RegExp(`^/room/(${roomNameValidRegex.source.slice(1, -1)})/?`);
     const roomMatch = urlObject.pathname?.match(regexMatcher); // ^\/room\/([^\/?&#]+)\/?
     if (roomMatch && roomMatch.length > 1) {
         return roomMatch[1];
@@ -11,7 +11,7 @@ export const getRoomFromURLObject = (urlObject) => {
     return null;
 };
 
-export const IntroductionForm = ({ onJoin, roomFromURL }) => {
+export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
     const [myName, setMyName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
     const [wasValidated, setWasValidated] = useState(false);
@@ -23,6 +23,9 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
 
     const onSubmit = (e) => {
         e.preventDefault();
+        if (!isConnected) {
+            return false;
+        }
         const room = roomFromURL || Object.fromEntries(new FormData(e.target)).room;
         onJoin(myName, { room, isSpectating });
         window.localStorage.setItem("myName", myName);
@@ -94,8 +97,16 @@ export const IntroductionForm = ({ onJoin, roomFromURL }) => {
                             Spectate
                         </label>
 
-                        <button type="submit" className="mt-3 w-100 btn btn-primary">
-                            Join
+                        <button
+                            type="submit"
+                            className="mt-3 w-100 btn btn-primary"
+                            disabled={!isConnected}
+                        >
+                            {isConnected ? (
+                                "Join"
+                            ) : (
+                                <i className="fa-solid fa-spin fa-circle-notch" />
+                            )}
                         </button>
 
                         <p className="mt-2 small">

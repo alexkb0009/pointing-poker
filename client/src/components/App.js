@@ -19,6 +19,8 @@ const createInitialState = () => ({
     myVote: null,
     agendaQueue: [],
     agendaHistory: [],
+    roomName: null,
+    config: {},
 });
 
 let io = null;
@@ -35,6 +37,7 @@ export class App extends React.Component {
         this.onResetVotes = this.onResetVotes.bind(this);
         this.onNextAgendaItem = debounce(this.onNextAgendaItem.bind(this), 1000, noDblClicks);
         this.onSetAgendaQueue = debounce(this.onSetAgendaQueue.bind(this), 1000);
+        this.onSetConfig = this.onSetConfig.bind(this);
 
         this.state = createInitialState();
     }
@@ -58,44 +61,50 @@ export class App extends React.Component {
                 console.error("Connection Error", err);
             });
             this.socket.on("connect", () => {
-                const { myName, room, clientsState } = this.state;
+                const { myName, roomName, clientsState } = this.state;
                 const myClientState = clientsState.find(({ name }) => name === myName);
                 const { isSpectating = false } = myClientState || {};
                 // If reconnection attempt, try re-join previous room
-                if (myName && room) {
-                    this.onJoin(myName, { room, isSpectating });
+                if (myName && roomName) {
+                    this.onJoin(myName, { room: roomName, isSpectating });
                 }
                 this.setState({ isConnected: true });
             });
             this.socket.on("stateUpdate", (stateUpdate) => {
-                if (stateUpdate.room) {
-                    // Keep URL in sync with room
-                    if (getRoomFromURLObject(url) !== stateUpdate.room) {
-                        window.history.pushState(
-                            null,
-                            document.title,
-                            `/room/${stateUpdate.room}/`
-                        );
-                        /**
-                         * Gets caught by Page component's listener and updates `url` prop.
-                         *
-                         * @see https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes#answer-33668370
-                         * Approach fits because we're in control of the pushStates/navigation; could be encapsulated/reusable
-                         * by wrapping in a 'navigate' function. Might change this approach later in favor of MutationObserver
-                         * (other answer) or maybe a custom 'pushstate' event (lol) after more research.
-                         */
-                        window.dispatchEvent(new Event("popstate"));
-                    }
-                    window.gtag("event", "join_group", {
-                        group_id: stateUpdate.room,
-                    });
-                }
+                let newRoom = false;
                 this.setState(
-                    (existingState) => ({
-                        ...existingState,
-                        ...stateUpdate,
-                    })
-                    // () => console.log("Updated State", stateUpdate, "\n", this.state)
+                    (existingState) => {
+                        newRoom =
+                            stateUpdate.roomName && stateUpdate.roomName !== existingState.roomName;
+                        return {
+                            ...existingState,
+                            ...stateUpdate,
+                        };
+                    },
+                    () => {
+                        if (newRoom) {
+                            // Keep URL in sync with room
+                            if (getRoomFromURLObject(url) !== this.state.roomName) {
+                                window.history.pushState(
+                                    null,
+                                    document.title,
+                                    `/room/${this.state.roomName}/`
+                                );
+                                /**
+                                 * Gets caught by Page component's listener and updates `url` prop.
+                                 *
+                                 * @see https://stackoverflow.com/questions/3522090/event-when-window-location-href-changes#answer-33668370
+                                 * Approach fits because we're in control of the pushStates/navigation; could be encapsulated/reusable
+                                 * by wrapping in a 'navigate' function. Might change this approach later in favor of MutationObserver
+                                 * (other answer) or maybe a custom 'pushstate' event (lol) after more research.
+                                 */
+                                window.dispatchEvent(new Event("popstate"));
+                            }
+                            window.gtag("event", "join_group", {
+                                group_id: this.state.roomName,
+                            });
+                        }
+                    }
                 );
             });
             this.socket.on("disconnect", () => {
@@ -110,9 +119,9 @@ export class App extends React.Component {
 
     componentDidUpdate(pastProps) {
         const { url } = this.props;
-        const { room } = this.state;
-        if (pastProps.url !== url && room) {
-            const isLeavingRoomURL = getRoomFromURLObject(url) !== room;
+        const { roomName } = this.state;
+        if (pastProps.url !== url && roomName) {
+            const isLeavingRoomURL = getRoomFromURLObject(url) !== roomName;
             if (isLeavingRoomURL) {
                 this.onExit();
             }
@@ -124,7 +133,7 @@ export class App extends React.Component {
         if (room) {
             payload.room = room;
         }
-        this.socket.emit("join", payload);
+        this.socket.volatile.emit("join", payload);
     }
 
     onExit() {
@@ -133,27 +142,31 @@ export class App extends React.Component {
 
     onVotingCardSelect(vote) {
         const newVote = vote === this.state.myVote ? null : vote;
-        this.socket.emit("vote", { vote: newVote });
+        this.socket.volatile.emit("vote", { vote: newVote });
     }
 
     onToggleSpectating() {
-        this.socket.emit("toggleSpectating");
+        this.socket.volatile.emit("toggleSpectating");
     }
 
     onToggleShowingVotes() {
-        this.socket.emit("toggleShowingVotes");
+        this.socket.volatile.emit("toggleShowingVotes");
     }
 
     onResetVotes() {
-        this.socket.emit("resetVotes");
+        this.socket.volatile.emit("resetVotes");
     }
 
     onNextAgendaItem() {
-        this.socket.emit("nextAgendaItem");
+        this.socket.volatile.emit("nextAgendaItem");
     }
 
     onSetAgendaQueue(agendaQueue) {
         this.socket.emit("setAgendaQueue", { agendaQueue });
+    }
+
+    onSetConfig(config) {
+        this.socket.emit("setConfig", { config });
     }
 
     render() {
@@ -168,6 +181,7 @@ export class App extends React.Component {
             myName,
             agendaQueue,
             agendaHistory,
+            config,
         } = this.state;
         const roomFromURL = getRoomFromURLObject(url);
         const isCurrentHostMe = currentHost === myName;
@@ -201,17 +215,22 @@ export class App extends React.Component {
                 </TopNav>
 
                 <div id="content-area">
-                    {!isConnected && <div className="connecting-container">Connecting</div>}
+                    {!isConnected && isJoined && (
+                        <div className="connecting-container">Connecting</div>
+                    )}
 
                     {!isJoined ? (
-                        <IntroductionForm onJoin={this.onJoin} roomFromURL={roomFromURL} />
+                        <IntroductionForm
+                            onJoin={this.onJoin}
+                            roomFromURL={roomFromURL}
+                            isConnected={isConnected}
+                        />
                     ) : (
                         <>
                             <CurrentAgenda
                                 agendaQueue={agendaQueue}
                                 agendaHistory={agendaHistory}
                             />
-
                             <PeerVotes
                                 clientsState={clientsState}
                                 isShowingVotes={isShowingVotes}
@@ -220,6 +239,7 @@ export class App extends React.Component {
                                 onVotingCardSelect={this.onVotingCardSelect}
                                 isShowingVotes={isShowingVotes}
                                 myVote={myVote}
+                                config={config}
                             />
                             {isCurrentHostMe && (
                                 <HostControls
@@ -229,6 +249,8 @@ export class App extends React.Component {
                                     onResetVotes={this.onResetVotes}
                                     onNextAgendaItem={this.onNextAgendaItem}
                                     onSetAgendaQueue={this.onSetAgendaQueue}
+                                    config={config}
+                                    onSetConfig={this.onSetConfig}
                                 />
                             )}
                         </>

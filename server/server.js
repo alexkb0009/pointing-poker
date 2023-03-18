@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /**
  * Run this file with node to bootup http & socket.io servers.
  *

@@ -11,16 +11,16 @@ export const PrivacyPolicy = () => {
                 by running a script) on a User’s device as they interact with this Application.
             </p>
             <p>
-                For simplicity, all such technologies are defined as "Trackers" within this document
-                – unless there is a reason to differentiate. For example, while Cookies can be used
-                on both web and mobile browsers, it would be inaccurate to talk about Cookies in the
-                context of mobile apps as they are a browser-based Tracker. For this reason, within
-                this document, the term Cookies is only used where it is specifically meant to
-                indicate that particular type of Tracker.
+                For simplicity, all such technologies are defined as &ldquo;Trackers&rdquo; within
+                this document – unless there is a reason to differentiate. For example, while
+                Cookies can be used on both web and mobile browsers, it would be inaccurate to talk
+                about Cookies in the context of mobile apps as they are a browser-based Tracker. For
+                this reason, within this document, the term Cookies is only used where it is
+                specifically meant to indicate that particular type of Tracker.
             </p>
 
             <p>
-                Some of the purposes for which Trackers are used may also require the User's
+                Some of the purposes for which Trackers are used may also require the User&apos;s
                 consent. Whenever consent is given, it can be freely withdrawn at any time following
                 the instructions provided in this document.
             </p>
@@ -35,15 +35,15 @@ export const PrivacyPolicy = () => {
             <p>
                 The validity and expiration periods of Cookies and other similar Trackers may vary
                 depending on the lifetime set by the Owner or the relevant provider. Some of them
-                expire upon termination of the User’s browsing session.
+                expire upon termination of the User&apos;s browsing session.
             </p>
 
             <p>
-                In addition to what’s specified in the descriptions within each of the categories
-                below, Users may find more precise and updated information regarding lifetime
-                specification as well as any other relevant information – such as the presence of
-                other Trackers - in the linked privacy policies of the respective third-party
-                providers or by contacting the Owner.
+                In addition to what&apos;s specified in the descriptions within each of the
+                categories below, Users may find more precise and updated information regarding
+                lifetime specification as well as any other relevant information – such as the
+                presence of other Trackers - in the linked privacy policies of the respective
+                third-party providers or by contacting the Owner.
             </p>
 
             <h3 className="iub-purpose-stack iub-purpose-stack-1">
@@ -67,8 +67,8 @@ export const PrivacyPolicy = () => {
                         <div className="expand-content">
                             <p>
                                 This type of service analyzes the traffic of this Application,
-                                potentially containing Users' Personal Data, with the purpose of
-                                filtering it from parts of traffic, messages and content that are
+                                potentially containing Users&apos; Personal Data, with the purpose
+                                of filtering it from parts of traffic, messages and content that are
                                 recognized as SPAM.
                             </p>
                             <h6 className="iub-service iub-service-5177709">Google reCAPTCHA</h6>
@@ -84,7 +84,7 @@ export const PrivacyPolicy = () => {
                                     <a
                                         href="https://www.google.com/policies/privacy/"
                                         target="_blank"
-                                        rel="noopener"
+                                        rel="noopener noreferrer"
                                     >
                                         privacy policy
                                     </a>{" "}
@@ -92,7 +92,7 @@ export const PrivacyPolicy = () => {
                                     <a
                                         href="https://www.google.com/intl/en/policies/terms/"
                                         target="_blank"
-                                        rel="noopener"
+                                        rel="noopener noreferrer"
                                     >
                                         terms of use
                                     </a>
@@ -150,7 +150,7 @@ export const PrivacyPolicy = () => {
             <p>
                 This Application uses Trackers to enable basic interactions and functionalities,
                 allowing Users to access selected features of the Service and facilitating the
-                User's communication with the Owner.
+                User&apos;s communication with the Owner.
             </p>
 
             <ul className="list-group mb-4">
@@ -421,6 +421,7 @@ export const PrivacyPolicy = () => {
                                 <a
                                     href="https://tools.google.com/dlpage/gaoptout?hl=en"
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                 >
                                     Opt Out
                                 </a>
@@ -436,6 +437,7 @@ export const PrivacyPolicy = () => {
                                 <a
                                     href="https://tools.google.com/dlpage/gaoptout?hl=en"
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                 >
                                     Opt Out
                                 </a>
@@ -491,8 +493,9 @@ export const PrivacyPolicy = () => {
                                 Services of this kind usually offer the possibility to opt out of
                                 such tracking. In addition to any opt-out feature offered by any of
                                 the services below, Users may learn more on how to generally opt out
-                                of interest-based advertising within the dedicated section "How to
-                                opt-out of interest-based advertising" in this document.
+                                of interest-based advertising within the dedicated section
+                                &ldquo;How to opt-out of interest-based advertising&rdquo; in this
+                                document.
                             </p>
 
                             {/*
@@ -735,7 +738,7 @@ export const PrivacyPolicy = () => {
                                 <a
                                     href="http://optout.networkadvertising.org/?c=1"
                                     target="_blank"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                 >
                                     Network Advertising Initiative opt-out page
                                 </a>
@@ -762,12 +765,12 @@ export const PrivacyPolicy = () => {
                                 </p>
 
                                 <p>
-                                    Users can opt out of Google's use of cookies for ads
-                                    personalization by visiting Google's{" "}
+                                    Users can opt out of Google&apos;s use of cookies for ads
+                                    personalization by visiting Google&apos;s{" "}
                                     <a
                                         href="https://adssettings.google.com/authenticated"
                                         target="_blank"
-                                        rel="noopener"
+                                        rel="noopener noreferrer"
                                     >
                                         Ads Settings
                                     </a>
@@ -788,7 +791,7 @@ export const PrivacyPolicy = () => {
                                 <a
                                     href="https://adssettings.google.com/authenticated"
                                     target="_blank"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                 >
                                     Opt Out
                                 </a>
@@ -804,7 +807,7 @@ export const PrivacyPolicy = () => {
                                 <a
                                     href="https://adssettings.google.com/authenticated#display_optout"
                                     target="_blank"
-                                    rel="noopener"
+                                    rel="noopener noreferrer"
                                 >
                                     Opt Out
                                 </a>
@@ -860,14 +863,14 @@ export const PrivacyPolicy = () => {
                 stored Trackers, including those used to remember the User’s initial consent.
             </p>
             <p>
-                Other Trackers in the browser’s local memory may be cleared by deleting the browsing
-                history.
+                Other Trackers in the browser&apos;s local memory may be cleared by deleting the
+                browsing history.
             </p>
 
             <p>
                 With regard to any third-party Trackers, Users can manage their preferences and
                 withdraw their consent via the related opt-out link (where provided), by using the
-                means indicated in the third party's privacy policy, or by contacting the third
+                means indicated in the third party&apos;s privacy policy, or by contacting the third
                 party.
             </p>
 
@@ -879,7 +882,7 @@ export const PrivacyPolicy = () => {
             <ul>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="https://support.google.com/chrome/answer/95647?hl=en&p=cpn_cookies"
                     >
@@ -888,7 +891,7 @@ export const PrivacyPolicy = () => {
                 </li>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="https://support.mozilla.org/en-US/kb/enable-and-disable-cookies-website-preferences"
                     >
@@ -897,7 +900,7 @@ export const PrivacyPolicy = () => {
                 </li>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="https://support.apple.com/guide/safari/manage-cookies-and-website-data-sfri11471/"
                     >
@@ -906,7 +909,7 @@ export const PrivacyPolicy = () => {
                 </li>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="http://windows.microsoft.com/en-us/windows-vista/block-or-allow-cookies"
                     >
@@ -915,7 +918,7 @@ export const PrivacyPolicy = () => {
                 </li>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="https://support.microsoft.com/en-us/help/4027947"
                     >
@@ -924,7 +927,7 @@ export const PrivacyPolicy = () => {
                 </li>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="https://support.brave.com/hc/en-us/articles/360022806212-How-do-I-use-Shields-while-browsing"
                     >
@@ -933,7 +936,7 @@ export const PrivacyPolicy = () => {
                 </li>
                 <li>
                     <a
-                        rel="noopener nofollow"
+                        rel="noopener nofollow noreferrer"
                         target="_blank"
                         href="https://help.opera.com/en/latest/web-preferences/#cookies"
                     >
@@ -951,13 +954,17 @@ export const PrivacyPolicy = () => {
             <h4>How to opt out of interest-based advertising</h4>
             <p>
                 Notwithstanding the above, Users may follow the instructions provided by{" "}
-                <a target="_blank" rel="noopener nofollow" href="http://www.youronlinechoices.eu/">
+                <a
+                    target="_blank"
+                    rel="noopener nofollow noreferrer"
+                    href="http://www.youronlinechoices.eu/"
+                >
                     YourOnlineChoices
                 </a>{" "}
                 (EU), the{" "}
                 <a
                     target="_blank"
-                    rel="noopener nofollow"
+                    rel="noopener nofollow noreferrer"
                     href="https://thenai.org/about-online-advertising/"
                 >
                     Network Advertising Initiative
@@ -965,7 +972,7 @@ export const PrivacyPolicy = () => {
                 (US) and the{" "}
                 <a
                     target="_blank"
-                    rel="noopener nofollow"
+                    rel="noopener nofollow noreferrer"
                     href="https://www.aboutads.info/consumers/"
                 >
                     Digital Advertising Alliance
@@ -973,13 +980,17 @@ export const PrivacyPolicy = () => {
                 (US),{" "}
                 <a
                     target="_blank"
-                    rel="noopener nofollow"
+                    rel="noopener nofollow noreferrer"
                     href="https://youradchoices.ca/understanding-online-advertising/"
                 >
                     DAAC
                 </a>{" "}
                 (Canada),{" "}
-                <a target="_blank" rel="noopener nofollow" href="http://www.ddai.info/optout">
+                <a
+                    target="_blank"
+                    rel="noopener nofollow noreferrer"
+                    href="http://www.ddai.info/optout"
+                >
                     DDAI
                 </a>{" "}
                 (Japan) or other similar services. Such initiatives allow Users to select their
@@ -991,7 +1002,7 @@ export const PrivacyPolicy = () => {
                 The Digital Advertising Alliance offers an application called{" "}
                 <a
                     target="_blank"
-                    rel="noopener nofollow"
+                    rel="noopener nofollow noreferrer"
                     href="https://youradchoices.com/appchoices"
                 >
                     AppChoices
@@ -1004,8 +1015,8 @@ export const PrivacyPolicy = () => {
                 Users are free to decide whether or not to grant consent. However, please note that
                 Trackers help this Application to provide a better experience and advanced
                 functionalities to Users (in line with the purposes outlined in this document).
-                Therefore, in the absence of the User's consent, the Owner may be unable to provide
-                related features.
+                Therefore, in the absence of the User&apos;s consent, the Owner may be unable to
+                provide related features.
             </p>
 
             <h3 id="owner_of_the_data">Owner and Data Controller</h3>

@@ -161,7 +161,6 @@ $poker-container-padding-y: 1rem;
     display: grid;
     place-items: center;
     background-color: rgba(0,0,0,0.1);
-    pointer-events: none;
     font-size: 2em;
     font-weight: bold;
     &:before {

@@ -9,11 +9,24 @@ export const VALUE_DISPLAY = {
     0.5: <>&#x00BD;</>,
 };
 
-export const VoteValue = ({ value, className }) => {
+const VALUE_DISPLAY_HOURLY = {
+    40: "1wk",
+    80: "2wk",
+    160: "1mo",
+    320: "2mo",
+    480: "3mo",
+    720: "6mo",
+};
+
+export const VoteValue = ({ value, className, config = {} }) => {
     let valueShown = value;
     const displayValue = VALUE_DISPLAY[value];
     if (displayValue) {
         valueShown = <span className="fs-2">{displayValue}</span>;
+    } else {
+        if (config.cardDeck === "hours") {
+            valueShown = VALUE_DISPLAY_HOURLY[value] || valueShown;
+        }
     }
     /*
     if (value === 0.5) {

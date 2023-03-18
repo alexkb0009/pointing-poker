@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const path = require("path");
 const webpack = require("webpack");
 const nodeExternals = require("webpack-node-externals");
@@ -6,8 +7,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const StatsPlugin = require("stats-webpack-plugin");
 const env = process.env.NODE_ENV;
 const packageJson = require("./package.json");
-
-// const chunkFilename = '[name].js'; // TODO: Support '[name].[chunkhash].js';
 
 const mode = env === "development" ? "development" : "production";
 const isProduction = mode === "production";
@@ -107,6 +106,9 @@ module.exports = [
             //     // exclude: [/node_modules[\\\/]react/],
             // }),
         ],
+        optimization: {
+            minimize: false,
+        },
         externals: [
             nodeExternals(),
             {

@@ -3,13 +3,20 @@ import React from "react";
 export const UserControls = ({ onChange, clientsState, myName }) => {
     const myClientState = clientsState.find(({ name }) => name === myName);
     const { isSpectating = false } = myClientState || {};
-    const countSpectators = clientsState.reduce(
-        (m, { isSpectating }) => (isSpectating ? m + 1 : m),
-        0
-    );
+    const spectators = clientsState
+        .filter(({ isSpectating }) => isSpectating)
+        .map(({ name }) => name);
+    const countSpectators = spectators.length;
     return (
         <div className="nav-controls d-flex">
-            <div className="px-2 d-flex align-items-center" title="Number of spectators in room">
+            <div
+                className="px-2 d-flex align-items-center"
+                title={
+                    countSpectators === 0
+                        ? "No spectators currently"
+                        : `Spectators: ${spectators.join(", ")}`
+                }
+            >
                 <i className="fa-solid fa-binoculars me-2" />
                 {countSpectators}
             </div>

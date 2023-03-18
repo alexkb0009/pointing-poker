@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { POKER_CARD_OPTIONS } from "./../constants";
 import clsx from "clsx";
 
 export const HostControls = ({
@@ -8,8 +9,12 @@ export const HostControls = ({
     onNextAgendaItem,
     onToggleShowingVotes,
     onSetAgendaQueue,
+    config,
+    onSetConfig,
 }) => {
-    const [isShowingAgendaQueue, setIsShowingAgendaQueue] = useState(false);
+    const [visiblePane, setVisiblePane] = useState(null);
+    const isShowingAgendaQueue = visiblePane === "agenda";
+    const isShowingConfig = visiblePane === "config";
     const textareaRef = useRef();
     const agendaQueueLen = agendaQueue.length;
 
@@ -21,13 +26,25 @@ export const HostControls = ({
     }, [agendaQueueLen]);
 
     const toggleIsShowingAgendaQueue = () => {
-        setIsShowingAgendaQueue((prev) => !prev);
+        setVisiblePane((currentPane) => (currentPane === "agenda" ? null : "agenda"));
+    };
+
+    const toggleIsShowingRoomConfig = () => {
+        setVisiblePane((currentPane) => (currentPane === "config" ? null : "config"));
     };
 
     const onTextareaChange = (e) => {
         const nextText = e.target.value;
         const nextQueue = nextText ? nextText.split("\n") : [];
         onSetAgendaQueue(nextQueue);
+    };
+
+    const onSelectCardDeck = (e) => {
+        onSetConfig({ cardDeck: e.target.value });
+    };
+
+    const onToggleIsVotingAfterShowAllowed = (e) => {
+        onSetConfig({ isVotingAfterShowAllowed: e.target.checked });
     };
 
     return (
@@ -88,9 +105,22 @@ export const HostControls = ({
                             <i className="fa-solid fa-list-check fa-fw" />
                         </button>
                     </div>
+
+                    <div className="btn-group my-1 ms-2" role="group">
+                        <button
+                            type="button"
+                            onClick={toggleIsShowingRoomConfig}
+                            className={clsx(
+                                "btn",
+                                isShowingConfig ? "btn-primary" : "btn-outline-primary"
+                            )}
+                        >
+                            <i className="fa-solid fa-gear fa-fw" />
+                        </button>
+                    </div>
                 </div>
 
-                {isShowingAgendaQueue && (
+                {isShowingAgendaQueue ? (
                     <div className="pb-3">
                         <textarea
                             className={clsx("form-control", "agenda-textarea")}
@@ -102,7 +132,53 @@ export const HostControls = ({
                             ref={textareaRef}
                         />
                     </div>
-                )}
+                ) : isShowingConfig ? (
+                    <div className="pb-3">
+                        <div className="row pb-2">
+                            <div className="col-auto">
+                                <div className="form-check">
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="isVotingAfterShowAllowedCheckbox"
+                                    >
+                                        Allow voting while cards are visible?
+                                    </label>
+                                    <input
+                                        type="checkbox"
+                                        id="isVotingAfterShowAllowedCheckbox"
+                                        className="form-check-input"
+                                        onChange={onToggleIsVotingAfterShowAllowed}
+                                        checked={config.isVotingAfterShowAllowed}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <label
+                                className="form-check-label col-form-label col-4 col-md-3 col-lg-2"
+                                htmlFor="cardDeckInput"
+                            >
+                                Card Deck
+                            </label>
+                            <div className="col">
+                                <select
+                                    name="cardDeck"
+                                    id="cardDeckInput"
+                                    className="form-control"
+                                    onChange={onSelectCardDeck}
+                                    value={config.cardDeck}
+                                >
+                                    {Object.entries(POKER_CARD_OPTIONS).map(([key, { title }]) => (
+                                        <option value={key} key={key}>
+                                            {title}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
             </div>
         </div>
     );

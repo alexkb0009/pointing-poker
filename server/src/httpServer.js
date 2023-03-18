@@ -8,5 +8,5 @@ import Express from "express";
  * @module
  */
 
-export const app = Express();
+export const app = new Express();
 export const httpServer = http.createServer(app);
