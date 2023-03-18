@@ -148,6 +148,7 @@ io.on("connection", (socket) => {
         }
         room.removeClient(clientName);
         socket.leave(roomName);
+        roomExitCleanup(roomName);
         socket.emit("stateUpdate", {
             isJoined: false,
             roomName: null,
