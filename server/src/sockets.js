@@ -4,16 +4,8 @@ import { roomStates } from "./roomStates";
 import { RoomState } from "./RoomState";
 import { roomNameValidRegex } from "../../client/src/constants";
 
-export const io = new Server(httpServer, {
-    connectionStateRecovery: {
-        // the backup duration of the sessions and the packets
-        maxDisconnectionDuration: 10 * 60 * 1000,
-    },
-});
+export const io = new Server(httpServer);
 
-function getSocketRoomName(socket) {
-    return [...socket.rooms][1];
-}
 /** @returns {{ clientName: string, roomName: string, room: RoomState, isValid: boolean }} */
 function validateSocket(socket, needsHost = false) {
     const ret = {
@@ -30,7 +22,7 @@ function validateSocket(socket, needsHost = false) {
         ret.isValid = false;
         return ret;
     }
-    ret.roomName = getSocketRoomName(socket);
+    ret.roomName = socket.data.room;
     if (!ret.roomName) {
         ret.validationErrorMsg = "Socket not in a room";
         ret.isValid = false;
@@ -71,6 +63,7 @@ const roomJoin = (socket, name, roomParam = null, isSpectating = false) => {
     [...socket.rooms].slice(1).forEach((rn) => {
         socket.leave(rn);
     });
+    socket.data.room = roomName;
     socket.join(roomName);
 
     let room = roomStates.get(roomName);
@@ -130,9 +123,10 @@ const roomExitCleanup = (roomName) => {
 };
 
 io.on("connection", (socket) => {
-    if (socket.recovered && socket.data.name && socket.rooms.size === 2) {
-        roomJoin(socket, socket.data.name, getSocketRoomName(socket));
-    }
+    // console.log("CONNECT", socket.recovered, socket.data.name, socket.data.room);
+    // if (socket.recovered && socket.data.name && socket.data.room) {
+    //     roomJoin(socket, socket.data.name, socket.data.room);
+    // }
 
     socket.on("join", ({ name, room: roomParam = null, isSpectating = false }) => {
         roomJoin(socket, name, roomParam, isSpectating);
@@ -216,25 +210,28 @@ io.on("connection", (socket) => {
         room.updateConfig(config);
         io.to(roomName).emit("stateUpdate", { config: room.config });
     });
-});
 
-io.of("/").adapter.on("leave-room", (roomName, socketId) => {
-    const room = roomStates.get(roomName);
-    if (!room) {
-        // Done
-        return;
-    }
+    socket.on("disconnect", (reason) => {
+        const { isValid, clientName, roomName, room } = validateSocket(socket);
+        // console.log("DISCONNECTING", isValid, clientName, roomName, !!room);
+        if (!room) {
+            // Done
+            return;
+        }
 
-    const clientName = room.getClientNameBySocketId(socketId);
+        if (!clientName) {
+            // Left room already, e.g. via exit event
+            roomExitCleanup(roomName);
+        } else {
+            // Left room due to disconnection
+            room.setClientExitTimeout(clientName, () => roomExitCleanup(roomName, clientName));
+            io.to(roomName).emit("stateUpdate", { ...room.toJSON() });
+        }
+    });
 
-    if (!clientName) {
-        // Left room already, e.g. via exit event
-        roomExitCleanup(roomName);
-    } else {
-        // Left room due to disconnection
-        room.setClientExitTimeout(clientName, () => roomExitCleanup(roomName, clientName));
-        io.to(roomName).emit("stateUpdate", { ...room.toJSON() });
-    }
+    // setTimeout(() => {
+    //     socket.conn.close();
+    // }, 10000);
 });
 
 io.engine.on("connection_error", (err) => {
