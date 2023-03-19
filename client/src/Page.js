@@ -1,5 +1,8 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { THEMES } from "./constants";
+import { getRoomFromURLObject } from "./utils";
 import { UIOptionsContext } from "./components/UIOptionsContext";
+import { SEOTag } from "./components/SEOTag";
 
 // Ensure GA is used for static/non-interactive SSRs as well.
 const gaSnippet = `
@@ -11,32 +14,39 @@ window.gtag("js", new Date());
 window.gtag("config", "G-YJVYC858NK");
 `;
 
-function getWindowCookies() {
-    if (typeof window === "undefined") return null;
-    return document.cookie.split("; ").reduce(function (m, cookie) {
-        const [key, value] = cookie.split("=");
-        m[key] = value;
-        return m;
-    }, {});
-}
-
-// These should match on server and UI (except for HTTPOnly cookies)
-// so we grab them here outside of useEffect/componentDidMount.
-// Eventually can check if can grab them from Express here.. but for now passing e.g. theme
-// in as a prop.. to possibly change later... we might want to have windowCookies be up-to-date also..
-const initialWindowCookies = getWindowCookies();
-
 const initialUIOptions = {
-    theme: initialWindowCookies?.theme || "poker",
+    theme: "poker",
     areCardsWrapping: false,
 };
 
-export function Page({ children, url: propUrl, theme = null, cssBundles = [] }) {
+export function Page({
+    children,
+    url: propUrl,
+    cssBundles = [],
+    // Be careful to only access non-HTTPOnly cookies that available on
+    // browser here, despite them being available in SSR.
+    initialCookies = {},
+}) {
     const [url, setUrl] = useState(propUrl || new URL(window.location.href));
     const [uiOptions, setUIOptions] = useState({
         ...initialUIOptions,
-        theme: theme || initialUIOptions.theme,
+        // TODO: Validate that initialCookies.theme is in THEMES (in case certain themes get removed in future)
+        theme: initialCookies?.theme || initialUIOptions.theme,
     });
+
+    const { roomFromURL, pageTitle } = useMemo(() => {
+        const roomFromURL = getRoomFromURLObject(url);
+        let pageTitle = "Pointing Poker Page";
+        if (roomFromURL) {
+            pageTitle += ` - Room ${roomFromURL}`;
+        }
+        return {
+            roomFromURL,
+            pageTitle,
+        };
+        // url is a lightweight object to memoize on
+        // save a couple CPU cycles from regex matching
+    }, [url]);
 
     useEffect((e) => {
         // Listen to our own in-app navigations (pushStates) and update url state.
@@ -45,14 +55,28 @@ export function Page({ children, url: propUrl, theme = null, cssBundles = [] }) 
         };
         window.addEventListener("popstate", updatePageUrl);
         window.addEventListener("pushstate", updatePageUrl);
+
+        // Grab+apply non-SSR-applicable UI options
+        const existingUIOptionsStr = window.localStorage.getItem("uiOptions");
+        const existingUIOptions = (existingUIOptionsStr && JSON.parse(existingUIOptionsStr)) || {};
+        const existingUIOptionsFiltered = Object.keys(existingUIOptions)
+            .filter((k) => Object.hasOwn(initialUIOptions, k))
+            .reduce((m, k) => {
+                m[k] = existingUIOptions[k];
+                return m;
+            }, {});
+        setUIOptions((initOpts) => ({ ...initOpts, ...existingUIOptionsFiltered }));
     }, []);
 
     const updateUIOptions = useCallback((nextOptions) => {
         setUIOptions((currOptions) => {
-            return { ...currOptions, ...nextOptions };
+            const nextOptionsState = { ...currOptions, ...nextOptions };
+            const { theme, ...nextOptionsLocalStorage } = nextOptionsState;
+            window.localStorage.setItem("uiOptions", JSON.stringify(nextOptionsLocalStorage));
+            return nextOptionsState;
         });
-        // Store as cookie as we can access it server-side
-        // And use it for initial SSR render.
+        // Store theme as cookie as we can access it server-side
+        // and use it for SSR render also.
         if (nextOptions.theme) {
             const d = new Date();
             const expTime = 30 * 24 * 60 * 60 * 1000; // 30 days;
@@ -63,7 +87,7 @@ export function Page({ children, url: propUrl, theme = null, cssBundles = [] }) 
 
     const alteredChildren = React.Children.map(children, (child) => {
         if (React.isValidElement(child) && typeof child.type !== "string") {
-            return React.cloneElement(child, { url });
+            return React.cloneElement(child, { url, roomFromURL });
         }
     });
 
@@ -72,11 +96,13 @@ export function Page({ children, url: propUrl, theme = null, cssBundles = [] }) 
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>Pointing Poker Page</title>
+                <meta name="theme-color" content={THEMES[uiOptions.theme].metaThemeColor} />
+                <title>{pageTitle}</title>
                 <link
                     rel="stylesheet"
                     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
                 />
+                <SEOTag />
                 {cssBundles.map((fn, i) => (
                     <React.Fragment key={i}>
                         <link rel="prefetch" href={fn} />

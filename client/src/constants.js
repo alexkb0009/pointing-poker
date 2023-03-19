@@ -18,10 +18,23 @@ export const POKER_CARD_OPTIONS = {
 };
 
 export const roomNameValidRegex = /^[\w\-\.~!$&'\(\)*+,;=:@]+$/;
+export const roomUrlValidRegex = new RegExp(`^/room/(${roomNameValidRegex.source.slice(1, -1)})/?`);
 
 export const THEMES = {
-    poker: "Poker (default)",
-    cyberpink: "Cyberpink",
-    "serika-dark": "Serika Dark",
-    concrete: "Concrete",
+    poker: {
+        title: "Poker (default)",
+        metaThemeColor: "#fff",
+    },
+    cyberpink: {
+        title: "Cyberpink",
+        metaThemeColor: "#333",
+    },
+    "serika-dark": {
+        title: "Serika Dark",
+        metaThemeColor: "#323437",
+    },
+    concrete: {
+        title: "Concrete",
+        metaThemeColor: "#ddd",
+    },
 };

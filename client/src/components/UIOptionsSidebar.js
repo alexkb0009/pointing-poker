@@ -62,9 +62,9 @@ export const UIOptionsSidebar = () => {
                                 onChange={(e) => updateUIOptions({ theme: e.target.value })}
                                 value={uiOptions.theme}
                             >
-                                {Object.entries(THEMES).map(([value, text], i) => (
+                                {Object.entries(THEMES).map(([value, { title }], i) => (
                                     <option value={value} key={value}>
-                                        {text}
+                                        {title}
                                     </option>
                                 ))}
                             </select>
@@ -87,6 +87,38 @@ export const UIOptionsSidebar = () => {
                                 />
                             </div>
                         </div>
+
+                        {/* Doesn't seem like a super-worthwhile customization to have -
+                        <div className="container-fluid py-1">
+                            <label className="form-label" htmlFor="themeSelect">
+                                Card Size (W x H)
+                            </label>
+                            <div className="d-flex">
+                                <input
+                                    className="form-control me-1"
+                                    type="number"
+                                    min={30}
+                                    max={200}
+                                    step={10}
+                                    value={uiOptions.cardSizeWidth}
+                                    onChange={(e) =>
+                                        updateUIOptions({ cardSizeWidth: e.target.value })
+                                    }
+                                />
+                                <input
+                                    className="form-control ms-1"
+                                    type="number"
+                                    min={30}
+                                    max={200}
+                                    step={10}
+                                    value={uiOptions.cardSizeHeight}
+                                    onChange={(e) =>
+                                        updateUIOptions({ cardSizeHeight: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+                        */}
                     </>
                 )}
         </>

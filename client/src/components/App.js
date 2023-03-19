@@ -2,7 +2,7 @@ import React from "react";
 import debounce from "lodash.debounce";
 import { AppTopNav } from "./AppTopNav";
 import { SidebarProvider } from "./SidebarContext";
-import { IntroductionForm, getRoomFromURLObject } from "./IntroductionForm";
+import { IntroductionForm } from "./IntroductionForm";
 import { HostControls } from "./HostControls";
 import { PeerVotes } from "./PeerVotes";
 import { VotingCards } from "./VotingCards";
@@ -65,6 +65,7 @@ export class App extends React.Component {
             });
             this.socket.on("connect", () => {
                 const { myName, roomName, clientsState } = this.state;
+                const { roomFromURL } = this.props;
                 const myClientState = clientsState.find(({ name }) => name === myName);
                 const { isSpectating = false } = myClientState || {};
                 // If reconnection attempt, try re-join previous room
@@ -72,7 +73,6 @@ export class App extends React.Component {
                     this.onJoin(myName, { room: roomName, isSpectating });
                 } else {
                     // Maybe try autojoin anyway..
-                    const roomFromURL = getRoomFromURLObject(url);
                     const nameFromLocalStorage = window.localStorage.getItem("myName");
                     if (roomFromURL && nameFromLocalStorage) {
                         this.onJoin(nameFromLocalStorage, { room: roomFromURL, isSpectating });
@@ -95,7 +95,7 @@ export class App extends React.Component {
                     () => {
                         if (newRoom) {
                             // Keep URL in sync with room
-                            if (getRoomFromURLObject(url) !== this.state.roomName) {
+                            if (this.props.roomFromURL !== this.state.roomName) {
                                 window.history.pushState(
                                     null,
                                     document.title,
@@ -129,10 +129,10 @@ export class App extends React.Component {
     }
 
     componentDidUpdate(pastProps) {
-        const { url } = this.props;
+        const { url, roomFromURL } = this.props;
         const { roomName } = this.state;
         if (pastProps.url !== url && roomName) {
-            const isLeavingRoomURL = getRoomFromURLObject(url) !== roomName;
+            const isLeavingRoomURL = roomFromURL !== roomName;
             if (isLeavingRoomURL) {
                 this.onExit();
             }
@@ -181,7 +181,7 @@ export class App extends React.Component {
     }
 
     render() {
-        const { url } = this.props;
+        const { roomFromURL } = this.props;
         const {
             isConnected,
             isJoined,
@@ -194,7 +194,6 @@ export class App extends React.Component {
             agendaHistory,
             config,
         } = this.state;
-        const roomFromURL = getRoomFromURLObject(url);
         const isCurrentHostMe = currentHost === myName;
 
         return (

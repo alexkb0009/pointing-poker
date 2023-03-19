@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { roomNameValidRegex } from "./../constants";
 import clsx from "clsx";
-
-export const getRoomFromURLObject = (urlObject) => {
-    const regexMatcher = new RegExp(`^/room/(${roomNameValidRegex.source.slice(1, -1)})/?`);
-    const roomMatch = urlObject.pathname?.match(regexMatcher); // ^\/room\/([^\/?&#]+)\/?
-    if (roomMatch && roomMatch.length > 1) {
-        return roomMatch[1];
-    }
-    return null;
-};
+import { roomNameValidRegex } from "./../constants";
 
 export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
     const [myName, setMyName] = useState("");

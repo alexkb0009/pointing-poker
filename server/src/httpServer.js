@@ -17,3 +17,4 @@ export const clientRootDir = path.join(__dirname, "../../client");
 
 app.use(cookieParser());
 app.use("/static", Express.static(path.join(clientRootDir, "dist"), { index: false }));
+app.use("/assets", Express.static(path.join(clientRootDir, "assets"), { index: false }));

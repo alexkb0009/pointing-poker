@@ -14,9 +14,15 @@ document
         document.documentElement.removeChild(elem);
     });
 
+const initialCookies = (document.cookie || "").split("; ").reduce(function (m, cookie) {
+    const [key, value] = cookie.split("=");
+    m[key] = value;
+    return m;
+}, {});
+
 hydrateRoot(
     document,
-    <Page>
+    <Page initialCookies={initialCookies}>
         <App appVersion={APP_VERSION} commitHash={COMMIT_HASH} />
     </Page>
 );

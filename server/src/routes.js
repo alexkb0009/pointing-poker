@@ -23,10 +23,13 @@ JSON.parse(fs.readFileSync(path.join(clientRootDir, "dist/client-bundles.json"))
     });
 
 export const pipeSSR = (request, response, children, bootstrapScripts = jsBundles) => {
-    const theme = request.cookies?.theme || "poker";
     return new Promise((resolve, reject) => {
         const { pipe } = ReactDOMServer.renderToPipeableStream(
-            <Page url={makeUrlObject(request)} cssBundles={cssBundles} theme={theme}>
+            <Page
+                url={makeUrlObject(request)}
+                cssBundles={cssBundles}
+                initialCookies={request.cookies}
+            >
                 {children}
             </Page>,
             {
