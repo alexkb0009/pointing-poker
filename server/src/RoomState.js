@@ -17,6 +17,7 @@ export class RoomState {
         this.#config = {
             cardDeck: "default",
             isVotingAfterShowAllowed: true,
+            areCardsShownAutomatically: true,
             ...config,
         };
         this.#clientsState = [];
@@ -75,7 +76,7 @@ export class RoomState {
 
     #updateIsShowingVotes() {
         const currentlyShowingVotes = this.#isShowingVotes;
-        if (currentlyShowingVotes) {
+        if (currentlyShowingVotes || !this.config.areCardsShownAutomatically) {
             return false;
         }
 
@@ -102,8 +103,11 @@ export class RoomState {
         };
     }
 
-    updateConfig(config) {
-        this.#config = { ...this.#config, ...config };
+    updateConfig(configUpdate) {
+        this.#config = { ...this.#config, ...configUpdate };
+        if ("areCardsShownAutomatically" in configUpdate) {
+            this.#updateIsShowingVotes();
+        }
     }
 
     addClient(clientName, { isSpectating = false, timeJoined = null, socketId }) {

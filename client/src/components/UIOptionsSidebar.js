@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { THEMES } from "../constants";
 import { SidebarContext } from "./SidebarContext";
 import { UIOptionsContext } from "./UIOptionsContext";
 
@@ -61,8 +62,11 @@ export const UIOptionsSidebar = () => {
                                 onChange={(e) => updateUIOptions({ theme: e.target.value })}
                                 value={uiOptions.theme}
                             >
-                                <option value="poker">Poker (default)</option>
-                                <option value="cyberpunk">Cyberpunk</option>
+                                {Object.entries(THEMES).map(([value, text], i) => (
+                                    <option value={value} key={value}>
+                                        {text}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div className="container-fluid py-2">

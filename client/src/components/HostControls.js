@@ -47,6 +47,10 @@ export const HostControls = ({
         onSetConfig({ isVotingAfterShowAllowed: e.target.checked });
     };
 
+    const onToggleAreCardsShownAutomatically = (e) => {
+        onSetConfig({ areCardsShownAutomatically: e.target.checked });
+    };
+
     return (
         <div className="host-controls-wrapper">
             <div className="host-controls">
@@ -134,7 +138,7 @@ export const HostControls = ({
                     </div>
                 ) : isShowingConfig ? (
                     <div className="pb-3 container-md">
-                        <div className="row pb-2 justify-content-end">
+                        <div className="row pb-2">
                             <div className="col-auto">
                                 <div className="form-check">
                                     <label
@@ -149,6 +153,23 @@ export const HostControls = ({
                                         className="form-check-input"
                                         onChange={onToggleIsVotingAfterShowAllowed}
                                         checked={config.isVotingAfterShowAllowed}
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-auto">
+                                <div className="form-check">
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="showVotesAutomatically"
+                                    >
+                                        Automatically show cards when all votes are in?
+                                    </label>
+                                    <input
+                                        type="checkbox"
+                                        id="showVotesAutomatically"
+                                        className="form-check-input"
+                                        onChange={onToggleAreCardsShownAutomatically}
+                                        checked={config.areCardsShownAutomatically}
                                     />
                                 </div>
                             </div>

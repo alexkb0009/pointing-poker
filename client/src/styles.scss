@@ -55,6 +55,8 @@ $secondary: #3a788e;
     --poker-pending-vote-bg: #3a788e;
     --poker-pending-vote-text-color: var(--body-background-color);
     --poker-selected-vote-bg: #f8f8f8;
+    --form-control-border-color: #ced4da;
+    --nav-border-color: #cdcbcb;
 }
 
 
@@ -63,49 +65,98 @@ body {
     width: 100vw;
     background-color: var(--body-background-color);
     overflow-x: hidden;
-    --form-control-bg: var(--body-background-color);
 
     transition: background-color .3s, color .3s;
 }
 
-$theme-cyberpunk-btn: #00ffa1;
+$theme-cyberpink-btn: #ff2ace; //#00ffa1;
+$theme-cyberpink-body-color: #cdff00;
 
-body[data-theme="cyberpunk"] {
-    --bs-body-color: #cdff00;
+body[data-theme="cyberpink"] {
+    --bs-body-color: #{$theme-cyberpink-body-color};
     --bs-border-color: var(--bs-body-color);
-    --bs-link-color: #fa36ff; //#00ffa1;
+    --bs-link-color: #{$theme-cyberpink-btn};
     --bs-link-hover-color: #f900ff;
-    --bs-btn-color: #{$theme-cyberpunk-btn};
+    --bs-btn-color: var(--bs-link-color);
     --form-control-bg: #000;
+    --form-control-border-color: var(--bs-body-color);
+    --nav-border-color: #000;
 
     --body-background-color: #333;
     --playing-background-color: #000;
     --poker-card-bg-color: #000;
     --poker-card-text-color: var(--bs-body-color);
     --poker-card-border-color: var(--bs-body-color);
-    --poker-pending-vote-bg: #cdff00; //#47e02d;
+    --poker-pending-vote-bg: var(--bs-body-color);
     --poker-selected-vote-bg: #333;
     --poker-pending-vote-text-color: var(--body-background-color);
 
     .btn {
         --bs-btn-color: var(--bs-body-color);
-        --bs-btn-hover-color: #{darken($theme-cyberpunk-btn, 10%)};
+        --bs-btn-hover-color: #{darken($theme-cyberpink-btn, 10%)};
         
         &.btn-primary {
-            --bs-btn-bg: #{$theme-cyberpunk-btn};
-            --bs-btn-color: #{$theme-cyberpunk-btn};
-            --bs-btn-border-color: #{$theme-cyberpunk-btn};
+            --bs-btn-bg: var(--bs-link-color);
+            --bs-btn-color: var(--bs-link-color);
+            --bs-btn-border-color: var(--bs-link-color);
             --bs-btn-color: #000;
-            --bs-btn-hover-bg: #{darken($theme-cyberpunk-btn, 10%)};
+            --bs-btn-hover-bg: #{darken($theme-cyberpink-btn, 10%)};
             --bs-btn-hover-color: #000;
-            --bs-btn-hover-border-color: #{darken($theme-cyberpunk-btn, 10%)};
+            --bs-btn-hover-border-color: #{darken($theme-cyberpink-btn, 10%)};
         }
         &.btn-outline-primary {
-            --bs-btn-color: #{$theme-cyberpunk-btn};
-            --bs-btn-border-color: #{$theme-cyberpunk-btn};
-            --bs-btn-hover-bg: #{darken($theme-cyberpunk-btn, 10%)};
+            --bs-btn-color: var(--bs-link-color);
+            --bs-btn-border-color: var(--bs-link-color);
+            --bs-btn-hover-bg: #{darken($theme-cyberpink-btn, 10%)};
             --bs-btn-hover-color: #000;
-            --bs-btn-hover-border-color: #{darken($theme-cyberpunk-btn, 10%)};
+            --bs-btn-hover-border-color: #{darken($theme-cyberpink-btn, 10%)};
+        }
+    }
+    
+}
+
+$theme-serika-dark-btn: #e2b714;
+$theme-serika-dark-body-color: #d1d0c5;
+$theme-serika-dark-secondary-color: #646669;
+
+body[data-theme="serika-dark"] {
+    --bs-body-color: #{$theme-serika-dark-body-color};
+    --bs-border-color: var(--bs-body-color);
+    --bs-link-color: #{$theme-serika-dark-btn};
+    --bs-link-hover-color: #{darken($theme-serika-dark-btn, 10%)};
+    --bs-btn-color: #{$theme-serika-dark-btn};
+    --form-control-bg: #323437;
+    --form-control-border-color: #{$theme-serika-dark-secondary-color};
+    --nav-border-color: #414448;
+
+    --body-background-color: #323437;
+    --playing-background-color: #323437;
+    --poker-card-bg-color: #2c2e31;
+    --poker-card-text-color: var(--bs-body-color);
+    --poker-card-border-color: #{$theme-serika-dark-secondary-color};
+    --poker-pending-vote-bg: var(--poker-card-border-color);
+    --poker-selected-vote-bg: var(--poker-card-border-color);
+    --poker-pending-vote-text-color: var(--body-background-color);
+
+    .btn {
+        --bs-btn-color: var(--bs-body-color);
+        --bs-btn-hover-color: #{darken($theme-serika-dark-btn, 10%)};
+        
+        &.btn-primary {
+            --bs-btn-bg: #{$theme-serika-dark-btn};
+            --bs-btn-color: #{$theme-serika-dark-btn};
+            --bs-btn-border-color: #{$theme-serika-dark-btn};
+            --bs-btn-color: #000;
+            --bs-btn-hover-bg: #{darken($theme-serika-dark-btn, 10%)};
+            --bs-btn-hover-color: #000;
+            --bs-btn-hover-border-color: #{darken($theme-serika-dark-btn, 10%)};
+        }
+        &.btn-outline-primary {
+            --bs-btn-color: #{$theme-serika-dark-btn};
+            --bs-btn-border-color: #{$theme-serika-dark-btn};
+            --bs-btn-hover-bg: #{darken($theme-serika-dark-btn, 10%)};
+            --bs-btn-hover-color: #000;
+            --bs-btn-hover-border-color: #{darken($theme-serika-dark-btn, 10%)};
         }
     }
     
@@ -121,7 +172,7 @@ body[data-theme="cyberpunk"] {
 .form-control,
 .form-check-input {
     background-color: var(--form-control-bg);
-    border-color: var(--bs-body-color);
+    border-color: var(--form-control-border-color);
     color: var(--bs-body-color);
     &:focus {
         background-color: var(--form-control-bg);
@@ -175,7 +226,6 @@ body[data-theme="cyberpunk"] {
     border-radius: 3px;
     box-shadow: #161f27 0px 5px 10px -10px;
     overflow: hidden;
-    transition: background-color .3s;
 
     .large-value {
         font-weight: bold;
@@ -207,7 +257,7 @@ body[data-theme="cyberpunk"] {
 /* Content */
 
 .top-nav {
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid var(--nav-border-color);
     height: 42px;
     a {
         text-decoration: none;
@@ -238,6 +288,7 @@ body[data-theme="cyberpunk"] {
     opacity: 0;
     right: -320px;
     height: 100%;
+    height: 100vh;
     background-color: var(--body-background-color);
     transition: left .1s, right .1s, width 0s .1s, opacity 0s .1s, background-color .3s;
     max-width: 90vw;
@@ -262,7 +313,8 @@ body[data-theme="cyberpunk"] {
         left: 0;
         right: 0;
         top: 0;
-        bottom: 0;
+        height: 100%;
+        height: 100vh;
     }
 }
 
@@ -312,6 +364,7 @@ body[data-theme="cyberpunk"] {
 .current-agenda {
     // max-height: 70px;
     // transition: max-height .25s ease-out;
+    border-bottom: 1px solid var(--nav-border-color);
     label {
         > i.fa-angle-right {
             transition: transform .3s;
@@ -441,7 +494,7 @@ body[data-theme="cyberpunk"] {
 }
 
 .host-controls {
-    border-bottom: 1px solid #444;
+    border-top: 1px solid var(--nav-border-color);
 }
 
 .agenda-textarea {

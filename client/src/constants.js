@@ -21,5 +21,6 @@ export const roomNameValidRegex = /^[\w\-\.~!$&'\(\)*+,;=:@]+$/;
 
 export const THEMES = {
     poker: "Poker (default)",
-    cyberpunk: "Cyberpunk",
+    cyberpink: "Cyberpink",
+    "serika-dark": "Serika Dark",
 };
