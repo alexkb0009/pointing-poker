@@ -101,19 +101,24 @@ body[data-theme="cyberpink"] {
         
         &.btn-primary {
             --bs-btn-bg: var(--bs-link-color);
-            --bs-btn-color: var(--bs-link-color);
-            --bs-btn-border-color: var(--bs-link-color);
             --bs-btn-color: #000;
-            --bs-btn-hover-bg: #{darken($theme-cyberpink-btn, 10%)};
-            --bs-btn-hover-color: #000;
-            --bs-btn-hover-border-color: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-disabled-bg: #{darken($theme-cyberpink-btn, 15%)};
+            --bs-btn-disabled-color: #000;
         }
         &.btn-outline-primary {
             --bs-btn-color: var(--bs-link-color);
+            --bs-btn-disabled-color: #{darken($theme-cyberpink-btn, 15%)};
+        }
+        &.btn-primary,
+        &.btn-outline-primary {
             --bs-btn-border-color: var(--bs-link-color);
             --bs-btn-hover-bg: #{darken($theme-cyberpink-btn, 10%)};
             --bs-btn-hover-color: #000;
             --bs-btn-hover-border-color: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-active-bg: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-active-color: #000;
+            --bs-btn-active-border-color: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-disabled-border-color: #{darken($theme-cyberpink-btn, 15%)};
         }
     }
     
@@ -148,19 +153,24 @@ body[data-theme="serika-dark"] {
         
         &.btn-primary {
             --bs-btn-bg: #{$theme-serika-dark-btn};
-            --bs-btn-color: #{$theme-serika-dark-btn};
-            --bs-btn-border-color: #{$theme-serika-dark-btn};
             --bs-btn-color: #000;
-            --bs-btn-hover-bg: #{darken($theme-serika-dark-btn, 10%)};
-            --bs-btn-hover-color: #000;
-            --bs-btn-hover-border-color: #{darken($theme-serika-dark-btn, 10%)};
+            --bs-btn-disabled-bg: #{darken($theme-serika-dark-btn, 15%)};
+            --bs-btn-disabled-color: #000;
         }
         &.btn-outline-primary {
             --bs-btn-color: #{$theme-serika-dark-btn};
+            --bs-btn-disabled-color: #{darken($theme-serika-dark-btn, 15%)};
+        }
+        &.btn-primary,
+        &.btn-outline-primary {
             --bs-btn-border-color: #{$theme-serika-dark-btn};
             --bs-btn-hover-bg: #{darken($theme-serika-dark-btn, 10%)};
             --bs-btn-hover-color: #000;
             --bs-btn-hover-border-color: #{darken($theme-serika-dark-btn, 10%)};
+            --bs-btn-active-bg: #{darken($theme-serika-dark-btn, 10%)};
+            --bs-btn-active-color: #000;
+            --bs-btn-active-border-color: #{darken($theme-serika-dark-btn, 10%)};
+            --bs-btn-disabled-border-color: #{darken($theme-serika-dark-btn, 15%)};
         }
     }
     
