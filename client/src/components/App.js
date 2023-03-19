@@ -1,9 +1,9 @@
 import React from "react";
 import debounce from "lodash.debounce";
-import { TopNav } from "./TopNav";
+import { AppTopNav } from "./AppTopNav";
+import { SidebarProvider } from "./SidebarContext";
 import { IntroductionForm, getRoomFromURLObject } from "./IntroductionForm";
 import { HostControls } from "./HostControls";
-import { UserControls } from "./UserControls";
 import { PeerVotes } from "./PeerVotes";
 import { VotingCards } from "./VotingCards";
 import { CurrentAgenda } from "./CurrentAgenda";
@@ -45,6 +45,9 @@ export class App extends React.Component {
     componentDidMount() {
         const { appVersion, commitHash, url } = this.props;
         console.info("Version Info", appVersion, commitHash);
+
+        // TODO: Perhaps encapsulate all the socket stuff into a SocketsContext
+        // (Would most state go there as well (?))
 
         const initialize = async () => {
             const { io: loadedIO } = await import(
@@ -106,7 +109,7 @@ export class App extends React.Component {
                                  * by wrapping in a 'navigate' function. Might change this approach later in favor of MutationObserver
                                  * (other answer) or maybe a custom 'pushstate' event (lol) after more research.
                                  */
-                                window.dispatchEvent(new Event("popstate"));
+                                window.dispatchEvent(new PopStateEvent("pushstate"));
                             }
                             window.gtag("event", "join_group", {
                                 group_id: this.state.roomName,
@@ -196,81 +199,59 @@ export class App extends React.Component {
 
         return (
             <>
-                <TopNav
-                    brandContent={
-                        isJoined && (
-                            <a
-                                href="#"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    this.onExit();
-                                }}
-                            >
-                                <i className="fa-solid fa-angles-left me-2" />
-                                Exit
-                            </a>
-                        )
-                    }
-                    onBrandClick={
-                        !isJoined && roomFromURL
-                            ? () => {
-                                  window.history.pushState(null, document.title, "/");
-                                  window.dispatchEvent(new Event("popstate"));
-                              }
-                            : null
-                    }
-                >
-                    {isJoined && (
-                        <UserControls
-                            clientsState={clientsState}
-                            onChange={this.onToggleSpectating}
-                            myName={myName}
-                        />
-                    )}
-                </TopNav>
+                <SidebarProvider>
+                    <AppTopNav
+                        onExit={this.onExit}
+                        onToggleSpectating={this.onToggleSpectating}
+                        isJoined={isJoined}
+                        roomFromURL={roomFromURL}
+                        myName={myName}
+                        clientsState={clientsState}
+                    />
 
-                <div id="content-area">
-                    {!isConnected && isJoined && (
-                        <div className="connecting-container">Connecting</div>
-                    )}
+                    <div id="content-area" className="flex-grow-1">
+                        {!isConnected && isJoined && (
+                            <div className="connecting-container">Connecting</div>
+                        )}
 
-                    {!isJoined ? (
-                        <IntroductionForm
-                            onJoin={this.onJoin}
-                            roomFromURL={roomFromURL}
-                            isConnected={isConnected}
-                        />
-                    ) : (
-                        <>
-                            <CurrentAgenda
-                                agendaQueue={agendaQueue}
-                                agendaHistory={agendaHistory}
+                        {!isJoined ? (
+                            <IntroductionForm
+                                onJoin={this.onJoin}
+                                roomFromURL={roomFromURL}
+                                isConnected={isConnected}
                             />
-                            <PeerVotes
-                                clientsState={clientsState}
-                                isShowingVotes={isShowingVotes}
-                            />
-                            <VotingCards
-                                onVotingCardSelect={this.onVotingCardSelect}
-                                isShowingVotes={isShowingVotes}
-                                myVote={myVote}
-                                config={config}
-                            />
-                            {isCurrentHostMe && (
-                                <HostControls
-                                    isShowingVotes={isShowingVotes}
+                        ) : (
+                            <>
+                                <CurrentAgenda
                                     agendaQueue={agendaQueue}
-                                    onToggleShowingVotes={this.onToggleShowingVotes}
-                                    onResetVotes={this.onResetVotes}
-                                    onNextAgendaItem={this.onNextAgendaItem}
-                                    onSetAgendaQueue={this.onSetAgendaQueue}
-                                    config={config}
-                                    onSetConfig={this.onSetConfig}
+                                    agendaHistory={agendaHistory}
                                 />
-                            )}
-                        </>
-                    )}
-                </div>
+                                <PeerVotes
+                                    clientsState={clientsState}
+                                    isShowingVotes={isShowingVotes}
+                                />
+                                <VotingCards
+                                    onVotingCardSelect={this.onVotingCardSelect}
+                                    isShowingVotes={isShowingVotes}
+                                    myVote={myVote}
+                                    config={config}
+                                />
+                                {isCurrentHostMe && (
+                                    <HostControls
+                                        isShowingVotes={isShowingVotes}
+                                        agendaQueue={agendaQueue}
+                                        onToggleShowingVotes={this.onToggleShowingVotes}
+                                        onResetVotes={this.onResetVotes}
+                                        onNextAgendaItem={this.onNextAgendaItem}
+                                        onSetAgendaQueue={this.onSetAgendaQueue}
+                                        config={config}
+                                        onSetConfig={this.onSetConfig}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+                </SidebarProvider>
             </>
         );
     }

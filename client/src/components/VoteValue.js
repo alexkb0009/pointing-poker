@@ -10,12 +10,12 @@ export const VALUE_DISPLAY = {
 };
 
 const VALUE_DISPLAY_HOURLY = {
-    40: "1wk",
-    80: "2wk",
-    160: "1mo",
-    320: "2mo",
-    480: "3mo",
-    720: "6mo",
+    40: "1w",
+    80: "2w",
+    160: "1m",
+    320: "2m",
+    480: "3m",
+    720: "6m",
 };
 
 export const VoteValue = ({ value, className, config = {} }) => {

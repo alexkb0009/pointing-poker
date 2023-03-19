@@ -18,3 +18,8 @@ export const POKER_CARD_OPTIONS = {
 };
 
 export const roomNameValidRegex = /^[\w\-\.~!$&'\(\)*+,;=:@]+$/;
+
+export const THEMES = {
+    poker: "Poker (default)",
+    cyberpunk: "Cyberpunk",
+};

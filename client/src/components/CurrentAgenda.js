@@ -45,7 +45,6 @@ export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] 
             className={clsx(
                 "current-agenda",
                 "container-fluid",
-                "bg-white",
                 "py-2",
                 isOpen && "is-open",
                 !isOpen && "d-flex align-items-center flex-wrap",

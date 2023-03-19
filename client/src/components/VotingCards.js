@@ -1,24 +1,34 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useContext } from "react";
 import clsx from "clsx";
 import { POKER_CARD_OPTIONS } from "../constants";
+import { UIOptionsContext } from "./UIOptionsContext";
 import { VoteValue } from "./VoteValue";
 
 export const VotingCards = ({ isShowingVotes, onVotingCardSelect, myVote, config }) => {
+    const { uiOptions } = useContext(UIOptionsContext);
     return (
-        <div className={clsx("voting-cards-container", "poker-cards-container")}>
-            {POKER_CARD_OPTIONS[config.cardDeck].values.map((option) => {
-                const isSelected = myVote === option;
-                return (
-                    <VotingCard
-                        key={option}
-                        option={option}
-                        onVotingCardSelect={onVotingCardSelect}
-                        isShowingVotes={isShowingVotes}
-                        isSelected={isSelected}
-                        config={config}
-                    />
-                );
-            })}
+        <div className="voting-cards-wrapper-container poker-cards-wrapper-container">
+            <div
+                className={clsx(
+                    "voting-cards-container",
+                    "poker-cards-container",
+                    uiOptions.areCardsWrapping && "flex-wrap"
+                )}
+            >
+                {POKER_CARD_OPTIONS[config.cardDeck].values.map((option) => {
+                    const isSelected = myVote === option;
+                    return (
+                        <VotingCard
+                            key={option}
+                            option={option}
+                            onVotingCardSelect={onVotingCardSelect}
+                            isShowingVotes={isShowingVotes}
+                            isSelected={isSelected}
+                            config={config}
+                        />
+                    );
+                })}
+            </div>
         </div>
     );
 };

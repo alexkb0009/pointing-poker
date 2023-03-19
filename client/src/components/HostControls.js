@@ -49,8 +49,8 @@ export const HostControls = ({
 
     return (
         <div className="host-controls-wrapper">
-            <div className="host-controls container-fluid">
-                <div className="btn-toolbar py-2" role="toolbar">
+            <div className="host-controls">
+                <div className="btn-toolbar py-2 container-fluid" role="toolbar">
                     <div className="btn-group me-2 my-1" role="group">
                         <button
                             type="button"
@@ -85,7 +85,7 @@ export const HostControls = ({
                                 className={clsx("btn", "btn-primary")}
                                 title="Storing current votes in history and continue to next one"
                             >
-                                Next {agendaQueueLen > 1 ? "Agenda Item" : "Round"}
+                                Next
                                 <i className="fa-solid fa-arrow-right ms-2" />
                             </button>
                         </div>
@@ -121,7 +121,7 @@ export const HostControls = ({
                 </div>
 
                 {isShowingAgendaQueue ? (
-                    <div className="pb-3">
+                    <div className="pb-3 container-fluid">
                         <textarea
                             className={clsx("form-control", "agenda-textarea")}
                             rows={8}
@@ -133,8 +133,8 @@ export const HostControls = ({
                         />
                     </div>
                 ) : isShowingConfig ? (
-                    <div className="pb-3">
-                        <div className="row pb-2">
+                    <div className="pb-3 container-md">
+                        <div className="row pb-2 justify-content-end">
                             <div className="col-auto">
                                 <div className="form-check">
                                     <label

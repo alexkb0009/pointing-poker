@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { UIOptionsContext } from "./components/UIOptionsContext";
 
 // Ensure GA is used for static/non-interactive SSRs as well.
 const gaSnippet = `
@@ -10,13 +11,54 @@ window.gtag("js", new Date());
 window.gtag("config", "G-YJVYC858NK");
 `;
 
-export function Page({ children, url: propUrl, cssBundles = [] }) {
-    const [url, setUrl] = useState(propUrl || new URL(window.location.href));
+function getWindowCookies() {
+    if (typeof window === "undefined") return null;
+    return document.cookie.split("; ").reduce(function (m, cookie) {
+        const [key, value] = cookie.split("=");
+        m[key] = value;
+        return m;
+    }, {});
+}
 
-    useEffect(() => {
-        window.addEventListener("popstate", () => {
+// These should match on server and UI (except for HTTPOnly cookies)
+// so we grab them here outside of useEffect/componentDidMount.
+// Eventually can check if can grab them from Express here.. but for now passing e.g. theme
+// in as a prop.. to possibly change later... we might want to have windowCookies be up-to-date also..
+const initialWindowCookies = getWindowCookies();
+
+const initialUIOptions = {
+    theme: initialWindowCookies?.theme || "poker",
+    areCardsWrapping: false,
+};
+
+export function Page({ children, url: propUrl, theme = null, cssBundles = [] }) {
+    const [url, setUrl] = useState(propUrl || new URL(window.location.href));
+    const [uiOptions, setUIOptions] = useState({
+        ...initialUIOptions,
+        theme: theme || initialUIOptions.theme,
+    });
+
+    useEffect((e) => {
+        // Listen to our own in-app navigations (pushStates) and update url state.
+        const updatePageUrl = (e) => {
             setUrl(new URL(window.location.href));
+        };
+        window.addEventListener("popstate", updatePageUrl);
+        window.addEventListener("pushstate", updatePageUrl);
+    }, []);
+
+    const updateUIOptions = useCallback((nextOptions) => {
+        setUIOptions((currOptions) => {
+            return { ...currOptions, ...nextOptions };
         });
+        // Store as cookie as we can access it server-side
+        // And use it for initial SSR render.
+        if (nextOptions.theme) {
+            const d = new Date();
+            const expTime = 30 * 24 * 60 * 60 * 1000; // 30 days;
+            d.setTime(d.getTime() + expTime);
+            document.cookie = `theme=${nextOptions.theme}; expires=${d.toUTCString()}; path=/`;
+        }
     }, []);
 
     const alteredChildren = React.Children.map(children, (child) => {
@@ -42,14 +84,19 @@ export function Page({ children, url: propUrl, cssBundles = [] }) {
                     </React.Fragment>
                 ))}
             </head>
-            <body style={{ visibility: "hidden" }}>
-                <div id="root">{alteredChildren}</div>
+            <body style={{ visibility: "hidden" }} data-theme={uiOptions.theme}>
+                <div id="root">
+                    <UIOptionsContext.Provider value={{ uiOptions, updateUIOptions }}>
+                        {alteredChildren}
+                    </UIOptionsContext.Provider>
+                </div>
                 <script
+                    data-own
                     type="text/javascript"
                     defer
                     src="https://www.googletagmanager.com/gtag/js?id=G-YJVYC858NK"
                 />
-                <script dangerouslySetInnerHTML={{ __html: gaSnippet }}></script>
+                <script data-own dangerouslySetInnerHTML={{ __html: gaSnippet }}></script>
             </body>
         </html>
     );

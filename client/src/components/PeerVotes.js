@@ -22,17 +22,19 @@ export const PeerVotes = ({ isShowingVotes = false, clientsState }) => {
     const presentClients = clientsState.filter(({ isSpectating }) => !isSpectating);
     const allClientsShowingSameVote = isShowingVotes && checkAllVotesTheSame(presentClients);
     return (
-        <div
-            className={clsx(
-                "poker-cards-container",
-                "peer-votes-section",
-                isShowingVotes && "votes-shown"
-            )}
-        >
-            {allClientsShowingSameVote && <Confetti />}
-            {presentClients.map((clientState) => (
-                <PeerVoteCard key={clientState.name} clientState={clientState} />
-            ))}
+        <div className="poker-cards-wrapper-container peer-votes-wrapper-section">
+            <div
+                className={clsx(
+                    "poker-cards-container",
+                    "peer-votes-section",
+                    isShowingVotes && "votes-shown"
+                )}
+            >
+                {allClientsShowingSameVote && <Confetti />}
+                {presentClients.map((clientState) => (
+                    <PeerVoteCard key={clientState.name} clientState={clientState} />
+                ))}
+            </div>
         </div>
     );
 };

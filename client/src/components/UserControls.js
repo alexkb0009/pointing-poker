@@ -1,14 +1,18 @@
 import React from "react";
+import { UIOptionsSidebar } from "./UIOptionsSidebar";
 
 export const UserControls = ({ onChange, clientsState, myName }) => {
     const myClientState = clientsState.find(({ name }) => name === myName);
+
     const { isSpectating = false } = myClientState || {};
+
     const spectators = clientsState
         .filter(({ isSpectating }) => isSpectating)
         .map(({ name }) => name);
+
     const countSpectators = spectators.length;
     return (
-        <div className="nav-controls d-flex">
+        <div className="nav-controls d-flex align-items-center">
             <div
                 className="px-2 d-flex align-items-center"
                 title={
