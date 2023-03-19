@@ -43,30 +43,34 @@ $secondary: #3a788e;
 /* Layout + Theme */
 
 :root {
-    --body-background-color: #fff;
-    --playing-background-color: #cbe3cb;
+    --bs-body-bg: #fff;
+    --playing-background-color: #9ab795;
     --poker-card-height: 7.5rem;
     --poker-card-width: 5rem;
     --poker-container-padding-x: 0.75rem;
     --poker-container-padding-y: 1rem;
     --poker-card-bg-color: #fff;
     --poker-card-text-color: #000;
-    --poker-card-border-color: #727272;
+    --poker-card-border-color: #0000007d;
     --poker-pending-vote-bg: #3a788e;
-    --poker-pending-vote-text-color: var(--body-background-color);
+    --poker-pending-vote-text-color: var(--bs-body-bg);
     --poker-selected-vote-bg: #f8f8f8;
     --form-control-border-color: #ced4da;
-    --nav-border-color: #cdcbcb;
+    --nav-border-color: #46464680;
 }
-
 
 body {
     width: 100%;
     width: 100vw;
-    background-color: var(--body-background-color);
+    background-color: var(--bs-body-bg);
     overflow-x: hidden;
-
     transition: background-color .3s, color .3s;
+}
+
+body[data-theme="concrete"] {
+    --bs-body-color: #444;
+    --playing-background-color: #dadada;
+    --nav-border-color: #7e7e7e;
 }
 
 $theme-cyberpink-btn: #ff2ace; //#00ffa1;
@@ -75,6 +79,7 @@ $theme-cyberpink-body-color: #cdff00;
 body[data-theme="cyberpink"] {
     --bs-body-color: #{$theme-cyberpink-body-color};
     --bs-border-color: var(--bs-body-color);
+    --bs-body-bg: #333;
     --bs-link-color: #{$theme-cyberpink-btn};
     --bs-link-hover-color: #f900ff;
     --bs-btn-color: var(--bs-link-color);
@@ -82,14 +87,13 @@ body[data-theme="cyberpink"] {
     --form-control-border-color: var(--bs-body-color);
     --nav-border-color: #000;
 
-    --body-background-color: #333;
     --playing-background-color: #000;
     --poker-card-bg-color: #000;
     --poker-card-text-color: var(--bs-body-color);
     --poker-card-border-color: var(--bs-body-color);
     --poker-pending-vote-bg: var(--bs-body-color);
     --poker-selected-vote-bg: #333;
-    --poker-pending-vote-text-color: var(--body-background-color);
+    --poker-pending-vote-text-color: var(--bs-body-bg);
 
     .btn {
         --bs-btn-color: var(--bs-body-color);
@@ -122,6 +126,7 @@ $theme-serika-dark-secondary-color: #646669;
 body[data-theme="serika-dark"] {
     --bs-body-color: #{$theme-serika-dark-body-color};
     --bs-border-color: var(--bs-body-color);
+    --bs-body-bg: #323437;
     --bs-link-color: #{$theme-serika-dark-btn};
     --bs-link-hover-color: #{darken($theme-serika-dark-btn, 10%)};
     --bs-btn-color: #{$theme-serika-dark-btn};
@@ -129,14 +134,13 @@ body[data-theme="serika-dark"] {
     --form-control-border-color: #{$theme-serika-dark-secondary-color};
     --nav-border-color: #414448;
 
-    --body-background-color: #323437;
     --playing-background-color: #323437;
     --poker-card-bg-color: #2c2e31;
     --poker-card-text-color: var(--bs-body-color);
     --poker-card-border-color: #{$theme-serika-dark-secondary-color};
     --poker-pending-vote-bg: var(--poker-card-border-color);
     --poker-selected-vote-bg: var(--poker-card-border-color);
-    --poker-pending-vote-text-color: var(--body-background-color);
+    --poker-pending-vote-text-color: var(--bs-body-bg);
 
     .btn {
         --bs-btn-color: var(--bs-body-color);
@@ -289,7 +293,7 @@ body[data-theme="serika-dark"] {
     right: -320px;
     height: 100%;
     height: 100vh;
-    background-color: var(--body-background-color);
+    background-color: var(--bs-body-bg);
     transition: left .1s, right .1s, width 0s .1s, opacity 0s .1s, background-color .3s;
     max-width: 90vw;
     box-shadow: -3px 0 10px -7px #000;
@@ -504,9 +508,9 @@ body[data-theme="serika-dark"] {
     font-size: 1rem;
     background-attachment: local;
     background-image:
-        linear-gradient(to right, var(--body-background-color), var(--body-background-color) .75rem, transparent .75rem),
-        linear-gradient(to left, var(--body-background-color), var(--body-background-color) .75rem, transparent .75rem),
-        repeating-linear-gradient(var(--body-background-color), var(--body-background-color) 25px, rgba(0,0,0,0.1) 25px, rgba(0,0,0,0.1) 26px);
+        linear-gradient(to right, var(--bs-body-bg), var(--bs-body-bg) .75rem, transparent .75rem),
+        linear-gradient(to left, var(--bs-body-bg), var(--bs-body-bg) .75rem, transparent .75rem),
+        repeating-linear-gradient(var(--bs-body-bg), var(--bs-body-bg) 25px, rgba(0,0,0,0.1) 25px, rgba(0,0,0,0.1) 26px);
     background-position-y: 6px;
 }
 

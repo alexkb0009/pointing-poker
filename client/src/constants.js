@@ -23,4 +23,5 @@ export const THEMES = {
     poker: "Poker (default)",
     cyberpink: "Cyberpink",
     "serika-dark": "Serika Dark",
+    concrete: "Concrete",
 };
