@@ -11,7 +11,7 @@ const webApplicationObject = {
     operatingSystem: "All",
     permissions: "internet",
     description:
-        "An app/game to vote on agenda items or tasks with points, commonly used for pointing in agile/scrum workflows but can be adapted for other purposes as well.",
+        "An app to vote on the complexity or effort of agenda items or tasks. It is commonly used for pointing in agile or scrum workflows, but can be adapted for other purposes as well.",
     author: {
         "@type": "Person",
         givenName: "Alexander",
@@ -47,14 +47,18 @@ const webApplicationObject = {
         "@type": "PlayAction",
         actionStatus: "PotentialActionStatus",
     },
+    keywords: [
+        "planning,poker,pointing,scrum,agile,pointingpoker,planningpoker,sprint,points,work,project,consenus,voting",
+    ],
 };
 
 const websiteObject = {
     "@context": "https://schema.org/",
     "@type": "WebSite",
-    name: "Pointing Poker Page",
+    name: webApplicationObject.name,
     url: "https://pointingpoker.org/",
     mainEntity: webApplicationObject,
+    keywords: webApplicationObject.keywords,
 };
 
 // const byPath = [
@@ -84,6 +88,22 @@ export const SEOTag = React.memo(() => {
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(pageObject, null, 4) }}
                 />
             )*/}
+
+            <meta charset="utf-8" />
+
+            <meta property="application-name" content={webApplicationObject.name} />
+            <meta property="og:type" content="website" />
+            <meta property="og:title" content={websiteObject.name} />
+            <meta property="og:url" content={websiteObject.url} />
+            <meta property="og:description" content={websiteObject.description} />
+            <meta property="og:site_name" content={websiteObject.name} />
+            {/* <meta property="og:image" content="TODO" /> */}
+            {/* <meta property="og:image:width" content="TODO" /> */}
+            {/* <meta property="og:image:height" content="TODO" /> */}
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={websiteObject.name} />
+            <meta name="twitter:description" content={websiteObject.description} />
+            {/* <meta name="twitter:image" content="TODO" /> */}
 
             <script
                 data-own
