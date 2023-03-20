@@ -150,6 +150,7 @@ export class App extends React.Component {
     }
 
     onJoin(name, { room = null, isSpectating = false } = {}) {
+        toast.dismiss("joinNameError");
         const payload = { name, isSpectating };
         if (room) {
             payload.room = room;

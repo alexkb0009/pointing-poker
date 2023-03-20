@@ -20,7 +20,6 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
 
     const onSubmit = (e) => {
         e.preventDefault();
-        toast.dismiss("joinNameTaken");
         if (!isConnected) {
             return false;
         }
