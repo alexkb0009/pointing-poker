@@ -25,7 +25,7 @@ const webApplicationObject = {
         {
             "@type": "ImageObject",
             author: "Pointing Poker Page",
-            datePublished: "20023-03-19",
+            datePublished: "2023-03-19",
             description: "Screenshot of a Pointing Poker Page game in Serika Dark theme.",
             name: "Pointing Poker Page Screenshot I",
             url: "https://pointingpoker.org/assets/game-theme-serika-dark.jpg",
@@ -33,7 +33,7 @@ const webApplicationObject = {
         {
             "@type": "ImageObject",
             author: "Pointing Poker Page",
-            datePublished: "20023-03-19",
+            datePublished: "2023-03-19",
             description: "Screenshot of a Pointing Poker Page game in default theme.",
             name: "Pointing Poker Page Screenshot II",
             url: "https://pointingpoker.org/assets/game-theme-poker.jpg",
