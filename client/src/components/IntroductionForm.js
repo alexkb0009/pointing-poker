@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import toast, { useToasterStore } from "react-hot-toast";
 import clsx from "clsx";
 import { roomNameValidRegex } from "./../constants";
 
 export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
+    const { toasts } = useToasterStore();
     const [myName, setMyName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
     const [wasValidated, setWasValidated] = useState(false);
@@ -12,8 +14,13 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
         setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
     }, []);
 
+    const joinNameTakenErrorAlert = toasts.find(
+        ({ id, visible }) => visible && id === "joinNameTaken"
+    );
+
     const onSubmit = (e) => {
         e.preventDefault();
+        toast.dismiss("joinNameTaken");
         if (!isConnected) {
             return false;
         }
@@ -37,6 +44,7 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
                         onSubmit={onSubmit}
                         className={clsx(wasValidated ? "was-validated" : "needs-validation")}
                         onInvalid={onInvalid}
+                        name="introductionForm"
                     >
                         <label
                             htmlFor="room-input"
@@ -72,7 +80,10 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
                             name="name"
                             value={myName}
                             onChange={(e) => setMyName(e.target.value)}
-                            className="form-control"
+                            className={clsx(
+                                "form-control",
+                                joinNameTakenErrorAlert && "is-invalid"
+                            )}
                             maxLength={8}
                             required
                         />

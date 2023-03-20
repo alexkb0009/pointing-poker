@@ -1,5 +1,6 @@
 import React from "react";
 import debounce from "lodash.debounce";
+import toast, { Toaster } from "react-hot-toast";
 import { AppTopNav } from "./AppTopNav";
 import { SidebarProvider } from "./SidebarContext";
 import { IntroductionForm } from "./IntroductionForm";
@@ -43,7 +44,7 @@ export class App extends React.Component {
     }
 
     componentDidMount() {
-        const { appVersion, commitHash, url } = this.props;
+        const { appVersion, commitHash } = this.props;
         console.info("Version Info", appVersion, commitHash);
 
         // TODO: Perhaps encapsulate all the socket stuff into a SocketsContext
@@ -117,6 +118,15 @@ export class App extends React.Component {
                         }
                     }
                 );
+            });
+            this.socket.on("alert", (alert) => {
+                if (alert.type === "error") {
+                    toast.error(alert.message, {
+                        duration: 4000,
+                        position: "top-center",
+                        id: alert.id,
+                    });
+                }
             });
             this.socket.on("disconnect", () => {
                 this.setState({ isConnected: false });
@@ -250,6 +260,7 @@ export class App extends React.Component {
                             </>
                         )}
                     </div>
+                    <Toaster />
                 </SidebarProvider>
             </>
         );

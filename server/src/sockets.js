@@ -47,24 +47,24 @@ const roomJoin = (socket, name, roomParam = null, isSpectating = false) => {
         // Let UI handle 'required' validation
         return false;
     }
-    socket.data.name = name;
+
     const roomName = roomParam || "default-room";
     const isValidRoomName = roomName.length <= 12 && roomNameValidRegex.test(roomName);
     if (!isValidRoomName) {
-        socket.emit("error_alert", {
+        // Let UI handle with 'pattern' + 'maxLength' validation.
+        socket.emit("alert", {
+            type: "error",
             title: "Invalid Room Name",
             message:
                 "Try a different room name. Only valid URL characters are allowed with a max length of 12 characters.",
         });
-        return false; // TODO return error msg, allow dif name.
+        return false;
     }
 
-    // Ensure socket is in 1 room only
+    // Exit all rooms to ensure socket is in 1 room only
     [...socket.rooms].slice(1).forEach((rn) => {
         socket.leave(rn);
     });
-    socket.data.room = roomName;
-    socket.join(roomName);
 
     let room = roomStates.get(roomName);
     if (!room) {
@@ -79,27 +79,34 @@ const roomJoin = (socket, name, roomParam = null, isSpectating = false) => {
     });
 
     if (!client) {
-        socket.emit("error_alert", {
-            title: "Name Taken",
-            message: `Someone with name ${name} is in already in room ${roomName}. Please try a different name.`,
+        socket.emit("stateUpdate", {
+            isJoined: false,
+        });
+        socket.emit("alert", {
+            id: "joinNameTaken",
+            type: "error",
+            message: `Name '${name}' is taken in room '${roomName}'.`,
         });
         delete socket.data.name;
         return false;
     }
 
+    socket.join(roomName);
+    socket.data.name = name;
+    socket.data.room = roomName;
+
     socket.to(roomName).emit("stateUpdate", {
         ...room.toJSON(),
     });
 
-    const clientSpecificState = {
+    socket.emit("stateUpdate", {
         ...room.toJSON(),
         config: room.config,
         isJoined: true,
         myName: socket.data.name,
         myVote: client.vote || null,
-    };
+    });
 
-    socket.emit("stateUpdate", clientSpecificState);
     return true;
 };
 
