@@ -7,6 +7,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const StatsPlugin = require("stats-webpack-plugin");
 const env = process.env.NODE_ENV;
 const packageJson = require("./package.json");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 const mode = env === "development" ? "development" : "production";
 const isProduction = mode === "production";
@@ -83,9 +84,19 @@ module.exports = [
         devtool: "source-map",
         optimization: {
             usedExports: true,
-            minimize: mode === "production",
+            minimize: isProduction,
             sideEffects: false,
+            mergeDuplicateChunks: true,
+            providedExports: true,
+            removeAvailableModules: isProduction,
+            innerGraph: isProduction,
+            minimizer: isProduction ? [`...`, new CssMinimizerPlugin()] : [`...`],
         },
+        // Experiments with loading React via CDN instead of bundling
+        // externals: {
+        //     react: "React",
+        //     "react-dom/client": "ReactDOM",
+        // },
     },
     {
         ...commonConfig,

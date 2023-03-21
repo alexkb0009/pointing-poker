@@ -102,6 +102,7 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
                             type="submit"
                             className="mt-3 w-100 btn btn-primary"
                             disabled={!isConnected}
+                            aria-label="Join Room"
                         >
                             {isConnected ? (
                                 "Join"

@@ -26,6 +26,7 @@ export const UIOptionsSidebar = () => {
                 className="btn btn-sm me-1"
                 type="button"
                 disabled={isSidebarOpen && !isOptionsOpen}
+                aria-label="Show/Hide UI Options"
                 onClick={() => {
                     const nextIsOpen = !isOptionsOpen;
                     setIsOptionsOpen(nextIsOpen);
@@ -44,6 +45,7 @@ export const UIOptionsSidebar = () => {
                             <button
                                 className="btn me-1 fs-4"
                                 type="button"
+                                aria-label="Close UI Options"
                                 onClick={() => {
                                     setIsOptionsOpen(false);
                                     setIsSidebarOpen(false);

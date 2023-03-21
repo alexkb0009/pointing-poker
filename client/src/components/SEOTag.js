@@ -89,8 +89,6 @@ export const SEOTag = React.memo(() => {
                 />
             )*/}
 
-            <meta charset="utf-8" />
-
             <meta property="application-name" content={webApplicationObject.name} />
             <meta property="og:type" content="website" />
             <meta property="og:title" content={websiteObject.name} />

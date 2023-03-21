@@ -91,15 +91,22 @@ export function Page({
         }
     });
 
+    const csp = [
+        "script-src 'self'",
+        "script-src-elem 'unsafe-inline' 'self' https://unpkg.com https://www.googletagmanager.com",
+    ];
+
     return (
-        <html>
+        <html lang="en">
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content={THEMES[uiOptions.theme].metaThemeColor} />
+                <meta httpEquiv="Content-Security-Policy" content={csp.join(";")}></meta>
                 <title>{pageTitle}</title>
                 <link
-                    rel="stylesheet"
+                    rel="preload"
+                    as="style"
                     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
                 />
                 <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
@@ -118,6 +125,10 @@ export function Page({
                         {alteredChildren}
                     </UIOptionsContext.Provider>
                 </div>
+                <link
+                    rel="stylesheet"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+                />
                 <script
                     data-own
                     type="text/javascript"
