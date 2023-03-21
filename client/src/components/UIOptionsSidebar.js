@@ -21,6 +21,32 @@ export const UIOptionsSidebar = () => {
     }, [isOptionsOpen]);
 
     return (
+        <UIOptionsSideBarContent
+            uiOptions={uiOptions}
+            updateUIOptions={updateUIOptions}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+            sidebarPortal={sidebarPortal}
+            isOptionsOpen={isOptionsOpen}
+            setIsOptionsOpen={setIsOptionsOpen}
+        />
+    );
+};
+
+// Split this b.c. wanted to memoize this b.c. doesn't need update re:
+// rest of game state (clientsState) but looking into more and don't think is needed
+// since the above component doesn't useContext(SocketManagerContext) (aka not re-rendered out of the box).
+// Side-Note: useContexts will still re-render memoized components; memoized components only care about new props.
+const UIOptionsSideBarContent = ({
+    uiOptions,
+    updateUIOptions,
+    isSidebarOpen,
+    setIsSidebarOpen,
+    sidebarPortal,
+    isOptionsOpen,
+    setIsOptionsOpen,
+}) => {
+    return (
         <>
             <button
                 className="btn btn-sm me-1"
@@ -43,7 +69,7 @@ export const UIOptionsSidebar = () => {
                                 UI Options
                             </h4>
                             <button
-                                className="btn me-1 fs-4"
+                                className="btn me-1 fs-6"
                                 type="button"
                                 aria-label="Close UI Options"
                                 onClick={() => {

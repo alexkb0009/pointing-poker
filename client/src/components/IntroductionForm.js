@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
+import debounce from "lodash.debounce";
 import toast, { useToasterStore } from "react-hot-toast";
 import clsx from "clsx";
+import { SocketManagerContext } from "./SocketManager";
 import { roomNameValidRegex } from "./../constants";
 
-export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
+export const IntroductionForm = ({ roomFromURL }) => {
+    const { isConnected, onJoin } = useContext(SocketManagerContext);
     const { toasts } = useToasterStore();
-    const [myName, setMyName] = useState("");
+    const [myProposedName, setMyProposedName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
     const [wasValidated, setWasValidated] = useState(false);
 
     useEffect(() => {
-        setMyName(window.localStorage.getItem("myName") || "");
+        setMyProposedName(window.localStorage.getItem("myName") || "");
         setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
     }, []);
 
@@ -18,20 +21,29 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
         ({ id, visible }) => visible && id === "joinNameTaken"
     );
 
-    const onSubmit = (e) => {
-        e.preventDefault();
-        if (!isConnected) {
-            return false;
-        }
-        const room = roomFromURL || Object.fromEntries(new FormData(e.target)).room;
-        onJoin(myName, { room, isSpectating });
-        window.localStorage.setItem("myName", myName);
-        window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
-        window.gtag("event", "select_content", {
-            content_type: "room",
-            item_id: room,
-        });
-    };
+    const onSubmit = useCallback(
+        debounce(
+            (e) => {
+                e.preventDefault();
+                toast.dismiss("joinNameTaken");
+                if (!isConnected) {
+                    return false;
+                }
+                const formValues = Object.fromEntries(new FormData(e.target));
+                const room = roomFromURL || formValues.room;
+                onJoin(formValues.name, { room, isSpectating });
+                window.localStorage.setItem("myName", formValues.name);
+                window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
+                window.gtag("event", "select_content", {
+                    content_type: "room",
+                    item_id: room,
+                });
+            },
+            1000,
+            { leading: true, trailing: false }
+        ),
+        [isConnected]
+    );
 
     const onInvalid = () => setWasValidated(true);
 
@@ -77,8 +89,8 @@ export const IntroductionForm = ({ onJoin, roomFromURL, isConnected }) => {
                             id="name-input"
                             type="text"
                             name="name"
-                            value={myName}
-                            onChange={(e) => setMyName(e.target.value)}
+                            value={myProposedName}
+                            onChange={(e) => setMyProposedName(e.target.value)}
                             className={clsx(
                                 "form-control",
                                 joinNameTakenErrorAlert && "is-invalid"

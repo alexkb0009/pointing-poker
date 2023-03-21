@@ -1,5 +1,4 @@
 import React from "react";
-import { UIOptionsSidebar } from "./UIOptionsSidebar";
 
 export const UserControls = ({ onChange, clientsState, myName }) => {
     const myClientState = clientsState.find(({ name }) => name === myName);

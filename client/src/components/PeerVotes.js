@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import clsx from "clsx";
+import { SocketManagerContext } from "./SocketManager";
 import { VoteValue } from "./VoteValue";
 import { Confetti } from "./Confetti";
 
@@ -18,7 +19,8 @@ function checkAllVotesTheSame(clientsState) {
     return true;
 }
 
-export const PeerVotes = ({ isShowingVotes = false, clientsState }) => {
+export const PeerVotes = () => {
+    const { isShowingVotes = false, clientsState = [] } = useContext(SocketManagerContext);
     const presentClients = clientsState.filter(({ isSpectating }) => !isSpectating);
     const allClientsShowingSameVote = isShowingVotes && checkAllVotesTheSame(presentClients);
     return (

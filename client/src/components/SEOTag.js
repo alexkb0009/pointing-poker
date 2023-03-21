@@ -89,6 +89,7 @@ export const SEOTag = React.memo(() => {
                 />
             )*/}
 
+            <meta property="description" content={websiteObject.description} />
             <meta property="application-name" content={webApplicationObject.name} />
             <meta property="og:type" content="website" />
             <meta property="og:title" content={websiteObject.name} />

@@ -43,7 +43,12 @@ $secondary: #3a788e;
 /* Layout + Theme */
 
 :root {
+    // Default styles -- applicable to "poker" theme
     --bs-body-bg: #fff;
+    --bs-border-color: #46464680;
+    // This is used independently of Bootstrap .btn, for which vars are defined within their relevant className
+    // But kept in sync with primary button color here for re-use by e.g. form-check-input:checked
+    --bs-btn-color: #{$primary};
     --playing-background-color: #9ab795;
     --poker-card-height: 7.5rem;
     --poker-card-width: 5rem;
@@ -56,7 +61,7 @@ $secondary: #3a788e;
     --poker-pending-vote-text-color: var(--bs-body-bg);
     --poker-selected-vote-bg: #f8f8f8;
     --form-control-border-color: #ced4da;
-    --nav-border-color: #46464680;
+    --form-control-focus-shadow-color: #016d9440;
 }
 
 body {
@@ -64,28 +69,29 @@ body {
     width: 100vw;
     background-color: var(--bs-body-bg);
     overflow-x: hidden;
-    transition: background-color .3s, color .3s;
+    transition: background-color .3s, color .3s, border-color .3s;
 }
 
 body[data-theme="concrete"] {
     --bs-body-color: #444;
+    --bs-border-color: #7e7e7e;
     --playing-background-color: #dadada;
-    --nav-border-color: #7e7e7e;
 }
+
 
 $theme-cyberpink-btn: #ff2ace; //#00ffa1;
 $theme-cyberpink-body-color: #cdff00;
 
 body[data-theme="cyberpink"] {
     --bs-body-color: #{$theme-cyberpink-body-color};
-    --bs-border-color: var(--bs-body-color);
+    --bs-border-color: #000; //var(--bs-body-color);
     --bs-body-bg: #333;
     --bs-link-color: #{$theme-cyberpink-btn};
     --bs-link-hover-color: #f900ff;
     --bs-btn-color: var(--bs-link-color);
     --form-control-bg: #000;
     --form-control-border-color: var(--bs-body-color);
-    --nav-border-color: #000;
+    --form-control-focus-shadow-color: #{transparentize($theme-cyberpink-btn, 0.75)};
 
     --playing-background-color: #000;
     --poker-card-bg-color: #000;
@@ -96,6 +102,8 @@ body[data-theme="cyberpink"] {
     --poker-pending-vote-text-color: var(--bs-body-bg);
 
     .btn {
+        // This takes effect only for .btn without other .btn-primary etc theme.
+        // These are buttons without border nor BG, but with an onHover border.
         --bs-btn-color: var(--bs-body-color);
         --bs-btn-hover-color: #{darken($theme-cyberpink-btn, 10%)};
         
@@ -124,56 +132,75 @@ body[data-theme="cyberpink"] {
     
 }
 
-$theme-serika-dark-btn: #e2b714;
+
+$theme-serika-btn: #e2b714;
+$theme-serika-secondary-color: #aaaeb3;
+$theme-serika-body-color: #323437;
+
 $theme-serika-dark-body-color: #d1d0c5;
 $theme-serika-dark-secondary-color: #646669;
 
+body[data-theme="serika-light"] {
+    --bs-body-color: #{$theme-serika-body-color};
+    --bs-body-bg: #e1e1e3;
+    --bs-border-color: #d7d7d7; // var(--bs-body-color);
+    --form-control-border-color: #{$theme-serika-secondary-color};
+
+    --poker-card-bg-color: #e7e7e7;
+    --poker-card-border-color: #{$theme-serika-secondary-color};
+}
+
 body[data-theme="serika-dark"] {
     --bs-body-color: #{$theme-serika-dark-body-color};
-    --bs-border-color: var(--bs-body-color);
-    --bs-body-bg: #323437;
-    --bs-link-color: #{$theme-serika-dark-btn};
-    --bs-link-hover-color: #{darken($theme-serika-dark-btn, 10%)};
-    --bs-btn-color: #{$theme-serika-dark-btn};
-    --form-control-bg: #323437;
+    --bs-body-bg: #{$theme-serika-body-color};
+    --bs-border-color: #414448; // var(--bs-body-color);
     --form-control-border-color: #{$theme-serika-dark-secondary-color};
-    --nav-border-color: #414448;
 
-    --playing-background-color: #323437;
     --poker-card-bg-color: #2c2e31;
+    --poker-card-border-color: #{$theme-serika-dark-secondary-color};    
+}
+
+body[data-theme="serika-light"],
+body[data-theme="serika-dark"] {
+    --bs-link-color: #{$theme-serika-btn};
+    --bs-link-hover-color: #{darken($theme-serika-btn, 10%)};
+    --bs-btn-color: #{$theme-serika-btn};
+    --form-control-bg: var(--bs-body-bg);
+    --form-control-focus-shadow-color: #{transparentize($theme-serika-btn, 0.75)};
+
+    --playing-background-color: var(--bs-body-bg);
     --poker-card-text-color: var(--bs-body-color);
-    --poker-card-border-color: #{$theme-serika-dark-secondary-color};
     --poker-pending-vote-bg: var(--poker-card-border-color);
     --poker-selected-vote-bg: var(--poker-card-border-color);
     --poker-pending-vote-text-color: var(--bs-body-bg);
 
     .btn {
         --bs-btn-color: var(--bs-body-color);
-        --bs-btn-hover-color: #{darken($theme-serika-dark-btn, 10%)};
+        --bs-btn-hover-color: #{darken($theme-serika-btn, 10%)};
         
         &.btn-primary {
-            --bs-btn-bg: #{$theme-serika-dark-btn};
-            --bs-btn-color: #000;
-            --bs-btn-disabled-bg: #{darken($theme-serika-dark-btn, 15%)};
-            --bs-btn-disabled-color: #000;
+            --bs-btn-bg: #{$theme-serika-btn};
+            --bs-btn-color: var(--bs-body-bg);
+            --bs-btn-disabled-bg: #{desaturate($theme-serika-btn, 20%)};
+            --bs-btn-disabled-color: var(--bs-body-bg);
         }
         &.btn-outline-primary {
-            --bs-btn-color: #{$theme-serika-dark-btn};
-            --bs-btn-disabled-color: #{darken($theme-serika-dark-btn, 15%)};
+            --bs-btn-color: #{$theme-serika-btn};
+            --bs-btn-disabled-color: #{desaturate($theme-serika-btn, 20%)};
         }
         &.btn-primary,
         &.btn-outline-primary {
-            --bs-btn-border-color: #{$theme-serika-dark-btn};
-            --bs-btn-hover-bg: #{darken($theme-serika-dark-btn, 10%)};
-            --bs-btn-hover-color: #000;
-            --bs-btn-hover-border-color: #{darken($theme-serika-dark-btn, 10%)};
-            --bs-btn-active-bg: #{darken($theme-serika-dark-btn, 10%)};
-            --bs-btn-active-color: #000;
-            --bs-btn-active-border-color: #{darken($theme-serika-dark-btn, 10%)};
-            --bs-btn-disabled-border-color: #{darken($theme-serika-dark-btn, 15%)};
+            --bs-btn-border-color: #{$theme-serika-btn};
+            --bs-btn-hover-bg:  #{darken($theme-serika-btn, 10%)}; // var(--bs-body-color);
+            --bs-btn-hover-color: var(--bs-body-bg);
+            --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
+            --bs-btn-active-bg: var(--bs-btn-hover-bg);
+            --bs-btn-active-color: var(--bs-body-bg);
+            --bs-btn-active-border-color: var(--bs-btn-active-bg);
+            --bs-btn-disabled-border-color: #{desaturate($theme-serika-btn, 20%)};
         }
     }
-    
+
 }
 
 #root {
@@ -192,10 +219,31 @@ body[data-theme="serika-dark"] {
         background-color: var(--form-control-bg);
         color: var(--bs-body-color);
         border-color: var(--bs-btn-color);
+        box-shadow: 0 0 0 0.25rem var(--form-control-focus-shadow-color);
     }
+}
+
+.form-check-input {
+    position: relative;
     &:checked {
-        background-color: var(--bs-body-color);
+        background-color: var(--bs-btn-color);
+        border-color: var(--bs-btn-color);
         color: var(--form-control-bg);
+        background-image: none !important;
+        &:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0.475em;
+            height: 0.675em;
+            border-bottom-style: solid;
+            border-right-style: solid;
+            border-width: 3px;
+            transform: translate3d(0.2em, 0, 0) rotate3d(0, 0, 1, 45deg);
+            border-color: var(--bs-body-bg);
+            transition: border-color .3s;
+        }
     }
 }
 
@@ -271,7 +319,8 @@ body[data-theme="serika-dark"] {
 /* Content */
 
 .top-nav {
-    border-bottom: 1px solid var(--nav-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
+    transition: border-color .3s;
     height: 42px;
     a {
         text-decoration: none;
@@ -378,7 +427,8 @@ body[data-theme="serika-dark"] {
 .current-agenda {
     // max-height: 70px;
     // transition: max-height .25s ease-out;
-    border-bottom: 1px solid var(--nav-border-color);
+    border-bottom: 1px solid var(--bs-border-color);
+    transition: border-color .3s;
     label {
         > i.fa-angle-right {
             transition: transform .3s;
@@ -429,6 +479,13 @@ body[data-theme="serika-dark"] {
 
 .peer-votes-section {
     gap: 1rem;
+    // Works but kinda stupid UX:
+    // transform: none;
+    // transform-origin: bottom;
+    // transition: transform .5s ease-out;
+    // &:not(.votes-shown) {
+    //     transform: translate3d(0,-20px,0) scale3d(1.5, 1.5, 1) perspective(800px) rotate3d(1, 0, 0, 60deg);
+    // }
 }
 
 .peer-vote-card {
@@ -508,7 +565,8 @@ body[data-theme="serika-dark"] {
 }
 
 .host-controls {
-    border-top: 1px solid var(--nav-border-color);
+    border-top: 1px solid var(--bs-border-color);
+    transition: border-color .3s;
 }
 
 .agenda-textarea {

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { SocketManagerContext } from "./SocketManager";
 import clsx from "clsx";
 import { VALUE_DISPLAY } from "./VoteValue";
 
@@ -9,7 +10,12 @@ function roundScore(score) {
     return Math.round(score * 10) / 10;
 }
 
-export const CurrentAgenda = React.memo(({ agendaQueue = [], agendaHistory = [] }) => {
+export const CurrentAgenda = () => {
+    const { agendaQueue = [], agendaHistory = [] } = useContext(SocketManagerContext);
+    return <CurrentAgendaBody agendaQueue={agendaQueue} agendaHistory={agendaHistory} />;
+};
+
+const CurrentAgendaBody = React.memo(({ agendaQueue = [], agendaHistory = [] }) => {
     const [currentItem, ...nextItems] = agendaQueue;
     const [isOpen, setIsOpen] = useState(false);
 

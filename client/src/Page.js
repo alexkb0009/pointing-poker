@@ -6,12 +6,14 @@ import { SEOTag } from "./components/SEOTag";
 
 // Ensure GA is used for static/non-interactive SSRs as well.
 const gaSnippet = `
-window.dataLayer = window.dataLayer || [];
-window.gtag = function () {
-    window.dataLayer.push(arguments);
-};
-window.gtag("js", new Date());
-window.gtag("config", "G-YJVYC858NK");
+setTimeout(function(){
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () {
+        window.dataLayer.push(arguments);
+    };
+    window.gtag("js", new Date());
+    window.gtag("config", "G-YJVYC858NK");
+}, 0);
 `;
 
 const initialUIOptions = {
@@ -101,7 +103,7 @@ export function Page({
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="theme-color" content={THEMES[uiOptions.theme].metaThemeColor} />
+                <meta name="theme-color" content={THEMES[uiOptions.theme]?.metaThemeColor} />
                 <meta httpEquiv="Content-Security-Policy" content={csp.join(";")}></meta>
                 <title>{pageTitle}</title>
                 <link
@@ -132,6 +134,7 @@ export function Page({
                 <script
                     data-own
                     type="text/javascript"
+                    async
                     defer
                     src="https://www.googletagmanager.com/gtag/js?id=G-YJVYC858NK"
                 />

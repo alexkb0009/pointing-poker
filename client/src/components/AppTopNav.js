@@ -1,16 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
+import { SocketManagerContext } from "./SocketManager";
 import { TopNav } from "./TopNav";
 import { UIOptionsSidebar } from "./UIOptionsSidebar";
 import { UserControls } from "./UserControls";
 
-export const AppTopNav = ({
-    isJoined,
-    roomFromURL,
-    clientsState,
-    onToggleSpectating,
-    onExit,
-    myName,
-}) => {
+export const AppTopNav = ({ roomFromURL }) => {
+    const {
+        isJoined = false,
+        clientsState = [],
+        onToggleSpectating,
+        onExit,
+        myName,
+    } = useContext(SocketManagerContext);
+
     const onBrandClick =
         isJoined || !roomFromURL
             ? null

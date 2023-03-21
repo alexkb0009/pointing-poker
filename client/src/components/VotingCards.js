@@ -1,10 +1,17 @@
 import React, { useLayoutEffect, useRef, useContext } from "react";
 import clsx from "clsx";
+import { SocketManagerContext } from "./SocketManager";
 import { POKER_CARD_OPTIONS } from "../constants";
 import { UIOptionsContext } from "./UIOptionsContext";
 import { VoteValue } from "./VoteValue";
 
-export const VotingCards = ({ isShowingVotes, onVotingCardSelect, myVote, config }) => {
+export const VotingCards = () => {
+    const {
+        isShowingVotes = false,
+        onVotingCardSelect,
+        myVote,
+        config,
+    } = useContext(SocketManagerContext);
     const { uiOptions } = useContext(UIOptionsContext);
     return (
         <div className="voting-cards-wrapper-container poker-cards-wrapper-container">

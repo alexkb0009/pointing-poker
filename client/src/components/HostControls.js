@@ -1,17 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
-import { POKER_CARD_OPTIONS } from "./../constants";
+import React, { useEffect, useRef, useState, useContext, useCallback } from "react";
 import clsx from "clsx";
+import { debounce } from "lodash";
+import { SocketManagerContext } from "./SocketManager";
+import { POKER_CARD_OPTIONS } from "./../constants";
 
-export const HostControls = ({
-    agendaQueue,
-    isShowingVotes,
-    onResetVotes,
-    onNextAgendaItem,
-    onToggleShowingVotes,
-    onSetAgendaQueue,
-    config,
-    onSetConfig,
-}) => {
+export const HostControls = () => {
+    const {
+        isShowingVotes,
+        onToggleShowingVotes,
+        agendaQueue,
+        onSetAgendaQueue,
+        onNextAgendaItem,
+        onResetVotes,
+        config,
+        onSetConfig,
+    } = useContext(SocketManagerContext);
     const [visiblePane, setVisiblePane] = useState(null);
     const isShowingAgendaQueue = visiblePane === "agenda";
     const isShowingConfig = visiblePane === "config";
@@ -33,11 +36,24 @@ export const HostControls = ({
         setVisiblePane((currentPane) => (currentPane === "config" ? null : "config"));
     };
 
-    const onTextareaChange = (e) => {
-        const nextText = e.target.value;
-        const nextQueue = nextText ? nextText.split("\n") : [];
-        onSetAgendaQueue(nextQueue);
-    };
+    const onTextareaChange = useCallback(
+        debounce((e) => {
+            const nextText = e.target.value;
+            const nextQueue = nextText ? nextText.split("\n") : [];
+            onSetAgendaQueue(nextQueue);
+        }, 1000),
+        []
+    );
+
+    const onReset = useCallback(
+        debounce(onResetVotes, 1000, { leading: true, trailing: false }),
+        []
+    );
+
+    const onNextItem = useCallback(
+        debounce(onNextAgendaItem, 1000, { leading: true, trailing: false }),
+        []
+    );
 
     const onSelectCardDeck = (e) => {
         onSetConfig({ cardDeck: e.target.value });
@@ -77,7 +93,7 @@ export const HostControls = ({
                         <div className="btn-group me-2 my-1" role="group">
                             <button
                                 type="button"
-                                onClick={onResetVotes}
+                                onClick={onReset}
                                 className={clsx("btn", "btn-outline-primary")}
                                 title="Reset all votes without storing current vote in history"
                             >
@@ -85,7 +101,7 @@ export const HostControls = ({
                             </button>
                             <button
                                 type="button"
-                                onClick={onNextAgendaItem}
+                                onClick={onNextItem}
                                 className={clsx("btn", "btn-primary")}
                                 title="Storing current votes in history and continue to next one"
                             >

@@ -33,6 +33,10 @@ export const THEMES = {
         title: "Serika Dark",
         metaThemeColor: "#323437",
     },
+    "serika-light": {
+        title: "Serika Light",
+        metaThemeColor: "#e1e1e3",
+    },
     concrete: {
         title: "Concrete",
         metaThemeColor: "#ddd",

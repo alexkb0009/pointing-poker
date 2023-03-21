@@ -12,8 +12,16 @@ export const Confetti = React.memo(() => {
                 return;
             }
             [{ default: Particles }, { loadConfettiPreset }] = await Promise.all([
-                import("react-particles/cjs/Particles"),
-                import("tsparticles-preset-confetti/cjs/index"),
+                import(
+                    /* webpackChunkName: "particles-base" */
+                    /* webpackPreload: true */
+                    "react-particles/cjs/Particles"
+                ),
+                import(
+                    /* webpackChunkName: "particles-confetti" */
+                    /* webpackPreload: true */
+                    "tsparticles-preset-confetti/cjs/index"
+                ),
             ]);
             setMounted(true);
         })();
