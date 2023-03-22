@@ -32,10 +32,10 @@ $secondary: #3a788e;
 @import "~bootstrap/scss/forms";
 @import "~bootstrap/scss/buttons";
 @import "~bootstrap/scss/button-group";
-@import "~bootstrap/scss/list-group";
+// @import "~bootstrap/scss/list-group";
 
 // Helpers
-@import "~bootstrap/scss/helpers";
+@import "~bootstrap/scss/helpers/text-truncation";
 
 // Utilities
 @import "~bootstrap/scss/utilities/api";

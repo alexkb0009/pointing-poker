@@ -1,5 +1,5 @@
 import React from "react";
-import { roomUrlValidRegex } from "./../constants";
+// import { roomUrlValidRegex } from "./../constants";
 
 const webApplicationObject = {
     "@context": "https://schema.org/",
@@ -11,7 +11,7 @@ const webApplicationObject = {
     operatingSystem: "All",
     permissions: "internet",
     description:
-        "An app to vote on the complexity or effort of agenda items or tasks. It is commonly used for pointing in agile or scrum workflows, but can be adapted for other purposes as well.",
+        "An app to vote on the complexity or effort of tasks or similar items. Pointing poker is commonly used for pointing in agile or scrum workflows, but can be adapted for other purposes as well.",
     author: {
         "@type": "Person",
         givenName: "Alexander",
@@ -89,19 +89,19 @@ export const SEOTag = React.memo(() => {
                 />
             )*/}
 
-            <meta property="description" content={websiteObject.description} />
+            <meta name="description" content={webApplicationObject.description} />
             <meta property="application-name" content={webApplicationObject.name} />
             <meta property="og:type" content="website" />
             <meta property="og:title" content={websiteObject.name} />
             <meta property="og:url" content={websiteObject.url} />
-            <meta property="og:description" content={websiteObject.description} />
+            <meta property="og:description" content={webApplicationObject.description} />
             <meta property="og:site_name" content={websiteObject.name} />
             {/* <meta property="og:image" content="TODO" /> */}
             {/* <meta property="og:image:width" content="TODO" /> */}
             {/* <meta property="og:image:height" content="TODO" /> */}
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={websiteObject.name} />
-            <meta name="twitter:description" content={websiteObject.description} />
+            <meta name="twitter:description" content={webApplicationObject.description} />
             {/* <meta name="twitter:image" content="TODO" /> */}
 
             <script

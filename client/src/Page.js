@@ -106,22 +106,22 @@ export function Page({
                 <meta name="theme-color" content={THEMES[uiOptions.theme]?.metaThemeColor} />
                 <meta httpEquiv="Content-Security-Policy" content={csp.join(";")}></meta>
                 <title>{pageTitle}</title>
+                <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+                <meta name="apple-mobile-web-app-capable" content="yes" />
+                <SEOTag />
                 <link
                     rel="preload"
                     as="style"
                     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
                 />
-                <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-                <meta name="apple-mobile-web-app-capable" content="yes" />
-                <SEOTag />
                 {cssBundles.map((fn, i) => (
                     <React.Fragment key={i}>
-                        <link rel="prefetch" href={fn} />
+                        <link rel="prefetch" as="style" href={fn} />
                         <link rel="stylesheet" href={fn} />
                     </React.Fragment>
                 ))}
             </head>
-            <body style={{ visibility: "hidden" }} data-theme={uiOptions.theme}>
+            <body data-theme={uiOptions.theme}>
                 <div id="root">
                     <UIOptionsContext.Provider value={{ uiOptions, updateUIOptions }}>
                         {alteredChildren}
@@ -134,7 +134,6 @@ export function Page({
                 <script
                     data-own
                     type="text/javascript"
-                    async
                     defer
                     src="https://www.googletagmanager.com/gtag/js?id=G-YJVYC858NK"
                 />
