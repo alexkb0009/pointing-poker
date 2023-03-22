@@ -1,8 +1,11 @@
-import React, { useContext } from "react";
+import React, { Suspense, useContext } from "react";
 import clsx from "clsx";
 import { SocketManagerContext } from "./SocketManager";
 import { VoteValue } from "./VoteValue";
-import { Confetti } from "./Confetti";
+
+const Confetti = React.lazy(() =>
+    import("./Confetti").then((module) => ({ default: module.Confetti }))
+);
 
 function checkAllVotesTheSame(clientsState) {
     const clientsLen = clientsState.length;
@@ -32,7 +35,11 @@ export const PeerVotes = () => {
                     isShowingVotes && "votes-shown"
                 )}
             >
-                {allClientsShowingSameVote && <Confetti />}
+                {allClientsShowingSameVote && (
+                    <Suspense>
+                        <Confetti />
+                    </Suspense>
+                )}
                 {presentClients.map((clientState) => (
                     <PeerVoteCard key={clientState.name} clientState={clientState} />
                 ))}

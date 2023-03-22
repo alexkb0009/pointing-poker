@@ -1,13 +1,11 @@
-import React, { useContext, useEffect } from "react";
-import { Toaster } from "react-hot-toast";
+import React, { Suspense, useContext, useEffect } from "react";
+import { Toaster } from "react-hot-toast/src";
 import { SocketManager, SocketManagerContext } from "./SocketManager";
 import { AppTopNav } from "./AppTopNav";
 import { SidebarProvider } from "./SidebarContext";
 import { IntroductionForm } from "./IntroductionForm";
-import { HostControls } from "./HostControls";
-import { PeerVotes } from "./PeerVotes";
-import { VotingCards } from "./VotingCards";
-import { CurrentAgenda } from "./CurrentAgenda";
+
+const RoomUI = React.lazy(() => import("./RoomUI").then((module) => ({ default: module.RoomUI })));
 
 export const App = ({ appVersion, commitHash, roomFromURL }) => {
     useEffect(() => {
@@ -42,12 +40,9 @@ const AppContent = ({ roomFromURL }) => {
             {!isJoined ? (
                 <IntroductionForm roomFromURL={roomFromURL} />
             ) : (
-                <>
-                    <CurrentAgenda />
-                    <PeerVotes />
-                    <VotingCards />
-                    {isCurrentHostMe && <HostControls />}
-                </>
+                <Suspense>
+                    <RoomUI isCurrentHostMe={isCurrentHostMe} />
+                </Suspense>
             )}
         </div>
     );

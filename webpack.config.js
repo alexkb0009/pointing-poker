@@ -8,6 +8,7 @@ const StatsPlugin = require("stats-webpack-plugin");
 const env = process.env.NODE_ENV;
 const packageJson = require("./package.json");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 const mode = env === "development" ? "development" : "production";
 const isProduction = mode === "production";
@@ -80,6 +81,7 @@ module.exports = [
 
                 exclude: ["node_modules/"],
             }),
+            // new BundleAnalyzerPlugin(),
         ],
         devtool: "source-map",
         optimization: {
