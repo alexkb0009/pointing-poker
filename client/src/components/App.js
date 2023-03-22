@@ -1,5 +1,5 @@
 import React, { Suspense, useContext, useEffect } from "react";
-import { Toaster } from "react-hot-toast/src";
+import { Toaster } from "react-hot-toast";
 import { SocketManager, SocketManagerContext } from "./SocketManager";
 import { AppTopNav } from "./AppTopNav";
 import { SidebarProvider } from "./SidebarContext";
