@@ -4,7 +4,11 @@ import { SocketManagerContext } from "./SocketManager";
 import { VoteValue } from "./VoteValue";
 
 const Confetti = React.lazy(() =>
-    import("./Confetti").then((module) => ({ default: module.Confetti }))
+    import(
+        /* webpackChunkName: "confetti" */
+        /* webpackPrefetch: true */
+        "./Confetti"
+    ).then((module) => ({ default: module.Confetti }))
 );
 
 function checkAllVotesTheSame(clientsState) {

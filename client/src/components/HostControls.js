@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext, useCallback } from "react";
 import clsx from "clsx";
-import { debounce } from "lodash";
+import debounce from "lodash.debounce";
 import { SocketManagerContext } from "./SocketManager";
 import { POKER_CARD_OPTIONS } from "./../constants";
 

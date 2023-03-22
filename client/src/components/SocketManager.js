@@ -40,7 +40,7 @@ export class SocketManager extends React.Component {
     componentDidMount() {
         const initialize = async () => {
             const { io: loadedIO } = await import(
-                /* webpackPrefetch: true */
+                /* webpackPreload: true */
                 /* webpackChunkName: "socket-io-client" */
                 "socket.io-client"
             );

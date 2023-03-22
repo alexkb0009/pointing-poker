@@ -5,7 +5,13 @@ import { AppTopNav } from "./AppTopNav";
 import { SidebarProvider } from "./SidebarContext";
 import { IntroductionForm } from "./IntroductionForm";
 
-const RoomUI = React.lazy(() => import("./RoomUI").then((module) => ({ default: module.RoomUI })));
+const RoomUI = React.lazy(() =>
+    import(
+        /* webpackChunkName: "room-ui" */
+        /* webpackPrefetch: true */
+        "./RoomUI"
+    ).then((module) => ({ default: module.RoomUI }))
+);
 
 export const App = ({ appVersion, commitHash, roomFromURL }) => {
     useEffect(() => {

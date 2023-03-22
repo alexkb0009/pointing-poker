@@ -4,7 +4,10 @@ import { PeerVotes } from "./PeerVotes";
 import { VotingCards } from "./VotingCards";
 
 const HostControls = React.lazy(() =>
-    import("./HostControls").then((module) => ({ default: module.HostControls }))
+    import(
+        /* webpackChunkName: "host-controls" */
+        "./HostControls"
+    ).then((module) => ({ default: module.HostControls }))
 );
 
 export const RoomUI = ({ isCurrentHostMe }) => {
