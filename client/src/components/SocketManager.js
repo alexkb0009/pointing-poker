@@ -15,7 +15,7 @@ const createInitialState = () => ({
     agendaHistory: [],
     roomName: null,
     config: {},
-    // This is managed by UI only
+    // This is managed by UI only. Maybe should be separated out.. another day.
     socketAlerts: [],
 });
 
@@ -33,6 +33,7 @@ export class SocketManager extends React.Component {
         this.onNextAgendaItem = this.onNextAgendaItem.bind(this);
         this.onSetAgendaQueue = this.onSetAgendaQueue.bind(this);
         this.onSetConfig = this.onSetConfig.bind(this);
+        this.dismissAlert = this.dismissAlert.bind(this);
 
         this.state = createInitialState();
     }
@@ -140,7 +141,6 @@ export class SocketManager extends React.Component {
     }
 
     onJoin(name, { room = null, isSpectating = false } = {}) {
-        // toast.dismiss("joinNameError");
         const payload = { name, isSpectating };
         if (room) {
             payload.room = room;
@@ -181,6 +181,24 @@ export class SocketManager extends React.Component {
         this.socket.emit("setConfig", { config });
     }
 
+    /** @todo Toast component or something. For now only used as server-side error on IntroductionForm */
+    dismissAlert(alert) {
+        this.setState((existingState) => {
+            const nextAlerts = [...existingState.socketAlerts];
+            let alertIndex;
+            if (typeof alert === "string") {
+                alertIndex = nextAlerts.findIndex(({ id }) => id === alert);
+            } else {
+                alertIndex = nextAlerts.indexOf(alert);
+            }
+            if (alertIndex === -1) {
+                return false;
+            }
+            nextAlerts.splice(alertIndex, 1);
+            return { socketAlerts: nextAlerts };
+        });
+    }
+
     render() {
         const { children } = this.props;
 
@@ -195,6 +213,7 @@ export class SocketManager extends React.Component {
             onNextAgendaItem: this.onNextAgendaItem,
             onSetAgendaQueue: this.onSetAgendaQueue,
             onSetConfig: this.onSetConfig,
+            dismissAlert: this.dismissAlert,
         };
 
         return (

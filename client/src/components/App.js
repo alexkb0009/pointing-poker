@@ -1,5 +1,4 @@
 import React, { Suspense, useContext, useEffect } from "react";
-import { Toaster } from "react-hot-toast";
 import { SocketManager, SocketManagerContext } from "./SocketManager";
 import { AppTopNav } from "./AppTopNav";
 import { SidebarProvider } from "./SidebarContext";
@@ -25,7 +24,6 @@ export const App = ({ appVersion, commitHash, roomFromURL }) => {
             <SocketManager roomFromURL={roomFromURL}>
                 <AppTopNav roomFromURL={roomFromURL} />
                 <AppContent roomFromURL={roomFromURL} />
-                <Toaster />
             </SocketManager>
         </SidebarProvider>
     );

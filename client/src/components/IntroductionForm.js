@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useContext, useCallback } from "react";
 import debounce from "lodash.debounce";
-import toast, { useToasterStore } from "react-hot-toast";
 import clsx from "clsx";
 import { SocketManagerContext } from "./SocketManager";
 import { roomNameValidRegex } from "./../constants";
 
 export const IntroductionForm = ({ roomFromURL }) => {
-    const { isConnected, onJoin } = useContext(SocketManagerContext);
-    const { toasts } = useToasterStore();
+    const { isConnected, onJoin, socketAlerts, dismissAlert } = useContext(SocketManagerContext);
     const [myProposedName, setMyProposedName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
     const [wasValidated, setWasValidated] = useState(false);
@@ -17,32 +15,31 @@ export const IntroductionForm = ({ roomFromURL }) => {
         setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
     }, []);
 
-    const joinNameTakenErrorAlert = toasts.find(
-        ({ id, visible }) => visible && id === "joinNameTaken"
-    );
+    const joinNameTakenErrorAlert = socketAlerts.find(({ id }) => id === "joinNameTaken");
+
+    const onNameChange = (e) => {
+        dismissAlert("joinNameTaken");
+        setMyProposedName(e.target.value);
+    };
 
     const onSubmit = useCallback(
-        debounce(
-            (e) => {
-                e.preventDefault();
-                toast.dismiss("joinNameTaken");
-                if (!isConnected) {
-                    return false;
-                }
-                const formValues = Object.fromEntries(new FormData(e.target));
-                const room = roomFromURL || formValues.room;
-                onJoin(formValues.name, { room, isSpectating });
-                window.localStorage.setItem("myName", formValues.name);
-                window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
-                window.gtag("event", "select_content", {
-                    content_type: "room",
-                    item_id: room,
-                });
-            },
-            1000,
-            { leading: true, trailing: false }
-        ),
-        [isConnected]
+        (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!isConnected) {
+                return false;
+            }
+            const formValues = Object.fromEntries(new FormData(e.target));
+            const room = roomFromURL || formValues.room;
+            onJoin(formValues.name, { room, isSpectating });
+            window.localStorage.setItem("myName", formValues.name);
+            window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
+            window.gtag("event", "select_content", {
+                content_type: "room",
+                item_id: room,
+            });
+        },
+        [isConnected, isSpectating]
     );
 
     const onInvalid = () => setWasValidated(true);
@@ -85,19 +82,27 @@ export const IntroductionForm = ({ roomFromURL }) => {
                         <label htmlFor="name-input" className="form-label">
                             Your Name
                         </label>
-                        <input
-                            id="name-input"
-                            type="text"
-                            name="name"
-                            value={myProposedName}
-                            onChange={(e) => setMyProposedName(e.target.value)}
-                            className={clsx(
-                                "form-control",
-                                joinNameTakenErrorAlert && "is-invalid"
+                        <div className="input-group has-validation mb-2">
+                            <input
+                                id="name-input"
+                                type="text"
+                                name="name"
+                                value={myProposedName}
+                                onChange={onNameChange}
+                                className={clsx(
+                                    "form-control",
+                                    "d-block",
+                                    !!joinNameTakenErrorAlert && "is-invalid"
+                                )}
+                                maxLength={8}
+                                required
+                            />
+                            {joinNameTakenErrorAlert && (
+                                <div className="invalid-feedback">
+                                    {joinNameTakenErrorAlert.message}
+                                </div>
                             )}
-                            maxLength={8}
-                            required
-                        />
+                        </div>
 
                         <label className="form-check-label">
                             <input
@@ -112,7 +117,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
 
                         <button
                             type="submit"
-                            className="mt-3 w-100 btn btn-primary"
+                            className="mt-3 w-100 btn btn-primary d-block"
                             disabled={!isConnected}
                             aria-label="Join Room"
                         >

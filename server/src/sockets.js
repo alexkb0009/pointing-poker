@@ -85,6 +85,7 @@ const roomJoin = (socket, name, roomParam = null, isSpectating = false) => {
         socket.emit("alert", {
             id: "joinNameTaken",
             type: "error",
+            title: "Name Taken",
             message: `Name '${name}' is taken in room '${roomName}'.`,
         });
         delete socket.data.name;
@@ -220,7 +221,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", (reason) => {
-        const { isValid, clientName, roomName, room } = validateSocket(socket);
+        const { clientName, roomName, room } = validateSocket(socket);
         // console.log("DISCONNECTING", isValid, clientName, roomName, !!room);
         if (!room) {
             // Done
@@ -237,6 +238,7 @@ io.on("connection", (socket) => {
         }
     });
 
+    // Uncomment to test disconnection/reconnection resume stuff on localhost
     // setTimeout(() => {
     //     socket.conn.close();
     // }, 10000);
