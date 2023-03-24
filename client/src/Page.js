@@ -73,6 +73,7 @@ export function Page({
     const updateUIOptions = useCallback((nextOptions) => {
         setUIOptions((currOptions) => {
             const nextOptionsState = { ...currOptions, ...nextOptions };
+            // eslint-disable-next-line no-unused-vars
             const { theme, ...nextOptionsLocalStorage } = nextOptionsState;
             window.localStorage.setItem("uiOptions", JSON.stringify(nextOptionsLocalStorage));
             return nextOptionsState;

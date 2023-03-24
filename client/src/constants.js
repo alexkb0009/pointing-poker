@@ -17,7 +17,7 @@ export const POKER_CARD_OPTIONS = {
     },
 };
 
-export const roomNameValidRegex = /^[\w\-\.~!$&'\(\)*+,;=:@]+$/;
+export const roomNameValidRegex = /^[\w\-.~!$&'()*+,;=:@]+$/;
 export const roomUrlValidRegex = new RegExp(`^/room/(${roomNameValidRegex.source.slice(1, -1)})/?`);
 
 export const THEMES = {
