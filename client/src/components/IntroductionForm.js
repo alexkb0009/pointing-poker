@@ -68,7 +68,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                                 type="text"
                                 name="room"
                                 defaultValue={roomFromURL || ""}
-                                className="form-control"
+                                className="form-control mb-3"
                                 maxLength={12}
                                 readOnly={!!roomFromURL}
                                 pattern={roomNameValidRegex.source}
