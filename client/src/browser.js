@@ -8,11 +8,9 @@ import "./styles.scss";
 
 // Init/hydration
 // Some Chrome Plugins will break SSR hydration, so let's prevent that in prod..
-document
-    .querySelectorAll("html script[src^=chrome-extension], html script[src^=moz-extension]")
-    .forEach((elem) => {
-        document.documentElement.removeChild(elem);
-    });
+document.querySelectorAll("html script:not([data-own])").forEach((elem) => {
+    elem.remove();
+});
 
 const initialCookies = (document.cookie || "").split("; ").reduce(function (m, cookie) {
     const [key, value] = cookie.split("=");
