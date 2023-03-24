@@ -221,7 +221,9 @@ export class RoomState {
                 : agendaItemText.length < 120
                 ? agendaItemText
                 : agendaItemText.slice(0, 120).trim() + "...",
-            votes: this.#clientsState.map(({ vote }) => vote),
+            votes: this.#clientsState
+                .filter(({ isSpectating }) => !isSpectating)
+                .map(({ vote }) => vote),
         };
         this.#agendaHistory.push(historyItem);
         this.resetRoomVotes();
