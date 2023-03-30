@@ -5,6 +5,7 @@ import { roomNameValidRegex } from "./../constants";
 
 export const IntroductionForm = ({ roomFromURL }) => {
     const { isConnected, onJoin, socketAlerts, dismissAlert } = useContext(SocketManagerContext);
+    const [roomStats, setRoomStats] = useState(null);
     const [myProposedName, setMyProposedName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
     const [wasValidated, setWasValidated] = useState(false);
@@ -12,9 +13,14 @@ export const IntroductionForm = ({ roomFromURL }) => {
     useEffect(() => {
         setMyProposedName(window.localStorage.getItem("myName") || "");
         setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
+
+        (async () => {
+            const stats = await window.fetch("stats");
+            setRoomStats(await stats.json());
+        })();
     }, []);
 
-    const joinNameTakenErrorAlert = socketAlerts.find(({ id }) => id === "joinNameTaken");
+    const joinNameTakenErrorAlert = socketAlerts["joinNameTaken"];
 
     const onNameChange = (e) => {
         dismissAlert("joinNameTaken");
@@ -57,6 +63,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                             htmlFor="room-input"
                             className={clsx("form-label", roomFromURL && "mb-0")}
                         >
+                            {roomStats ? (roomStats.clientsCount > 0 ? "New " : "Existing ") : ""}
                             Room
                         </label>
                         {roomFromURL ? (
@@ -98,7 +105,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                             />
                             {joinNameTakenErrorAlert && (
                                 <div className="invalid-feedback">
-                                    {joinNameTakenErrorAlert.message}
+                                    {joinNameTakenErrorAlert.alert.message}
                                 </div>
                             )}
                         </div>

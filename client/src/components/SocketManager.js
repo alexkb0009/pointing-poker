@@ -16,7 +16,7 @@ const createInitialState = () => ({
     roomName: null,
     config: {},
     // This is managed by UI only. Maybe should be separated out.. another day.
-    socketAlerts: [],
+    socketAlerts: {},
 });
 
 let io = null;
@@ -113,8 +113,18 @@ export class SocketManager extends React.Component {
             });
 
             this.socket.on("alert", (alert) => {
+                if (!alert.id) throw new Error("No alert ID present");
                 this.setState(function (existingState) {
-                    return { socketAlerts: [...existingState.socketAlerts, alert] };
+                    const instanceCount = existingState.socketAlerts[alert.id]?.instanceCount || 0;
+                    if (instanceCount > 0) {
+                        console.warn("Repeat of alert", alert.id);
+                    }
+                    return {
+                        socketAlerts: {
+                            ...existingState.socketAlerts,
+                            [alert.id]: { alert, instanceCount: instanceCount + 1 },
+                        },
+                    };
                 });
             });
 
@@ -182,20 +192,11 @@ export class SocketManager extends React.Component {
     }
 
     /** @todo Toast component or something. For now only used as server-side error on IntroductionForm */
-    dismissAlert(alert) {
+    dismissAlert(alertID) {
         this.setState((existingState) => {
-            const nextAlerts = [...existingState.socketAlerts];
-            let alertIndex;
-            if (typeof alert === "string") {
-                alertIndex = nextAlerts.findIndex(({ id }) => id === alert);
-            } else {
-                alertIndex = nextAlerts.indexOf(alert);
-            }
-            if (alertIndex === -1) {
-                return false;
-            }
-            nextAlerts.splice(alertIndex, 1);
-            return { socketAlerts: nextAlerts };
+            const socketAlerts = { ...existingState.socketAlerts };
+            delete socketAlerts[alertID];
+            return { socketAlerts };
         });
     }
 

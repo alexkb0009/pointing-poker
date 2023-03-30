@@ -4,7 +4,6 @@
  */
 
 export class RoomState {
-    #roomName;
     #config;
     #clientsState;
     #originalHost;
@@ -13,7 +12,7 @@ export class RoomState {
     #agendaQueue;
 
     constructor(roomName, config) {
-        this.#roomName = roomName;
+        this.roomName = roomName;
         this.#config = {
             cardDeck: "default",
             isVotingAfterShowAllowed: true,
@@ -99,7 +98,7 @@ export class RoomState {
             isShowingVotes: this.#isShowingVotes,
             agendaHistory: this.#agendaHistory,
             agendaQueue: this.#agendaQueue,
-            roomName: this.#roomName,
+            roomName: this.roomName,
         };
     }
 
@@ -218,9 +217,9 @@ export class RoomState {
         const historyItem = {
             text: !agendaItemText
                 ? null
-                : agendaItemText.length < 120
+                : agendaItemText.length <= 120
                 ? agendaItemText
-                : agendaItemText.slice(0, 120).trim() + "...",
+                : agendaItemText.slice(0, 117).trim() + "...",
             votes: this.#clientsState
                 .filter(({ isSpectating }) => !isSpectating)
                 .map(({ vote }) => vote),

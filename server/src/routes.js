@@ -4,6 +4,7 @@ import fs from "fs";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import { app, clientRootDir } from "./httpServer";
+import { io } from "./sockets";
 import { roomStates } from "./roomStates";
 import { Page } from "../../client/src/Page";
 import { App } from "../../client/src/components/App";
@@ -64,28 +65,22 @@ app.get("/health", (req, res) => {
 });
 
 app.get("/stats", (req, res) => {
-    let clientsCount = 0;
+    let roomClientsCount = 0;
     roomStates.forEach((room) => {
-        clientsCount += room.clientsCount;
+        roomClientsCount += room.clientsCount;
     });
     res.json({
         roomCount: roomStates.size,
-        clientsCount,
-        // rooms: [...roomStates.entries()].map(([key, room]) => ({
-        //     name: key,
-        //     clientsCount: room.clientsCount,
-        // })),
+        roomClientsCount,
+        socketClientsCount: io.engine.clientsCount,
     });
 });
 
-app.get("/stats/:roomId", (req, res) => {
+app.get("/room/:roomId/stats/", (req, res) => {
     const room = roomStates.get(req.params.roomId);
     res.json({
         clientsCount: (room && room.clientsCount) || 0,
-        // rooms: [...roomStates.entries()].map(([key, room]) => ({
-        //     name: key,
-        //     clientsCount: room.clientsCount,
-        // })),
+        socketClientsCount: (room && io.sockets.adapter.rooms.get(room.roomName)?.size) || 0,
     });
 });
 

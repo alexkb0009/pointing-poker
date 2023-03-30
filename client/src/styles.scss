@@ -79,7 +79,7 @@ body[data-theme="concrete"] {
 }
 
 
-$theme-cyberpink-btn: #ff2ace; //#00ffa1;
+$theme-cyberpink-btn: #FE019A; // #ff2ace; //#00ffa1;
 $theme-cyberpink-body-color: #cdff00;
 
 body[data-theme="cyberpink"] {
@@ -87,7 +87,7 @@ body[data-theme="cyberpink"] {
     --bs-border-color: #000; //var(--bs-body-color);
     --bs-body-bg: #333;
     --bs-link-color: #{$theme-cyberpink-btn};
-    --bs-link-hover-color: #f900ff;
+    --bs-link-hover-color: #{darken($theme-cyberpink-btn, 10%)};
     --bs-btn-color: var(--bs-link-color);
     --form-control-bg: #000;
     --form-control-border-color: var(--bs-body-color);
@@ -105,7 +105,7 @@ body[data-theme="cyberpink"] {
         // This takes effect only for .btn without other .btn-primary etc theme.
         // These are buttons without border nor BG, but with an onHover border.
         --bs-btn-color: var(--bs-body-color);
-        --bs-btn-hover-color: #{darken($theme-cyberpink-btn, 10%)};
+        --bs-btn-hover-color: var(--bs-link-hover-color);
         
         &.btn-primary {
             --bs-btn-bg: var(--bs-link-color);
@@ -120,12 +120,12 @@ body[data-theme="cyberpink"] {
         &.btn-primary,
         &.btn-outline-primary {
             --bs-btn-border-color: var(--bs-link-color);
-            --bs-btn-hover-bg: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-hover-bg: var(--bs-link-hover-color);
             --bs-btn-hover-color: #000;
-            --bs-btn-hover-border-color: #{darken($theme-cyberpink-btn, 10%)};
-            --bs-btn-active-bg: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-hover-border-color: var(--bs-link-hover-color);
+            --bs-btn-active-bg: var(--bs-link-hover-color);
             --bs-btn-active-color: #000;
-            --bs-btn-active-border-color: #{darken($theme-cyberpink-btn, 10%)};
+            --bs-btn-active-border-color: var(--bs-link-hover-color);
             --bs-btn-disabled-border-color: #{darken($theme-cyberpink-btn, 15%)};
         }
     }
@@ -513,7 +513,7 @@ body[data-theme="serika-dark"] {
         transition: transform .1s, box-shadow .1s, background-color .3s;
 
         &:disabled {
-            border-color: #bbb;
+            opacity: 0.7;
         }
 
         &:not(:disabled) {

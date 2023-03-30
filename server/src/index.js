@@ -6,5 +6,5 @@
  */
 
 export { app, httpServer } from "./httpServer";
-export { pipeSSR, makeUrlObject } from "./routes";
 export { io } from "./sockets";
+export { pipeSSR, makeUrlObject } from "./routes";
