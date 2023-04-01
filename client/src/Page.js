@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, Suspense } from "react";
+import React, { useEffect, useState, useContext, useMemo, Suspense } from "react";
 import { THEMES } from "./constants";
 import { getRoomFromURLObject } from "./utils";
 import { RouteDataContext } from "./RouteDataContext";
@@ -32,6 +32,7 @@ export function Page({
 }) {
     const [url, setUrl] = useState(serverSideURL || new URL(window.location.href));
     const [routeData, setRouteData] = useState(serverSentData);
+    const [isLoadingRouteData, setIsLoadingRouteData] = useState(false);
     const roomFromURL = getRoomFromURLObject(url);
 
     useEffect(() => {
@@ -46,11 +47,26 @@ export function Page({
                 mode: "same-origin",
                 cache: "no-store",
             });
-            window.fetch(request).then((res) => {
-                res.json().then((jsonBody) => {
-                    setRouteData(jsonBody);
-                    setUrl(new URL(window.location.href));
-                });
+
+            Promise.race([
+                window.fetch(request).then((res) => {
+                    res.json().then((jsonBody) => {
+                        setRouteData(jsonBody);
+                        setUrl(new URL(window.location.href));
+                        setIsLoadingRouteData(false);
+                        return true;
+                    });
+                }),
+                new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(false);
+                    }, 500);
+                }),
+            ]).then((isRouteDataComplete) => {
+                // aka if timeout finishes first:
+                if (!isRouteDataComplete) {
+                    setIsLoadingRouteData(true);
+                }
             });
         };
         window.addEventListener("popstate", updateRouteData);
@@ -84,7 +100,7 @@ export function Page({
                 <UIOptionsContextProvider initialCookies={initialCookies}>
                     <RoutedViewProvider url={url} roomFromURL={roomFromURL}>
                         <Head cssBundles={cssBundles} routeData={routeData} />
-                        <Body />
+                        <Body isLoadingRouteData={isLoadingRouteData} />
                     </RoutedViewProvider>
                 </UIOptionsContextProvider>
             </RouteDataContext.Provider>
@@ -131,13 +147,15 @@ const Head = ({ view, cssBundles, routeData }) => {
     );
 };
 
-const Body = ({ view }) => {
+const Body = ({ view, isLoadingRouteData }) => {
     const { uiOptions } = useContext(UIOptionsContext);
+    // const renderedView = useMemo(view.render, [view]);
     return (
         <body data-theme={uiOptions.theme}>
             <div id="root">
                 <Suspense>{view.render()}</Suspense>
             </div>
+            {isLoadingRouteData && <div className="connecting-container">Loading</div>}
             <link
                 rel="stylesheet"
                 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
