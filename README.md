@@ -24,7 +24,7 @@ On a running instance, navigate to <your-domain>/room/{whateverName}/ to join ro
 
 Anyone is welcome to contribute or make PRs!
 
--   Play around more with code-splitting approaches, try out Suspense and React.lazy.
+-   ~~Play around more with code-splitting approaches, try out Suspense and React.lazy.~~ Done, works nicely, need to analyze+optimize bundle sizes more though.
 -   Allow to scale up to multiple servers.
     -   Could figure out which "SocketIO Adapter" to use (provides PubSub messaging between SocketIO servers for horizontal scaling).
     -   And then build out data model for same database for storing RoomStates.
@@ -37,4 +37,4 @@ Anyone is welcome to contribute or make PRs!
 
 ### License
 
-Has yet to be decided. All rights reserved by author.
+Has yet to be decided. All rights reserved by author. Will probably ultimately be MIT.
