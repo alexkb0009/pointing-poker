@@ -27,27 +27,26 @@ export const IntroductionForm = ({ roomFromURL }) => {
         setMyProposedName(e.target.value);
     };
 
-    const onSubmit = useCallback(
-        (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            if (!isConnected) {
-                return false;
-            }
-            const formValues = Object.fromEntries(new FormData(e.target));
-            const room = roomFromURL || formValues.room;
-            onJoin(formValues.name, { room, isSpectating });
-            window.localStorage.setItem("myName", formValues.name);
-            window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
-            window.gtag("event", "select_content", {
-                content_type: "room",
-                item_id: room,
-            });
-        },
-        [isConnected, isSpectating]
-    );
+    const onSubmit = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!isConnected) {
+            return false;
+        }
+        const formValues = Object.fromEntries(new FormData(e.target));
+        const room = roomFromURL || formValues.room;
+        onJoin(formValues.name, { room, isSpectating });
+        window.localStorage.setItem("myName", formValues.name);
+        window.localStorage.setItem("isSpectating", JSON.stringify(isSpectating));
+        window.gtag("event", "select_content", {
+            content_type: "room",
+            item_id: room,
+        });
+    };
 
     const onInvalid = () => setWasValidated(true);
+
+    const isExistingRoom = roomStats?.clientsCount > 0;
 
     return (
         <div className={clsx("container", "py-3")}>
@@ -63,7 +62,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                             htmlFor="room-input"
                             className={clsx("form-label", roomFromURL && "mb-0")}
                         >
-                            {roomStats ? (roomStats.clientsCount > 0 ? "New " : "Existing ") : ""}
+                            {roomStats && isExistingRoom ? "New " : "Existing "}
                             Room
                         </label>
                         {roomFromURL ? (
@@ -83,7 +82,9 @@ export const IntroductionForm = ({ roomFromURL }) => {
                                 title="Only valid URL characters are allowed, with a max length of 12 characters."
                             />
                         )}
-                        <p>If this is a new room, you can configure options as host.</p>
+                        {!isExistingRoom && (
+                            <p>If this is a new room, you can configure options as host.</p>
+                        )}
 
                         <label htmlFor="name-input" className="form-label">
                             Your Name

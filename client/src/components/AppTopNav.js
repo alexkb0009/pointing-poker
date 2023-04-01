@@ -43,7 +43,7 @@ export const AppTopNav = ({ roomFromURL }) => {
             {isJoined && (
                 <UserControls
                     clientsState={clientsState}
-                    onChange={onToggleSpectating}
+                    onToggleSpectating={onToggleSpectating}
                     myName={myName}
                 />
             )}

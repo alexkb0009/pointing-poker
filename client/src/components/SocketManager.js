@@ -58,17 +58,25 @@ export class SocketManager extends React.Component {
             this.socket.on("connect", () => {
                 const { myName, roomName, clientsState } = this.state;
                 const { roomFromURL } = this.props;
-                const myClientState = clientsState.find(({ name }) => name === myName);
-                const { isSpectating = false } = myClientState || {};
 
                 // If reconnection attempt, try re-join previous room
                 if (myName && roomName) {
-                    this.onJoin(myName, { room: roomName, isSpectating });
+                    const myClientState = clientsState.find(({ name }) => name === myName);
+                    this.onJoin(myName, {
+                        room: roomName,
+                        isSpectating: myClientState?.isSpectating || false,
+                    });
                 } else {
                     // Maybe try autojoin anyway..
                     const nameFromLocalStorage = window.localStorage.getItem("myName");
+                    const isSpectatingFromLocalStorage = JSON.parse(
+                        window.localStorage.getItem("isSpectating")
+                    );
                     if (roomFromURL && nameFromLocalStorage) {
-                        this.onJoin(nameFromLocalStorage, { room: roomFromURL, isSpectating });
+                        this.onJoin(nameFromLocalStorage, {
+                            room: roomFromURL,
+                            isSpectating: isSpectatingFromLocalStorage,
+                        });
                     }
                 }
 

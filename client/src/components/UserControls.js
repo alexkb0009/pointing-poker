@@ -1,9 +1,13 @@
 import React from "react";
 
-export const UserControls = ({ onChange, clientsState, myName }) => {
+export const UserControls = ({ onToggleSpectating, clientsState, myName }) => {
     const myClientState = clientsState.find(({ name }) => name === myName);
-
     const { isSpectating = false } = myClientState || {};
+
+    const onChange = () => {
+        window.localStorage.setItem("isSpectating", JSON.stringify(!isSpectating));
+        onToggleSpectating();
+    };
 
     const spectators = clientsState
         .filter(({ isSpectating }) => isSpectating)
