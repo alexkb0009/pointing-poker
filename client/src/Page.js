@@ -1,10 +1,13 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, Suspense } from "react";
 import { THEMES } from "./constants";
 import { getRoomFromURLObject } from "./utils";
+import { RouteDataContext } from "./RouteDataContext";
 import { UIOptionsContext, UIOptionsContextProvider } from "./components/UIOptionsContext";
 import { SEOTag } from "./components/SEOTag";
+import { RoutedViewProvider } from "./RoutedViewProvider";
 
 // Ensure GA is used for static/non-interactive SSRs as well.
+// TODO: Move key to env config var or similar, especially once need to add sensitive keys
 const gaSnippet = `
 setTimeout(function(){
     window.dataLayer = window.dataLayer || [];
@@ -17,7 +20,8 @@ setTimeout(function(){
 `;
 
 export function Page({
-    children,
+    // This is sent in by server, then scraped and re-injected here by browser.js, then updated upon own (SPA) navigations
+    serverSentData,
     // The following props only available on server-side, be careful when using them to avoid hydration errors
     // See relevant docs
     url: serverSideURL,
@@ -27,36 +31,69 @@ export function Page({
     initialCookies = {},
 }) {
     const [url, setUrl] = useState(serverSideURL || new URL(window.location.href));
+    const [routeData, setRouteData] = useState(serverSentData);
     const roomFromURL = getRoomFromURLObject(url);
 
-    useEffect((e) => {
+    useEffect(() => {
         // Listen to our own in-app navigations (pushStates) and update url state.
-        const updatePageUrl = (e) => {
-            setUrl(new URL(window.location.href));
+        // Consider moving into RouterViewProvider
+        const updateRouteData = (e) => {
+            const headers = new Headers();
+            headers.append("Accept", "application/json");
+            const request = new Request(window.location.href, {
+                method: "GET",
+                headers: headers,
+                mode: "cors",
+                cache: "no-store",
+            });
+            window.fetch(request).then((res) => {
+                res.json().then((jsonBody) => {
+                    setRouteData(jsonBody);
+                    setUrl(new URL(window.location.href));
+                });
+            });
         };
-        window.addEventListener("popstate", updatePageUrl);
-        window.addEventListener("pushstate", updatePageUrl);
+        window.addEventListener("popstate", updateRouteData);
+        window.addEventListener("pushstate", updateRouteData);
+        window.document.addEventListener("click", (e) => {
+            if (e.defaultPrevented) {
+                return false;
+            }
+            const targetElem = e.target;
+            if (e.target.tagName.toUpperCase() === "A") {
+                const linkHref = targetElem.getAttribute("href");
+                const linkUrl = new URL(linkHref, window.location);
+                if (linkUrl.origin === window.location.origin) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (window.location.href === linkUrl.href) {
+                        return false;
+                    }
+
+                    window.history.pushState(null, document.title, linkUrl.href);
+                    window.dispatchEvent(new PopStateEvent("pushstate"));
+                }
+            }
+        });
     }, []);
 
     return (
         <html lang="en">
-            <UIOptionsContextProvider initialCookies={initialCookies}>
-                <Head roomFromURL={roomFromURL} cssBundles={cssBundles} />
-                <Body url={url} roomFromURL={roomFromURL}>
-                    {children}
-                </Body>
-            </UIOptionsContextProvider>
+            <RouteDataContext.Provider value={routeData}>
+                <UIOptionsContextProvider initialCookies={initialCookies}>
+                    <RoutedViewProvider url={url} roomFromURL={roomFromURL}>
+                        <Head cssBundles={cssBundles} routeData={routeData} />
+                        <Body />
+                    </RoutedViewProvider>
+                </UIOptionsContextProvider>
+            </RouteDataContext.Provider>
         </html>
     );
 }
 
-const Head = ({ url, roomFromURL, cssBundles }) => {
+const Head = ({ view, cssBundles, routeData }) => {
     const { uiOptions } = useContext(UIOptionsContext);
-
-    let pageTitle = "Pointing Poker Page";
-    if (roomFromURL) {
-        pageTitle += ` - Room ${roomFromURL}`;
-    }
 
     const csp = [
         "script-src 'self'",
@@ -69,7 +106,7 @@ const Head = ({ url, roomFromURL, cssBundles }) => {
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <meta name="theme-color" content={THEMES[uiOptions.theme]?.metaThemeColor} />
             <meta httpEquiv="Content-Security-Policy" content={csp.join(";")}></meta>
-            <title>{pageTitle}</title>
+            <title>{view.title}</title>
             <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
             <meta name="apple-mobile-web-app-capable" content="yes" />
             <SEOTag />
@@ -77,6 +114,12 @@ const Head = ({ url, roomFromURL, cssBundles }) => {
                 rel="preload"
                 as="style"
                 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+            />
+            <script
+                data-own
+                data-name="routeData"
+                type="application/json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(routeData, null, 4) }}
             />
             {cssBundles.map((fn, i) => (
                 <React.Fragment key={i}>
@@ -88,16 +131,13 @@ const Head = ({ url, roomFromURL, cssBundles }) => {
     );
 };
 
-const Body = ({ children, url, roomFromURL }) => {
+const Body = ({ view }) => {
     const { uiOptions } = useContext(UIOptionsContext);
-    const alteredChildren = React.Children.map(children, (child) => {
-        if (React.isValidElement(child) && typeof child.type !== "string") {
-            return React.cloneElement(child, { url, roomFromURL });
-        }
-    });
     return (
         <body data-theme={uiOptions.theme}>
-            <div id="root">{alteredChildren}</div>
+            <div id="root">
+                <Suspense>{view.render()}</Suspense>
+            </div>
             <link
                 rel="stylesheet"
                 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
@@ -108,7 +148,11 @@ const Body = ({ children, url, roomFromURL }) => {
                 defer
                 src="https://www.googletagmanager.com/gtag/js?id=G-YJVYC858NK"
             />
-            <script data-own dangerouslySetInnerHTML={{ __html: gaSnippet }}></script>
+            <script
+                type="text/javascript"
+                data-own
+                dangerouslySetInnerHTML={{ __html: gaSnippet }}
+            />
         </body>
     );
 };

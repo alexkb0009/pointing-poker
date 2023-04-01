@@ -7,12 +7,7 @@ import { app, clientRootDir } from "./httpServer";
 import { io } from "./sockets";
 import { roomStates } from "./roomStates";
 import { Page } from "../../client/src/Page";
-import { App } from "../../client/src/components/App";
-import { TopNav } from "../../client/src/components/TopNav";
-import { TOS } from "../../client/src/components/static-views/terms-of-service";
-import { PrivacyPolicy } from "../../client/src/components/static-views/privacy-policy";
 
-// Not sure is best approach but works for now...
 const cssBundles = [];
 const jsBundles = [];
 
@@ -23,16 +18,15 @@ JSON.parse(fs.readFileSync(path.join(clientRootDir, "dist/client-bundles.json"))
         if (fn.endsWith(".js")) jsBundles.push(fn);
     });
 
-export const pipeSSR = (request, response, children, bootstrapScripts = jsBundles) => {
+export const pipeSSR = (request, response, serverSentData = {}, bootstrapScripts = jsBundles) => {
     return new Promise((resolve, reject) => {
         const { pipe } = ReactDOMServer.renderToPipeableStream(
             <Page
                 url={makeUrlObject(request)}
                 cssBundles={cssBundles}
                 initialCookies={request.cookies}
-            >
-                {children}
-            </Page>,
+                serverSentData={serverSentData}
+            />,
             {
                 bootstrapScripts,
                 onShellReady: () => {
@@ -52,12 +46,30 @@ export const pipeSSR = (request, response, children, bootstrapScripts = jsBundle
 export const makeUrlObject = (request) =>
     new URL(`${request.protocol}://${request.get("host")}${request.originalUrl}`);
 
+export const getRoomStats = (roomName) => {
+    const room = roomStates.get(roomName);
+    return {
+        exists: !!room,
+        clientsCount: (room && room.clientsCount) || 0,
+        socketClientsCount: (room && io.sockets.adapter.rooms.get(room.roomName)?.size) || 0,
+    };
+};
+
 app.get("/", (req, res) => {
-    pipeSSR(req, res, <App />);
+    if (req.accepts("html")) {
+        pipeSSR(req, res);
+    } else {
+        res.json(null);
+    }
 });
 
 app.get("/room/:roomId/", (req, res) => {
-    pipeSSR(req, res, <App />);
+    const pathData = { roomStats: getRoomStats(req.params.roomId) };
+    if (req.accepts("html")) {
+        pipeSSR(req, res, pathData);
+    } else {
+        res.json(pathData);
+    }
 });
 
 app.get("/health", (req, res) => {
@@ -77,34 +89,13 @@ app.get("/stats", (req, res) => {
 });
 
 app.get("/room/:roomId/stats/", (req, res) => {
-    const room = roomStates.get(req.params.roomId);
-    res.json({
-        exists: !!room,
-        clientsCount: (room && room.clientsCount) || 0,
-        socketClientsCount: (room && io.sockets.adapter.rooms.get(room.roomName)?.size) || 0,
-    });
+    res.json(getRoomStats(req.params.roomId));
 });
 
 app.get("/terms-of-service", (req, res) => {
-    pipeSSR(
-        req,
-        res,
-        <>
-            <TopNav href="/" />
-            <TOS />
-        </>,
-        []
-    );
+    pipeSSR(req, res);
 });
 
 app.get("/cookie-policy", (req, res) => {
-    pipeSSR(
-        req,
-        res,
-        <>
-            <TopNav href="/" />
-            <PrivacyPolicy />
-        </>,
-        []
-    );
+    pipeSSR(req, res);
 });

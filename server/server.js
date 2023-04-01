@@ -8,4 +8,4 @@
  * @todo Maybe scale up to multiple servers
  */
 
-require("../client/dist/server-bundle").httpServer.listen(process.env.PORT || 80);
+require("./dist/server-bundle").httpServer.listen(process.env.PORT || 80);

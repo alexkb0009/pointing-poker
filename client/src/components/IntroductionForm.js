@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useContext, useCallback } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import clsx from "clsx";
 import { SocketManagerContext } from "./SocketManager";
 import { roomNameValidRegex } from "./../constants";
+import { RouteDataContext } from "../RouteDataContext";
 
 export const IntroductionForm = ({ roomFromURL }) => {
+    const routeData = useContext(RouteDataContext);
+    const roomStats = routeData?.roomStats || null;
     const { isConnected, onJoin, socketAlerts, dismissAlert } = useContext(SocketManagerContext);
-    const [roomStats, setRoomStats] = useState(null);
     const [myProposedName, setMyProposedName] = useState("");
     const [isSpectating, setIsSpectating] = useState(false);
     const [wasValidated, setWasValidated] = useState(false);
@@ -14,13 +16,6 @@ export const IntroductionForm = ({ roomFromURL }) => {
         setMyProposedName(window.localStorage.getItem("myName") || "");
         setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
     }, []);
-
-    useEffect(() => {
-        (async () => {
-            const stats = await window.fetch("stats");
-            setRoomStats(await stats.json());
-        })();
-    }, [roomFromURL]);
 
     const joinNameTakenErrorAlert = socketAlerts["joinNameTaken"];
 

@@ -21,6 +21,7 @@ const commonConfig = {
         libraryTarget: "umd",
         library: "App",
         umdNamedDefine: true,
+        globalObject: "this",
     },
     module: {
         rules: [
@@ -104,6 +105,10 @@ module.exports = [
         ...commonConfig,
         entry: {
             "server-bundle": path.join(__dirname, "server/src/index.js"),
+        },
+        output: {
+            ...commonConfig.output,
+            path: path.resolve(__dirname, "server/dist"),
         },
         target: "node",
         plugins: [

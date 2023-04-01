@@ -1,6 +1,6 @@
 import React from "react";
 
-export const TOS = () => {
+export const TOS = React.memo(() => {
     return (
         <div className="container py-4">
             <h1>Terms and Conditions</h1>
@@ -265,4 +265,4 @@ export const TOS = () => {
             </ul>
         </div>
     );
-};
+});

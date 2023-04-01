@@ -13,10 +13,10 @@ export const TopNav = ({ children, brandContent = null, href, onBrandClick }) =>
     );
 };
 
-const TopNavBranding = ({ href, onBrandClick }) => {
+const TopNavBranding = ({ href = "/", onBrandClick }) => {
     const onClick = (e) => {
-        e.stopPropagation();
         if (!href) {
+            e.stopPropagation();
             e.preventDefault();
         }
         if (onBrandClick) {
@@ -25,7 +25,7 @@ const TopNavBranding = ({ href, onBrandClick }) => {
     };
     return (
         <h1 id="page-title" className="container-fluid m-0">
-            <a href={href || "#"} onClick={onClick}>
+            <a href={href} onClick={onClick}>
                 Pointing Poker Page
             </a>
         </h1>

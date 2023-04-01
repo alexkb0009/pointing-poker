@@ -6,7 +6,7 @@
         "build-dev": "npm run clean && NODE_ENV=development npx webpack build",
         "watch-dev": "NODE_ENV=development npx webpack watch",
         "serve": "node server/server.js",
-        "serve-dev": "nodemon server/server.js --watch ./client/dist/server-bundle.js",
+        "serve-dev": "nodemon server/server.js --watch server.js server/dist client/dist",
         "clean": "rm -rf client/dist/*"
     },
     "author": "Alex Balashov",

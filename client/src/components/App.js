@@ -12,7 +12,7 @@ const RoomUI = React.lazy(() =>
     ).then((module) => ({ default: module.RoomUI }))
 );
 
-export const App = ({ appVersion, commitHash, roomFromURL }) => {
+export const App = ({ appVersion, commitHash, roomFromURL, url }) => {
     useEffect(() => {
         window.getAppVersionInfo = () => {
             console.info("Version Info", appVersion, commitHash);
@@ -21,8 +21,8 @@ export const App = ({ appVersion, commitHash, roomFromURL }) => {
 
     return (
         <SidebarProvider>
-            <SocketManager roomFromURL={roomFromURL}>
-                <AppTopNav roomFromURL={roomFromURL} />
+            <SocketManager roomFromURL={roomFromURL} url={url}>
+                <AppTopNav />
                 <AppContent roomFromURL={roomFromURL} />
             </SocketManager>
         </SidebarProvider>

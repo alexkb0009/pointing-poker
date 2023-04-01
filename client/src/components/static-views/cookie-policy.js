@@ -1,6 +1,6 @@
 import React from "react";
 
-export const PrivacyPolicy = () => {
+export const CookiePolicy = () => {
     return (
         <div className="container py-4">
             <h2 style={{ paddingTop: 0 }}>Cookie Policy of Pointing Poker Page</h2>
@@ -823,17 +823,12 @@ export const PrivacyPolicy = () => {
                                 <li>FPGCLDC: 3 months</li> <li>FPGCLGB: 3 months</li>{" "}
                                 <li>IDE: 2 years</li> <li>NID: 6 months</li> <li>RUL: 1 year</li>{" "}
                                 <li>TAID: 14 days</li> <li>__gads: 2 years</li>{" "}
-                                <li>__gsas: 2 years</li>{" "}
-                                <li>
-                                    _gac_<wpid>: 3 months</wpid>
-                                </li>{" "}
-                                <li>
-                                    _gac_gb_<wpid>: 3 months</wpid>
-                                </li>{" "}
-                                <li>_gcl_au: 3 months</li> <li>_gcl_aw: 3 months</li>{" "}
-                                <li>_gcl_dc: 3 months</li> <li>_gcl_gb: 3 months</li>{" "}
-                                <li>_gcl_gf: 3 months</li> <li>_gcl_ha: 3 months</li>{" "}
-                                <li>id: 2 years</li> <li>test_cookie: 15 minutes</li>{" "}
+                                <li>__gsas: 2 years</li> <li>_gac_: 3 months</li>{" "}
+                                <li>_gac_gb_: 3 months</li> <li>_gcl_au: 3 months</li>{" "}
+                                <li>_gcl_aw: 3 months</li> <li>_gcl_dc: 3 months</li>{" "}
+                                <li>_gcl_gb: 3 months</li> <li>_gcl_gf: 3 months</li>{" "}
+                                <li>_gcl_ha: 3 months</li> <li>id: 2 years</li>{" "}
+                                <li>test_cookie: 15 minutes</li>{" "}
                             </ul>{" "}
                             <p></p>
                         </div>

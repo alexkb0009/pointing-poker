@@ -12,6 +12,10 @@ document.querySelectorAll("html script:not([data-own])").forEach((elem) => {
     elem.remove();
 });
 
+const serverSentData = JSON.parse(
+    document.querySelector('html script[data-name="routeData"]').innerHTML || "{}"
+);
+
 const initialCookies = (document.cookie || "").split("; ").reduce(function (m, cookie) {
     const [key, value] = cookie.split("=");
     m[key] = value;
@@ -20,7 +24,7 @@ const initialCookies = (document.cookie || "").split("; ").reduce(function (m, c
 
 hydrateRoot(
     document,
-    <Page initialCookies={initialCookies}>
+    <Page initialCookies={initialCookies} serverSentData={serverSentData}>
         <App appVersion={APP_VERSION} commitHash={COMMIT_HASH} />
     </Page>
 );

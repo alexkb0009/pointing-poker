@@ -4,7 +4,7 @@ import { TopNav } from "./TopNav";
 import { UIOptionsSidebar } from "./UIOptionsSidebar";
 import { UserControls } from "./UserControls";
 
-export const AppTopNav = ({ roomFromURL }) => {
+export const AppTopNav = () => {
     const {
         isJoined = false,
         clientsState = [],
@@ -12,14 +12,6 @@ export const AppTopNav = ({ roomFromURL }) => {
         onExit,
         myName,
     } = useContext(SocketManagerContext);
-
-    const onBrandClick =
-        isJoined || !roomFromURL
-            ? null
-            : function () {
-                  window.history.pushState(null, document.title, "/");
-                  window.dispatchEvent(new PopStateEvent("pushstate"));
-              };
 
     return (
         <TopNav
@@ -37,8 +29,6 @@ export const AppTopNav = ({ roomFromURL }) => {
                     </a>
                 )
             }
-            // eslint-disable-next-line react/jsx-no-bind
-            onBrandClick={onBrandClick}
         >
             {isJoined && (
                 <UserControls
