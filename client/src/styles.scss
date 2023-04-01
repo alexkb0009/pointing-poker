@@ -490,17 +490,7 @@ body[data-theme="serika-dark"] {
     &.is-exiting {
         animation: fadeOutPart 1s ease-out alternate infinite;
     }
-    .vote {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-    }
-    .name {
-        padding: 1rem 0.5rem;
-        width: 100%;
-        text-align: center;
-    }
-    &:first-child:before {
+    &.is-host:before {
         content: "Room Host";
         display: block;
         font-size: 0.75em;
@@ -512,6 +502,16 @@ body[data-theme="serika-dark"] {
         white-space: nowrap;
         // transform: translate3d(18px,0,0) rotate3d(0, 0, 1, -90deg);
         // transform-origin: 100% 100%;
+    }
+    .vote {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+    .name {
+        padding: 1rem 0.5rem;
+        width: 100%;
+        text-align: center;
     }
 }
 

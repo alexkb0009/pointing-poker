@@ -13,12 +13,14 @@ export const IntroductionForm = ({ roomFromURL }) => {
     useEffect(() => {
         setMyProposedName(window.localStorage.getItem("myName") || "");
         setIsSpectating(JSON.parse(window.localStorage.getItem("isSpectating")) || false);
+    }, []);
 
+    useEffect(() => {
         (async () => {
             const stats = await window.fetch("stats");
             setRoomStats(await stats.json());
         })();
-    }, []);
+    }, [roomFromURL]);
 
     const joinNameTakenErrorAlert = socketAlerts["joinNameTaken"];
 
@@ -62,7 +64,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                             htmlFor="room-input"
                             className={clsx("form-label", roomFromURL && "mb-0")}
                         >
-                            {roomStats && isExistingRoom ? "New " : "Existing "}
+                            {!roomStats ? "" : !isExistingRoom ? "New " : "Existing "}
                             Room
                         </label>
                         {roomFromURL ? (

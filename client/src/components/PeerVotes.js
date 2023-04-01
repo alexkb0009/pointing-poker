@@ -27,7 +27,11 @@ function checkAllVotesTheSame(clientsState) {
 }
 
 export const PeerVotes = () => {
-    const { isShowingVotes = false, clientsState = [] } = useContext(SocketManagerContext);
+    const {
+        isShowingVotes = false,
+        clientsState = [],
+        currentHost,
+    } = useContext(SocketManagerContext);
     const presentClients = clientsState.filter(({ isSpectating }) => !isSpectating);
     const allClientsShowingSameVote = isShowingVotes && checkAllVotesTheSame(presentClients);
     return (
@@ -45,14 +49,18 @@ export const PeerVotes = () => {
                     </Suspense>
                 )}
                 {presentClients.map((clientState) => (
-                    <PeerVoteCard key={clientState.name} clientState={clientState} />
+                    <PeerVoteCard
+                        key={clientState.name}
+                        clientState={clientState}
+                        isHost={currentHost === clientState.name}
+                    />
                 ))}
             </div>
         </div>
     );
 };
 
-const PeerVoteCard = React.memo(({ clientState: { name, vote, isExiting } }) => {
+const PeerVoteCard = React.memo(({ isHost, clientState: { name, vote, isExiting } }) => {
     const hasPendingVote = vote === "HAS_VOTE";
     return (
         <div
@@ -60,7 +68,8 @@ const PeerVoteCard = React.memo(({ clientState: { name, vote, isExiting } }) => 
                 "poker-card",
                 "peer-vote-card",
                 hasPendingVote && "has-pending-vote",
-                isExiting && "is-exiting"
+                isExiting && "is-exiting",
+                isHost && "is-host"
             )}
         >
             <VoteValue value={vote} className="vote" />

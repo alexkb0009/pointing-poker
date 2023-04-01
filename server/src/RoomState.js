@@ -254,7 +254,7 @@ export class RoomState {
         client.exitTimeout = setTimeout(() => {
             this.removeClient(clientName);
             callback && callback();
-        }, 30000);
+        }, 15000); // 15 Seconds
     }
 
     /** Implementation will change once scale horizontally, data be backed by DB.. */
