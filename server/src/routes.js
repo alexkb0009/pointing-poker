@@ -79,6 +79,7 @@ app.get("/stats", (req, res) => {
 app.get("/room/:roomId/stats/", (req, res) => {
     const room = roomStates.get(req.params.roomId);
     res.json({
+        exists: !!room,
         clientsCount: (room && room.clientsCount) || 0,
         socketClientsCount: (room && io.sockets.adapter.rooms.get(room.roomName)?.size) || 0,
     });

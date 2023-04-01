@@ -1,3 +1,5 @@
+import { RoomState } from "./RoomState";
+
 /**
  * Current state of the 'poker game'.
  *

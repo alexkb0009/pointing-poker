@@ -33,6 +33,7 @@ export class SocketManager extends React.Component {
         this.onNextAgendaItem = this.onNextAgendaItem.bind(this);
         this.onSetAgendaQueue = this.onSetAgendaQueue.bind(this);
         this.onSetConfig = this.onSetConfig.bind(this);
+        this.onSetHost = this.onSetHost.bind(this);
         this.dismissAlert = this.dismissAlert.bind(this);
 
         this.state = createInitialState();
@@ -191,6 +192,10 @@ export class SocketManager extends React.Component {
         this.socket.emit("setConfig", { config });
     }
 
+    onSetHost(name) {
+        this.socket.emit("setHost", { name });
+    }
+
     /** @todo Toast component or something. For now only used as server-side error on IntroductionForm */
     dismissAlert(alertID) {
         this.setState((existingState) => {
@@ -214,6 +219,7 @@ export class SocketManager extends React.Component {
             onNextAgendaItem: this.onNextAgendaItem,
             onSetAgendaQueue: this.onSetAgendaQueue,
             onSetConfig: this.onSetConfig,
+            onSetHost: this.onSetHost,
             dismissAlert: this.dismissAlert,
         };
 

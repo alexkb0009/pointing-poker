@@ -70,6 +70,8 @@ const roomJoin = (socket, name, roomParam = null, isSpectating = false) => {
     if (!room) {
         room = new RoomState(roomName);
         roomStates.set(roomName, room);
+    } else {
+        room.cancelDeferredDeletion();
     }
 
     const client = room.addClient(name, {
@@ -123,8 +125,12 @@ const roomExitCleanup = (roomName) => {
         return;
     }
     if (room.clientsCount === 0) {
-        // No clients left in room, clean it up
-        roomStates.delete(roomName);
+        // No clients left in room but agenda still present, so wait 30min to avoid losing state
+        if (room.agendaQueue.length > 0) {
+            room.setDeferredDeletionFrom(roomStates);
+        } else {
+            roomStates.delete(roomName);
+        }
     } else {
         io.to(roomName).emit("stateUpdate", { ...room.toJSON() });
     }
@@ -218,6 +224,13 @@ io.on("connection", (socket) => {
         if (!isValid) return;
         room.updateConfig(config);
         io.to(roomName).emit("stateUpdate", { config: room.config });
+    });
+
+    socket.on("setHost", ({ name }) => {
+        const { isValid, roomName, room } = validateSocket(socket, true);
+        if (!isValid) return;
+        room.setHost(name);
+        io.to(roomName).emit("stateUpdate", { ...room.toJSON() });
     });
 
     socket.on("disconnect", (reason) => {

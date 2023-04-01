@@ -221,6 +221,10 @@ body[data-theme="serika-dark"] {
         border-color: var(--bs-btn-color);
         box-shadow: 0 0 0 0.25rem var(--form-control-focus-shadow-color);
     }
+    &:disabled {
+        background-color: var(--form-control-bg);
+        opacity: 0.75;
+    }
 }
 
 .form-check-input {
@@ -287,7 +291,6 @@ body[data-theme="serika-dark"] {
     font-size: 1rem;
     border-radius: 3px;
     box-shadow: #161f27 0px 5px 10px -10px;
-    overflow: hidden;
 
     .large-value {
         font-weight: bold;
@@ -479,6 +482,7 @@ body[data-theme="serika-dark"] {
 }
 
 .peer-vote-card {
+    position: relative;
     &.has-pending-vote {
         background-color: var(--poker-pending-vote-bg);
         color: var(--poker-pending-vote-text-color);
@@ -495,6 +499,19 @@ body[data-theme="serika-dark"] {
         padding: 1rem 0.5rem;
         width: 100%;
         text-align: center;
+    }
+    &:first-child:before {
+        content: "Room Host";
+        display: block;
+        font-size: 0.75em;
+        color: var(--poker-card-border-color);
+        position: absolute;
+        // left: -100%;
+        left: 0;
+        bottom: 100%;
+        white-space: nowrap;
+        // transform: translate3d(18px,0,0) rotate3d(0, 0, 1, -90deg);
+        // transform-origin: 100% 100%;
     }
 }
 

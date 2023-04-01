@@ -14,6 +14,8 @@ export const HostControls = () => {
         onResetVotes,
         config,
         onSetConfig,
+        onSetHost,
+        clientsState,
     } = useContext(SocketManagerContext);
     const [visiblePane, setVisiblePane] = useState(null);
     const isShowingAgendaQueue = visiblePane === "agenda";
@@ -54,6 +56,10 @@ export const HostControls = () => {
         debounce(onNextAgendaItem, 1000, { leading: true, trailing: false }),
         []
     );
+
+    const onSelectHost = (e) => {
+        onSetHost(e.target.value);
+    };
 
     const onSelectCardDeck = (e) => {
         onSetConfig({ cardDeck: e.target.value });
@@ -154,7 +160,7 @@ export const HostControls = () => {
                     </div>
                 ) : isShowingConfig ? (
                     <div className="pb-3 container-md">
-                        <div className="row pb-2">
+                        <div className="row">
                             <div className="col-auto">
                                 <div className="form-check">
                                     <label
@@ -191,9 +197,9 @@ export const HostControls = () => {
                             </div>
                         </div>
 
-                        <div className="row">
+                        <div className="row mt-2">
                             <label
-                                className="form-check-label col-form-label col-4 col-md-3 col-lg-2"
+                                className="form-check-label col-form-label col-4 col-md-3 col-xl-2"
                                 htmlFor="cardDeckInput"
                             >
                                 Card Deck
@@ -209,6 +215,31 @@ export const HostControls = () => {
                                     {Object.entries(POKER_CARD_OPTIONS).map(([key, { title }]) => (
                                         <option value={key} key={key}>
                                             {title}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="row mt-2">
+                            <label
+                                className="form-check-label col-form-label col-4 col-md-3 col-xl-2"
+                                htmlFor="hostSelect"
+                            >
+                                Pass &ldquo;Host Role&rdquo; to...
+                            </label>
+                            <div className="col">
+                                <select
+                                    name="cardDeck"
+                                    id="hostSelect"
+                                    className="form-control"
+                                    onChange={onSelectHost}
+                                    value={clientsState[0].name}
+                                    disabled={clientsState.length < 2}
+                                >
+                                    {clientsState.map(({ name }) => (
+                                        <option value={name} key={name}>
+                                            {name}
                                         </option>
                                     ))}
                                 </select>

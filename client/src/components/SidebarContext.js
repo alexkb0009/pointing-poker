@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, createContext } from "react";
+import React, { useRef, useState, createContext } from "react";
 import { createPortal } from "react-dom";
 import clsx from "clsx";
 
@@ -8,12 +8,18 @@ export const SidebarProvider = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const sidebarRef = useRef(null);
 
-    const sidebarPortal = useCallback((content) => {
+    const sidebarPortal = (content) => {
         return createPortal(content, sidebarRef.current);
-    }, []);
+    };
+
+    const value = {
+        sidebarPortal,
+        setIsSidebarOpen,
+        isSidebarOpen,
+    };
 
     return (
-        <SidebarContext.Provider value={{ sidebarPortal, setIsSidebarOpen, isSidebarOpen }}>
+        <SidebarContext.Provider value={value}>
             {children}
             <div
                 className={clsx("sidebar-bg-overlay", isSidebarOpen && "is-open")}

@@ -10,6 +10,7 @@ export class RoomState {
     #isShowingVotes;
     #agendaHistory;
     #agendaQueue;
+    #roomDeletionTimeout;
 
     constructor(roomName, config) {
         this.roomName = roomName;
@@ -102,6 +103,7 @@ export class RoomState {
         };
     }
 
+    /** Host-only */
     updateConfig(configUpdate) {
         this.#config = { ...this.#config, ...configUpdate };
         if ("areCardsShownAutomatically" in configUpdate) {
@@ -151,14 +153,15 @@ export class RoomState {
     removeClient(clientName) {
         const clientStateIndex =
             clientName && this.#clientsState.findIndex(({ name }) => name === clientName);
-
-        if (clientStateIndex !== -1) {
-            this.#clientsState.splice(clientStateIndex, 1);
+        if (clientStateIndex === -1) {
+            return false;
         }
+        this.#clientsState.splice(clientStateIndex, 1);
         this.#updateIsShowingVotes();
         return true;
     }
 
+    /** Host-only */
     resetRoomVotes() {
         this.#isShowingVotes = false;
         this.#clientsState.forEach((clientStateObj) => {
@@ -169,10 +172,24 @@ export class RoomState {
     setClientVote(clientName, vote) {
         const client = this.#getClient(clientName);
         if (!client) {
-            return;
+            return false;
         }
         client.vote = vote;
         this.#updateIsShowingVotes();
+        return true;
+    }
+
+    /** Host-only */
+    setHost(clientName) {
+        const clientIndex = this.#clientsState.findIndex(({ name }) => name === clientName);
+        if (clientIndex === -1) {
+            return false;
+        }
+        const nextClientsState = [...this.#clientsState];
+        const [client] = nextClientsState.splice(clientIndex, 1);
+        nextClientsState.unshift(client);
+        this.#clientsState = nextClientsState;
+        return true;
     }
 
     /** Host-only */
@@ -238,5 +255,18 @@ export class RoomState {
             this.removeClient(clientName);
             callback && callback();
         }, 30000);
+    }
+
+    /** Implementation will change once scale horizontally, data be backed by DB.. */
+    setDeferredDeletionFrom(roomStates) {
+        this.#roomDeletionTimeout = setTimeout(() => {
+            roomStates.delete(this.roomName);
+        }, 30 * 60 * 1000); // 30 Minutes
+    }
+
+    cancelDeferredDeletion() {
+        if (this.#roomDeletionTimeout) {
+            clearTimeout(this.#roomDeletionTimeout);
+        }
     }
 }

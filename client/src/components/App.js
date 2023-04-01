@@ -40,14 +40,13 @@ const AppContent = ({ roomFromURL }) => {
     return (
         <div id="content-area" className="flex-grow-1">
             {!isConnected && isJoined && <div className="connecting-container">Connecting</div>}
-
-            {!isJoined ? (
-                <IntroductionForm roomFromURL={roomFromURL} />
-            ) : (
-                <Suspense>
+            <Suspense>
+                {!isJoined ? (
+                    <IntroductionForm roomFromURL={roomFromURL} />
+                ) : (
                     <RoomUI isCurrentHostMe={isCurrentHostMe} />
-                </Suspense>
-            )}
+                )}
+            </Suspense>
         </div>
     );
 };
