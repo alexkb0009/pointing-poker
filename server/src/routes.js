@@ -93,9 +93,17 @@ app.get("/room/:roomId/stats/", (req, res) => {
 });
 
 app.get("/terms-of-service", (req, res) => {
-    pipeSSR(req, res);
+    if (req.accepts("html")) {
+        pipeSSR(req, res);
+    } else {
+        res.json(null);
+    }
 });
 
 app.get("/cookie-policy", (req, res) => {
-    pipeSSR(req, res);
+    if (req.accepts("html")) {
+        pipeSSR(req, res);
+    } else {
+        res.json(null);
+    }
 });
