@@ -49,18 +49,18 @@ export function Page({
             });
 
             Promise.race([
-                window.fetch(request).then((res) => {
+                window.fetch(request).then((res) =>
                     res.json().then((jsonBody) => {
                         setRouteData(jsonBody);
                         setUrl(new URL(window.location.href));
                         setIsLoadingRouteData(false);
                         return true;
-                    });
-                }),
+                    })
+                ),
                 new Promise((resolve, reject) => {
                     setTimeout(() => {
                         resolve(false);
-                    }, 500);
+                    }, 750);
                 }),
             ]).then((isRouteDataComplete) => {
                 // aka if timeout finishes first:
