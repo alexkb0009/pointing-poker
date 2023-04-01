@@ -43,7 +43,7 @@ export function Page({
             const request = new Request(window.location.href, {
                 method: "GET",
                 headers: headers,
-                mode: "cors",
+                mode: "same-origin",
                 cache: "no-store",
             });
             window.fetch(request).then((res) => {
