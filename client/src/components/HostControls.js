@@ -88,9 +88,15 @@ export const HostControls = () => {
                             title={`${isShowingVotes ? "Hide" : "Show"} all current votes`}
                         >
                             {isShowingVotes ? (
-                                <i className="fa-solid fa-eye-slash fa-fw" />
+                                <>
+                                    <i className="fa-solid fa-eye-slash fa-fw" />
+                                    <span className="d-none d-md-inline ms-2">Hide Votes</span>
+                                </>
                             ) : (
-                                <i className="fa-solid fa-eye fa-fw" />
+                                <>
+                                    <i className="fa-solid fa-eye fa-fw" />
+                                    <span className="d-none d-md-inline ms-2">Show Votes</span>
+                                </>
                             )}
                         </button>
                     </div>
@@ -104,6 +110,7 @@ export const HostControls = () => {
                                 title="Reset all votes without storing current vote in history"
                             >
                                 <i className="fa-solid fa-rotate-left" />
+                                <span className="d-none d-md-inline ms-2">Redo</span>
                             </button>
                             <button
                                 type="button"
