@@ -52,7 +52,7 @@ $secondary: #3a788e;
     --playing-background-color: #9ab795;
     --poker-card-height: 7.5rem;
     --poker-card-width: 5rem;
-    --poker-container-padding-x: 1.5rem;
+    --poker-container-padding-x: 1rem;
     --poker-container-padding-y: 1rem;
     --poker-card-bg-color: #fff;
     --poker-card-text-color: #000;
@@ -502,13 +502,13 @@ body[data-theme="serika-dark"] {
 .host-indicator {
     position: absolute;
     display: block;
-    font-size: 0.75em;
+    font-size: 0.625em;
     color: var(--poker-card-border-color);
     white-space: nowrap;
     width: var(--poker-card-height);
     transform-origin: 50% 50%;
     transform:
-        translate3d(calc((0rem - (var(--poker-card-height) - var(--poker-card-width))) / 2 - var(--poker-card-width) / 2 - 1rem),0,0)
+        translate3d(calc(-0.5rem - var(--poker-card-height) / 2),0,0)
         rotate3d(0, 0, 1, -90deg);
 }
 
