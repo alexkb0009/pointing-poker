@@ -151,7 +151,7 @@ const Body = ({ view, isLoadingRouteData }) => {
     const { uiOptions } = useContext(UIOptionsContext);
     // const renderedView = useMemo(view.render, [view]);
     return (
-        <body data-theme={uiOptions.theme}>
+        <body data-theme={uiOptions.theme} style={{ visibility: "hidden" }}>
             <div id="root">
                 <Suspense>{view.render()}</Suspense>
             </div>

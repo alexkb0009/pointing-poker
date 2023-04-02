@@ -479,19 +479,23 @@ body[data-theme="serika-dark"] {
 @keyframes flipCard {
     0% {
         transform: rotate3d(0, 1, 0, 180deg);
+        background-color: var(--poker-pending-vote-bg);
         color: transparent;
     }
     50% {
         transform: rotate3d(0, 1, 0, 270deg);
+        background-color: var(--poker-pending-vote-bg);
         color: transparent;
     }
     51% {
         transform: rotate3d(0, 1, 0, 270deg);
-        color: unset;
+        background-color: var(--poker-card-bg-color);
+        color: var(--poker-card-text-color);
     }
     100% {
         transform: rotate3d(0, 1, 0, 360deg);
-        color: unset;
+        background-color: var(--poker-card-bg-color);
+        color: var(--poker-card-text-color);
     }
 }
 
@@ -518,7 +522,6 @@ body[data-theme="serika-dark"] {
         animation: flipCard;
         animation-duration: .4s;
         animation-timing-function: ease-in-out;
-        transition: background-color 0s .2s, color 0s .2s;
     }
     &.is-exiting {
         animation: fadeOutPart 1s ease-out alternate infinite;
