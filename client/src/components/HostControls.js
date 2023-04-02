@@ -137,6 +137,7 @@ export const HostControls = () => {
                             )}
                         >
                             <i className="fa-solid fa-list-check fa-fw" />
+                            <span className="d-none d-md-inline ms-2">Agenda</span>
                         </button>
                     </div>
 
@@ -150,6 +151,7 @@ export const HostControls = () => {
                             )}
                         >
                             <i className="fa-solid fa-gear fa-fw" />
+                            <span className="d-none d-md-inline ms-2">Options</span>
                         </button>
                     </div>
                 </div>
