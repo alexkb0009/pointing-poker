@@ -17,7 +17,13 @@ export const RoomUI = ({ isCurrentHostMe }) => {
             <PeerVotes />
             <VotingCards />
             {isCurrentHostMe && (
-                <Suspense fallback={<div className="host-controls">Hello</div>}>
+                <Suspense
+                    fallback={
+                        <div className="d-flex align-items-center justify-content-center py-4">
+                            <i className="fa-solid fa-circle-notch fa-spin" />
+                        </div>
+                    }
+                >
                     <HostControls />
                 </Suspense>
             )}

@@ -6,9 +6,16 @@ import { VoteValue } from "./VoteValue";
 const Confetti = React.lazy(() =>
     import(
         /* webpackChunkName: "confetti" */
-        /* webpackPrefetch: true */
         "./Confetti"
-    ).then((module) => ({ default: module.Confetti }))
+    )
+        .then((module) => ({ default: module.Confetti }))
+        .then((correctedModule) => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve(correctedModule);
+                }, 200); // Delay it by 200ms after it loaded .. (experimenting w stuff to try maximize smoothness of UI)
+            });
+        })
 );
 
 function checkAllVotesTheSame(clientsState) {
@@ -63,17 +70,20 @@ export const PeerVotes = () => {
 const PeerVoteCard = React.memo(({ isHost, clientState: { name, vote, isExiting } }) => {
     const hasPendingVote = vote === "HAS_VOTE";
     return (
-        <div
-            className={clsx(
-                "poker-card",
-                "peer-vote-card",
-                hasPendingVote && "has-pending-vote",
-                isExiting && "is-exiting",
-                isHost && "is-host"
-            )}
-        >
-            <VoteValue value={vote} className="vote" />
-            <span className={clsx("name", "text-truncate")}>{name}</span>
-        </div>
+        <>
+            {isHost ? <div className="host-indicator">Room Host</div> : null}
+            <div
+                className={clsx(
+                    "poker-card",
+                    "peer-vote-card",
+                    hasPendingVote && "has-pending-vote",
+                    isExiting && "is-exiting",
+                    isHost && "is-host"
+                )}
+            >
+                <VoteValue value={vote} className="vote" />
+                <span className={clsx("name", "text-truncate")}>{name}</span>
+            </div>
+        </>
     );
 });

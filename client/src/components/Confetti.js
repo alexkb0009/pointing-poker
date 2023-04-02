@@ -2,8 +2,12 @@ import React from "react";
 import Particles from "react-particles";
 import { loadConfettiPreset } from "tsparticles-preset-confetti";
 
+let loadedConfetti = false;
+
 const particlesInit = (engine) => {
-    return loadConfettiPreset(engine);
+    if (loadedConfetti) return;
+    loadConfettiPreset(engine);
+    loadedConfetti = true;
 };
 
 const particlesLoaded = () => {};
