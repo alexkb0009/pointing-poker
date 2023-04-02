@@ -119,6 +119,7 @@ export const HostControls = () => {
                                 title="Storing current votes in history and continue to next one"
                             >
                                 Next
+                                <span className="d-none d-md-inline"> Round</span>
                                 <i className="fa-solid fa-arrow-right ms-2" />
                             </button>
                         </div>
