@@ -161,14 +161,6 @@ export class RoomState {
         return true;
     }
 
-    /** Host-only */
-    resetRoomVotes() {
-        this.#isShowingVotes = false;
-        this.#clientsState.forEach((clientStateObj) => {
-            clientStateObj.vote = null;
-        });
-    }
-
     setClientVote(clientName, vote) {
         const client = this.#getClient(clientName);
         if (!client) {
@@ -229,20 +221,67 @@ export class RoomState {
         }
     }
 
-    queueNextAgendaItem() {
-        const agendaItemText = this.#agendaQueue.shift();
+    /** Host-only */
+    #resetVotes() {
+        this.#isShowingVotes = false;
+        this.#clientsState.forEach((clientStateObj) => {
+            clientStateObj.vote = null;
+        });
+    }
+
+    #addToHistory(agendaItemText) {
+        const agendaItemTextShortened = !agendaItemText
+            ? null
+            : agendaItemText.length <= 120
+            ? agendaItemText
+            : agendaItemText.slice(0, 117).trim() + "...";
+
         const historyItem = {
-            text: !agendaItemText
-                ? null
-                : agendaItemText.length <= 120
-                ? agendaItemText
-                : agendaItemText.slice(0, 117).trim() + "...",
+            text: agendaItemTextShortened,
             votes: this.#clientsState
                 .filter(({ isSpectating }) => !isSpectating)
                 .map(({ vote }) => vote),
+            time: Date.now(),
         };
+
+        let duplicateOfIndex = -1;
+        const duplicateCountSoFar = this.#agendaHistory.reduce(
+            (count, existingHistoryItem, index) => {
+                if (existingHistoryItem.text === agendaItemTextShortened) {
+                    if (duplicateOfIndex === -1) {
+                        duplicateOfIndex = index;
+                        // Adjust original history item
+                        existingHistoryItem.duplicate = {
+                            ofIndex: index,
+                            ordinal: 0,
+                        };
+                    }
+                    return count + 1;
+                }
+                return count;
+            },
+            0
+        );
+        if (duplicateCountSoFar > 0) {
+            historyItem.duplicate = {
+                ofIndex: duplicateOfIndex,
+                ordinal: duplicateCountSoFar,
+            };
+        }
+
         this.#agendaHistory.push(historyItem);
-        this.resetRoomVotes();
+    }
+
+    /** Host-only */
+    resetRoomVotes() {
+        this.#addToHistory(this.#agendaQueue[0]);
+        this.#resetVotes();
+    }
+
+    /** Host-only */
+    queueNextAgendaItem() {
+        this.#addToHistory(this.#agendaQueue.shift());
+        this.#resetVotes();
     }
 
     setClientExitTimeout(clientName, callback) {

@@ -26,7 +26,7 @@ const CurrentAgendaBody = React.memo(({ agendaQueue = [], agendaHistory = [] }) 
     const onClick = (e) => setIsOpen((v) => !v);
 
     let sumScore = 0;
-    const agendaHistoryJSX = agendaHistory.map(({ text, votes }, index) => {
+    const agendaHistoryJSX = agendaHistory.map(({ text, duplicate, votes, time }, index) => {
         const stats = votesStats(votes);
         const scoreType = !stats ? null : stats.mode ? "mode" : "average";
         const score = (scoreType && stats[scoreType]) || 0;
@@ -37,7 +37,8 @@ const CurrentAgendaBody = React.memo(({ agendaQueue = [], agendaHistory = [] }) 
             <AgendaItem
                 key={index}
                 index={index}
-                text={text}
+                text={text ? text : <em>Round at {new Date(time).toLocaleTimeString()}</em>}
+                duplicate={text ? duplicate : null}
                 votes={votes}
                 score={score}
                 scoreType={scoreType}
@@ -69,7 +70,7 @@ const CurrentAgendaBody = React.memo(({ agendaQueue = [], agendaHistory = [] }) 
                 <i className={clsx("fa-solid", "text-muted", "mx-2", "fa-angle-right")} />
             </label>
             <p className={clsx("my-0", isOpen ? "text-break" : "text-truncate")}>
-                {currentItem || noTextFallback}
+                {currentItem || <em>No description</em>}
             </p>
             {/*isOpen && <em className="mt-2 small text-muted">{remainingLen - 1} more items</em>*/}
             {isOpen && (
@@ -97,6 +98,7 @@ const CurrentAgendaBody = React.memo(({ agendaQueue = [], agendaHistory = [] }) 
                         {remainingLen === 1 ? (
                             <em className="d-block">None</em>
                         ) : (
+                            // TODO: Split out into sep component, figure out if any duplicates there..
                             nextItems.map((text, index) => (
                                 <AgendaItem
                                     key={index}
@@ -155,11 +157,30 @@ function votesStats(votes) {
     };
 }
 
-const AgendaItem = ({ index, text, votes = null, scoreType = null, score = null }) => {
+const AgendaItem = ({
+    index,
+    text,
+    duplicate = null,
+    votes = null,
+    scoreType = null,
+    score = null,
+}) => {
     return (
         <div className="d-flex align-items-center small">
             <span className="fw-bold">{index + 1}.&nbsp;</span>
-            <span className="text-truncate">{text || noTextFallback}</span>
+            <span className="text-truncate">
+                {text}
+                {duplicate && <small>{` (${duplicate.ordinal + 1})`}</small>}
+                {/* duplicate && duplicate.ofIndex !== index && (
+                    <small>
+                        <em>
+                            {" (repeat of "}
+                            <b>{duplicate.ofIndex + 1}</b>
+                            {")"}
+                        </em>
+                    </small>
+                )*/}
+            </span>
             {votes && <AgendaItemVotes {...{ votes, scoreType, score }} />}
         </div>
     );
@@ -194,5 +215,3 @@ const AgendaItemVotes = ({ votes, scoreType, score }) => {
         </>
     );
 };
-
-const noTextFallback = <em>No description</em>;
