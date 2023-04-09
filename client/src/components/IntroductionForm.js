@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import clsx from "clsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAt } from "@fortawesome/free-solid-svg-icons/faAt";
+import { faCircleNotch } from "@fortawesome/free-solid-svg-icons/faCircleNotch";
 import { SocketManagerContext } from "./SocketManager";
 import { roomNameValidRegex } from "./../constants";
 import { RouteDataContext } from "../RouteDataContext";
@@ -125,11 +128,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                             disabled={!isConnected}
                             aria-label="Join Room"
                         >
-                            {isConnected ? (
-                                "Join"
-                            ) : (
-                                <i className="fa-solid fa-spin fa-circle-notch" />
-                            )}
+                            {isConnected ? "Join" : <FontAwesomeIcon icon={faCircleNotch} spin />}
                         </button>
 
                         <p className="mt-2 small">
@@ -142,7 +141,7 @@ export const IntroductionForm = ({ roomFromURL }) => {
                             Feedback or suggestions?
                             <br />
                             Email us at feedback&nbsp;
-                            <i className="fa-solid fa-at small" />
+                            <FontAwesomeIcon icon={faAt} className="small" />
                             &nbsp;pointingpoker.org
                         </p>
                     </form>

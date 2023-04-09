@@ -1,4 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGear } from "@fortawesome/free-solid-svg-icons/faGear";
+import { faTimes } from "@fortawesome/free-solid-svg-icons/faTimes";
 import { THEMES } from "../constants";
 import { SidebarContext } from "./SidebarContext";
 import { UIOptionsContext } from "./UIOptionsContext";
@@ -37,7 +40,7 @@ export const UIOptionsSidebar = React.memo(() => {
                     setIsSidebarOpen(nextIsOpen);
                 }}
             >
-                <i className="fa-solid fa-gear" />
+                <FontAwesomeIcon icon={faGear} />
             </button>
             {isOptionsOpen &&
                 sidebarPortal(
@@ -55,7 +58,7 @@ export const UIOptionsSidebar = React.memo(() => {
                                     setIsSidebarOpen(false);
                                 }}
                             >
-                                <i className="fa-solid fa-times" />
+                                <FontAwesomeIcon icon={faTimes} />
                             </button>
                         </div>
                         <div className="container-fluid py-1">

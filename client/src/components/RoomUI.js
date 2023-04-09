@@ -1,4 +1,6 @@
 import React, { Suspense } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleNotch } from "@fortawesome/free-solid-svg-icons/faCircleNotch";
 import { CurrentAgenda } from "./CurrentAgenda";
 import { PeerVotes } from "./PeerVotes";
 import { VotingCards } from "./VotingCards";
@@ -20,7 +22,7 @@ export const RoomUI = ({ isCurrentHostMe }) => {
                 <Suspense
                     fallback={
                         <div className="d-flex align-items-center justify-content-center py-4">
-                            <i className="fa-solid fa-circle-notch fa-spin" />
+                            <FontAwesomeIcon icon={faCircleNotch} spin />
                         </div>
                     }
                 >

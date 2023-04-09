@@ -1,4 +1,6 @@
 import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBinoculars } from "@fortawesome/free-solid-svg-icons/faBinoculars";
 
 export const UserControls = ({ onToggleSpectating, clientsState, myName }) => {
     const myClientState = clientsState.find(({ name }) => name === myName);
@@ -24,7 +26,7 @@ export const UserControls = ({ onToggleSpectating, clientsState, myName }) => {
                         : `Spectators: ${spectators.join(", ")}`
                 }
             >
-                <i className="fa-solid fa-binoculars me-2" />
+                <FontAwesomeIcon icon={faBinoculars} className="me-2" />
                 {countSpectators}
             </div>
             <label className="form-check-label px-2 d-flex align-items-center h-100">

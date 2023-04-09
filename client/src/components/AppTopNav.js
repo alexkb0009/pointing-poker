@@ -1,4 +1,6 @@
 import React, { useContext } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAnglesLeft } from "@fortawesome/free-solid-svg-icons/faAnglesLeft";
 import { SocketManagerContext } from "./SocketManager";
 import { TopNav } from "./TopNav";
 import { UIOptionsSidebar } from "./UIOptionsSidebar";
@@ -24,7 +26,7 @@ export const AppTopNav = () => {
                             onExit();
                         }}
                     >
-                        <i className="fa-solid fa-angles-left me-2" />
+                        <FontAwesomeIcon icon={faAnglesLeft} className="me-2" />
                         Exit
                     </a>
                 )

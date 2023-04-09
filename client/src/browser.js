@@ -1,10 +1,15 @@
 /* eslint-disable no-undef */
 import React from "react";
 import { hydrateRoot } from "react-dom/client";
+import { config } from "@fortawesome/fontawesome-svg-core";
 import { Page } from "./Page";
 import { App } from "./components/App";
 
+import "@fortawesome/fontawesome-svg-core/styles.css";
 import "./styles.scss";
+
+// Disable fontawesome's own css injection (causes FOUC of icons)
+config.autoAddCss = false;
 
 // Init/hydration
 // Some Chrome Plugins will break SSR hydration, so let's prevent that in prod..

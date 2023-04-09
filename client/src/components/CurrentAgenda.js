@@ -1,6 +1,8 @@
 import React, { useState, useContext } from "react";
-import { SocketManagerContext } from "./SocketManager";
 import clsx from "clsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAngleRight } from "@fortawesome/free-solid-svg-icons/faAngleRight";
+import { SocketManagerContext } from "./SocketManager";
 import { VALUE_DISPLAY } from "./VoteValue";
 
 function roundScore(score) {
@@ -67,7 +69,7 @@ const CurrentAgendaBody = React.memo(({ agendaQueue = [], agendaHistory = [] }) 
                         ({historyLen + 1} of {totalLen})
                     </span>
                 )}
-                <i className={clsx("fa-solid", "text-muted", "mx-2", "fa-angle-right")} />
+                <FontAwesomeIcon icon={faAngleRight} className={clsx("text-muted", "mx-2")} />
             </label>
             <p className={clsx("my-0", isOpen ? "text-break" : "text-truncate")}>
                 {currentItem || <em>No description</em>}
@@ -208,7 +210,7 @@ const AgendaItemVotes = ({ votes, scoreType, score }) => {
                     className="score flex-shrink-0"
                     title={scoreType.charAt(0).toUpperCase() + scoreType.slice(1)}
                 >
-                    <i className="fa-solid fa-angle-right mx-2 text-muted" />
+                    <FontAwesomeIcon icon={faAngleRight} className="mx-2 text-muted" />
                     <span className="value mw-small-vote">{displayScore}</span>
                 </div>
             )}

@@ -1,6 +1,15 @@
 import React, { useEffect, useRef, useState, useContext, useCallback } from "react";
 import clsx from "clsx";
 import debounce from "lodash.debounce";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faArrowRight,
+    faEye,
+    faEyeSlash,
+    faGear,
+    faListCheck,
+    faRotateLeft,
+} from "@fortawesome/free-solid-svg-icons";
 import { SocketManagerContext } from "./SocketManager";
 import { POKER_CARD_OPTIONS } from "./../constants";
 
@@ -89,12 +98,12 @@ export const HostControls = () => {
                         >
                             {isShowingVotes ? (
                                 <>
-                                    <i className="fa-solid fa-eye-slash fa-fw" />
+                                    <FontAwesomeIcon icon={faEyeSlash} fixedWidth />
                                     <span className="d-none d-md-inline ms-2">Hide Votes</span>
                                 </>
                             ) : (
                                 <>
-                                    <i className="fa-solid fa-eye fa-fw" />
+                                    <FontAwesomeIcon icon={faEye} fixedWidth />
                                     <span className="d-none d-md-inline ms-2">Show Votes</span>
                                 </>
                             )}
@@ -109,7 +118,7 @@ export const HostControls = () => {
                                 className={clsx("btn", "btn-outline-primary")}
                                 title="Reset all votes without storing current vote in history"
                             >
-                                <i className="fa-solid fa-rotate-left" />
+                                <FontAwesomeIcon icon={faRotateLeft} fixedWidth />
                                 <span className="d-none d-md-inline ms-2">Redo</span>
                             </button>
                             <button
@@ -120,7 +129,7 @@ export const HostControls = () => {
                             >
                                 Next
                                 <span className="d-none d-md-inline"> Round</span>
-                                <i className="fa-solid fa-arrow-right ms-2" />
+                                <FontAwesomeIcon icon={faArrowRight} className="ms-2" />
                             </button>
                         </div>
                     )}
@@ -136,7 +145,7 @@ export const HostControls = () => {
                                 isShowingAgendaQueue ? "btn-primary" : "btn-outline-primary"
                             )}
                         >
-                            <i className="fa-solid fa-list-check fa-fw" />
+                            <FontAwesomeIcon icon={faListCheck} fixedWidth />
                             <span className="d-none d-md-inline ms-2">Agenda</span>
                         </button>
                     </div>
@@ -150,7 +159,7 @@ export const HostControls = () => {
                                 isShowingConfig ? "btn-primary" : "btn-outline-primary"
                             )}
                         >
-                            <i className="fa-solid fa-gear fa-fw" />
+                            <FontAwesomeIcon icon={faGear} fixedWidth />
                             <span className="d-none d-md-inline ms-2">Options</span>
                         </button>
                     </div>

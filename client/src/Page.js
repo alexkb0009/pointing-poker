@@ -126,11 +126,6 @@ const Head = ({ view, cssBundles, routeData }) => {
             <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
             <meta name="apple-mobile-web-app-capable" content="yes" />
             <SEOTag />
-            <link
-                rel="preload"
-                as="style"
-                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-            />
             <script
                 data-own
                 data-name="routeData"
@@ -156,10 +151,6 @@ const Body = ({ view, isLoadingRouteData }) => {
                 <Suspense>{view.render()}</Suspense>
             </div>
             {isLoadingRouteData && <div className="connecting-container">Loading</div>}
-            <link
-                rel="stylesheet"
-                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-            />
             <script
                 data-own
                 type="text/javascript"

@@ -1,11 +1,14 @@
-import clsx from "clsx";
 import React from "react";
+import clsx from "clsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMugSaucer } from "@fortawesome/free-solid-svg-icons/faMugSaucer";
+import { faInfinity } from "@fortawesome/free-solid-svg-icons/faInfinity";
 
 export const VALUE_DISPLAY = {
     HAS_VOTE: <>&nbsp;</>,
     PASS: <>&ndash;</>, // <i className="fa-solid fa-minus" />,
-    COFFEE: <i className="fa-solid fa-mug-saucer" />, // <>&#x2615;</>
-    INFINITY: <i className="fa-solid fa-infinity" />, // <>&infin;</>
+    COFFEE: <FontAwesomeIcon icon={faMugSaucer} />, // <>&#x2615;</>
+    INFINITY: <FontAwesomeIcon icon={faInfinity} />, // <>&infin;</>
     0.5: <>&#x00BD;</>,
 };
 
