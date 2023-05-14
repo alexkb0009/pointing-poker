@@ -321,7 +321,7 @@ const AgendaPanel = ({ agendaQueue, onSetAgendaQueue }) => {
             <textarea
                 className={clsx("form-control", "agenda-textarea")}
                 rows={8}
-                placeholder="Subsequent agenda items... Try copy-pasting in a spreadsheet or Jira titles. Each line is a separate item."
+                placeholder="Each line is a separate item. Try copy-pasting in a spreadsheet or Jira titles."
                 defaultValue={agendaQueue.slice(1).join("\n")}
                 onChange={onAgendaTextareaChange}
                 spellCheck={false}
