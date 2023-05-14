@@ -172,8 +172,7 @@ export class SocketManager extends React.Component {
     }
 
     onVotingCardSelect(vote) {
-        const newVote = vote === this.state.myVote ? null : vote;
-        this.socket.volatile.emit("vote", { vote: newVote });
+        this.socket.volatile.emit("vote", { vote });
     }
 
     onToggleSpectating() {

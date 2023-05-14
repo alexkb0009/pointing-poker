@@ -18,6 +18,7 @@ export class RoomState {
             cardDeck: "default",
             isVotingAfterShowAllowed: true,
             areCardsShownAutomatically: true,
+            isUnvoteAllowed: false,
             ...config,
         };
         this.#clientsState = [];

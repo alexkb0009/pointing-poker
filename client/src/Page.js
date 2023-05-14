@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useMemo, Suspense } from "react";
+import React, { useEffect, useState, useContext, Suspense } from "react";
 import { THEMES } from "./constants";
 import { getRoomFromURLObject } from "./utils";
 import { RouteDataContext } from "./RouteDataContext";

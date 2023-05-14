@@ -29,15 +29,6 @@ export const HostControls = () => {
     const [visiblePane, setVisiblePane] = useState(null);
     const isShowingAgendaQueue = visiblePane === "agenda";
     const isShowingConfig = visiblePane === "config";
-    const textareaRef = useRef();
-    const agendaQueueLen = agendaQueue.length;
-
-    useEffect(() => {
-        // Update textarea when 'next agenda item' pressed.
-        if (isShowingAgendaQueue) {
-            textareaRef.current.value = agendaQueue.join("\n");
-        }
-    }, [agendaQueueLen]);
 
     const toggleIsShowingAgendaQueue = () => {
         setVisiblePane((currentPane) => (currentPane === "agenda" ? null : "agenda"));
@@ -46,15 +37,6 @@ export const HostControls = () => {
     const toggleIsShowingRoomConfig = () => {
         setVisiblePane((currentPane) => (currentPane === "config" ? null : "config"));
     };
-
-    const onTextareaChange = useCallback(
-        debounce((e) => {
-            const nextText = e.target.value;
-            const nextQueue = nextText ? nextText.split("\n") : [];
-            onSetAgendaQueue(nextQueue);
-        }, 1000),
-        []
-    );
 
     const onReset = useCallback(
         debounce(onResetVotes, 1000, { leading: true, trailing: false }),
@@ -80,6 +62,10 @@ export const HostControls = () => {
 
     const onToggleAreCardsShownAutomatically = (e) => {
         onSetConfig({ areCardsShownAutomatically: e.target.checked });
+    };
+
+    const onToggleIsUnvoteAllowed = (e) => {
+        onSetConfig({ isUnvoteAllowed: e.target.checked });
     };
 
     return (
@@ -166,17 +152,7 @@ export const HostControls = () => {
                 </div>
 
                 {isShowingAgendaQueue ? (
-                    <div className="pb-3 container-fluid">
-                        <textarea
-                            className={clsx("form-control", "agenda-textarea")}
-                            rows={8}
-                            placeholder="Copy and paste (or type) agenda here. Try a spreadsheet. Each line is a separate item."
-                            defaultValue={agendaQueue.join("\n")}
-                            onChange={onTextareaChange}
-                            spellCheck={false}
-                            ref={textareaRef}
-                        />
-                    </div>
+                    <AgendaPanel agendaQueue={agendaQueue} onSetAgendaQueue={onSetAgendaQueue} />
                 ) : isShowingConfig ? (
                     <div className="pb-3 container-md">
                         <div className="row">
@@ -194,6 +170,20 @@ export const HostControls = () => {
                                         className="form-check-input"
                                         onChange={onToggleIsVotingAfterShowAllowed}
                                         checked={config.isVotingAfterShowAllowed}
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-auto">
+                                <div className="form-check">
+                                    <label className="form-check-label" htmlFor="isUnvoteAllowed">
+                                        Allow vote card to be unselected?
+                                    </label>
+                                    <input
+                                        type="checkbox"
+                                        id="isUnvoteAllowed"
+                                        className="form-check-input"
+                                        onChange={onToggleIsUnvoteAllowed}
+                                        checked={config.isUnvoteAllowed}
                                     />
                                 </div>
                             </div>
@@ -267,6 +257,82 @@ export const HostControls = () => {
                     </div>
                 ) : null}
             </div>
+        </div>
+    );
+};
+
+const AgendaPanel = ({ agendaQueue, onSetAgendaQueue }) => {
+    const agendaTextareaRef = useRef();
+    // const agendaInputRef = useRef();
+    // const agendaQueueLen = agendaQueue.length;
+
+    useEffect(() => {
+        // agendaInputRef.current.value = agendaQueue[0] || "";
+        agendaTextareaRef.current.value = agendaQueue.join("\n");
+    }, [agendaQueue]);
+
+    const onAgendaTextareaChange = useCallback(
+        debounce((e) => {
+            const nextText = e.target.value;
+            const nextQueue = nextText ? nextText.split("\n") : [];
+            onSetAgendaQueue(nextQueue);
+        }, 1000),
+        []
+    );
+
+    // const onAgendaInputChange = useCallback(
+    //     debounce((e) => {
+    //         const nextText = e.target.value;
+    //         const nextQueue = agendaQueueLen === 0 ? [null] : [...agendaQueue];
+    //         nextQueue[0] = nextText;
+    //         onSetAgendaQueue(nextQueue);
+    //     }, 1000),
+    //     [agendaQueue]
+    // );
+
+    // const onAgendaTextareaChange = useCallback(
+    //     debounce((e) => {
+    //         const nextText = e.target.value;
+    //         const nextSubQueue = nextText ? nextText.split("\n") : [];
+    //         const nextQueue = [agendaQueue[0] || null, ...nextSubQueue];
+    //         onSetAgendaQueue(nextQueue);
+    //     }, 1000),
+    //     [agendaQueue]
+    // );
+
+    return (
+        <div className={clsx("pb-3", "container-fluid", "agenda-textarea-container")}>
+            {/* <input
+                type="text"
+                className={clsx("form-control", "agenda-current-input")}
+                defaultValue={agendaQueue[0] || ""}
+                onChange={onAgendaInputChange}
+                spellCheck={false}
+                ref={agendaInputRef}
+                placeholder="Current agenda item.."
+                onKeyUp={(e) => {
+                    if (e.key.toLowerCase() === "enter") {
+                        agendaTextareaRef.current?.focus();
+                    }
+                }}
+            /> */}
+            <div className="small mb-1">
+                <h6 className="d-inline m-0">Agenda</h6>
+                <span className="text-muted">
+                    {" "}
+                    &nbsp;&ndash;&nbsp;&nbsp;First line is current item
+                </span>
+            </div>
+
+            <textarea
+                className={clsx("form-control", "agenda-textarea")}
+                rows={8}
+                placeholder="Subsequent agenda items... Try copy-pasting in a spreadsheet or Jira titles. Each line is a separate item."
+                defaultValue={agendaQueue.slice(1).join("\n")}
+                onChange={onAgendaTextareaChange}
+                spellCheck={false}
+                ref={agendaTextareaRef}
+            />
         </div>
     );
 };

@@ -51,7 +51,8 @@ const VotingCard = React.memo(
 
         const onClick = (e) => {
             e.stopPropagation();
-            onVotingCardSelect(option);
+            const newVote = isSelected && config.isUnvoteAllowed ? null : option;
+            onVotingCardSelect(newVote);
             window.gtag("event", "select_item", {
                 items: [
                     {
