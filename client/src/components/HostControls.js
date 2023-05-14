@@ -316,13 +316,7 @@ const AgendaPanel = ({ agendaQueue, onSetAgendaQueue }) => {
                     }
                 }}
             /> */}
-            <div className="small mb-1">
-                <h6 className="d-inline m-0">Agenda</h6>
-                <span className="text-muted">
-                    {" "}
-                    &nbsp;&ndash;&nbsp;&nbsp;First line is current item
-                </span>
-            </div>
+            <div className="small mb-1 text-muted">First line is current item</div>
 
             <textarea
                 className={clsx("form-control", "agenda-textarea")}
